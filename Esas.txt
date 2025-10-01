@@ -1,0 +1,35 @@
+
+### **1️⃣ Rol və İcazə İdarəsi** "tamamlandi"
+
+* `ROLE_ADD_ROLE` → Yeni rol əlavə etmək
+* `ROLE_FIND_ROLE` → Rol tapmaq
+* `ROLE_UPDATE_ROLE` → Rol yeniləmək
+* `ROLE_DELETE_ROLE` → Rol silmək
+* `ROLE_GET_ALL_ROLES` → Bütün rolları görmək
+
+---
+
+### **2️⃣ İstifadəçi İdarəsi**
+
+* `ROLE_GET_ALL_USERS` → Bütün istifadəçiləri görmək
+* `ROLE_UPDATE_USER` → İstifadəçi icazələrini dəyişmək (adminlik, xüsusi icazələr və s.)
+* `ROLE_DELETE_USER` → İstifadəçini silmək
+
+---
+
+### **3️⃣ Admin İdarəsi**
+
+* `ROLE_ADD_ADMIN` → Admin əlavə etmək / icazələrini təyin etmək
+* `ROLE_UPDATE_ADMIN` → Admin icazələrini yeniləmək
+* `ROLE_DELETE_ADMIN` → Admini silmək / icazəsini ləğv etmək
+
+---
+
+### **4️⃣ Sistem və Bildirişlər**
+
+* `ROLE_LOGIN` → Sistemə giriş
+* `ROLE_SEND_NOTIFICATION_TO_ALL_USERS` → Bütün istifadəçilərə bildiriş göndərmək
+
+---
+
+

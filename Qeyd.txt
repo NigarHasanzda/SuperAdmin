@@ -1,0 +1,119 @@
+* `ROLE_ADD_AD` → Reklam əlavə etmək
+* `ROLE_ADD_PICTURE_FOR_AD` → Reklama şəkil əlavə etmək
+* `ROLE_DELETE_PICTURE_FOR_AD` → Reklam şəkilini silmək
+* `ROLE_GET_ALL_ADS` → Bütün reklamları görmək +
+* `ROLE_UPDATE_AD` → Reklamı yeniləmək+
+* `ROLE_DELETE_AD` → Reklamı silmək+
+
+---
+
+### 2️⃣ **Category (Kateqoriya)**
+
+* `ROLE_ADD_CATEGORY` → Kateqoriya əlavə etmək+
+* `ROLE_DELETE_CATEGORY` → Kateqoriyanı silmək+
+* `ROLE_FIND_CATEGORY` → Kateqoriyanı tapmaq
+* `Bütün məhsul kateqoriyalarının (az, en, ru) dillərində tərcüməsini ` +
+
+---
+
+### 3️⃣ **Tag (Etiketlər)**
+
+* `ROLE_ADD_TAG` → Tag əlavə etmək
+* `ROLE_FIND_TAG` → Tag tapmaq
+* `ROLE_UPDATE_TAG` → Tag yeniləmək
+* `ROLE_DELETE_TAG` → Tag silmək
+
+---
+
+### 4️⃣ **Role (İstifadəçi Rolları)**
+
+* `ROLE_ADD_ROLE` → Yeni rol əlavə etmək+
+* `ROLE_FIND_ROLE` → Rol tapmaq+
+* `ROLE_UPDATE_ROLE` → Rol yeniləmək+
+* `ROLE_DELETE_ROLE` → Rol silmək+
+* `ROLE_GET_ALL_ROLES` → Bütün rolları görmək+
+
+---
+
+### 5️⃣ **Model**
+
+* `ROLE_ADD_MODEL` → Model əlavə etmək
+* `ROLE_FIND_MODEL` → Model tapmaq
+* `ROLE_UPDATE_MODEL` → Model yeniləmək
+* `ROLE_DELETE_MODEL` → Model silmək
+
+---
+
+### 6️⃣ **Brand (Marka)**
+
+* `ROLE_ADD_BRAND` → Marka əlavə etmək
+* `ROLE_UPDATE_BRAND` → Marka yeniləmək
+* `ROLE_DELETE_BRAND` → Marka silmək
+* `ROLE_FIND_BRAND` → Marka tapmaq
+
+---
+
+### 7️⃣ **Service / Service Catalog**
+
+* `ROLE_ADD_SERVICE` → Servis əlavə etmək
+* `ROLE_UPDATE_SERVICE` → Servis yeniləmək
+* `ROLE_DELETE_SERVICE` → Servis silmək
+* `ROLE_FIND_SERVICE` → Servis tapmaq
+* `ROLE_ADD_SERVICE_CATALOG` → Servis kataloqu əlavə etmək
+* `ROLE_UPDATE_SERVICE_CATALOG` → Servis kataloqu yeniləmək
+* `ROLE_UPLOAD_SERVICE_CATALOG_PICTURE` → Servis kataloqu şəkil yükləmək
+* `ROLE_FIND_SERVICE_CATALOG` → Servis kataloqu tapmaq
+* `ROLE_DELETE_SERVICE_CATALOG` → Servis kataloqu silmək
+
+---
+
+### 8️⃣ **Panel**
+
+* `ROLE_ADD_PANEL` → Panel əlavə etmək
+* `ROLE_FIND_PANEL` → Panel tapmaq
+* `ROLE_UPDATE_PANEL` → Panel yeniləmək
+* `ROLE_DELETE_PANEL` → Panel silmək
+* `ROLE_GET_ALL_PANELS` → Bütün panelləri görmək
+
+---
+
+### 9️⃣ **Business / Business Page**
+
+* `ROLE_ADD_BUSINESS` → Business əlavə etmək
+* `ROLE_UPDATE_BUSINESS_PAGE` → Business page yeniləmək
+* `ROLE_DELETE_BUSINESS_PAGE` → Business page silmək
+* `ROLE_FIND_BUSINESS_PAGE` → Business page tapmaq
+* `ROLE_GET_ALL_BUSINESS_BRANCHES` → Bütün business branch-ləri görmək
+
+---
+
+### 🔟 **Location (Yer / Şöbə)**
+
+* `ROLE_ADD_LOCATION` → Yer əlavə etmək
+* `ROLE_UPDATE_LOCATION` → Yer yeniləmək
+* `ROLE_DELETE_LOCATION` → Yer silmək
+* `ROLE_FIND_LOCATION` → Yer tapmaq
+* `ROLE_GET_ALL_LOCATIONS` → Bütün yerləri görmək
+
+---
+
+### 1️⃣1️⃣ **Person / User**
+
+* `ROLE_GET_ALL_USERS` → Bütün istifadəçiləri görmək
+* `ROLE_FIND_PERSON` → İstifadəçi tapmaq
+* `ROLE_GET_ALL_PERSONS` → Bütün şəxsləri görmək
+
+---
+
+### 1️⃣2️⃣ **Notifications / Transactions**
+
+* `ROLE_SEND_NOTIFICATION_TO_ALL_USERS` → Bütün istifadəçilərə bildiriş göndərmək
+* `ROLE_GET_ALL_REPORT_TRANSACTIONS` → Bütün əməliyyat hesabatlarını görmək
+
+---
+
+### 1️⃣3️⃣ **Version / Login**
+
+* `ROLE_LOGIN` → Admin login
+* `ROLE_UPDATE_VERSION` → Versiya yeniləmək
+
