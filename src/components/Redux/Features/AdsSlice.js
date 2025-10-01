@@ -3,69 +3,53 @@ import axios from "axios";
 
 const API_URL = "http://194.163.173.179:3300/api/ads";
 
-// Reklamları gətir
-export const fetchAds = createAsyncThunk("ads/fetchAds", async (_, { rejectWithValue }) => {
-  try {
-    const token = localStorage.getItem("token");
-    const res = await axios.get(API_URL, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.data;
-  } catch (err) {
-    return rejectWithValue(err.response?.data || err.message);
-  }
+
+export const fetchAds = createAsyncThunk("ads/fetchAds", async () => {
+  const token = localStorage.getItem("token");
+  const res = await axios.get(API_URL, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
 });
 
-// Reklam əlavə et (şəkilsiz)
-export const addAd = createAsyncThunk("ads/addAd", async (adData, { rejectWithValue }) => {
-  try {
-    const token = localStorage.getItem("token");
-    const body = {
-      link: adData.link,
-      isActive: adData.isActive ?? 1,
-      userId: adData.userId,
-    };
-    const res = await axios.post(API_URL, body, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.data;
-  } catch (err) {
-    return rejectWithValue(err.response?.data || err.message);
-  }
+
+export const addAd = createAsyncThunk("ads/addAd", async (adData) => {
+  const token = localStorage.getItem("token");
+  const body = {
+    link: adData.link,
+    isActive: adData.isActive ?? 1,
+    userId: adData.userId,
+  };
+  const res = await axios.post(API_URL, body, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
 });
 
-// Şəkil yüklə
-export const uploadAdImage = createAsyncThunk("ads/uploadAdImage", async ({ id, file }, { rejectWithValue }) => {
-  try {
-    const token = localStorage.getItem("token");
-    const formData = new FormData();
-    formData.append("file", file);
-    const res = await axios.post(`${API_URL}/${id}/upload-image`, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return { id, data: res.data };
-  } catch (err) {
-    return rejectWithValue(err.response?.data || err.message);
-  }
+
+export const uploadAdImage = createAsyncThunk("ads/uploadAdImage", async ({ id, file }) => {
+  const token = localStorage.getItem("token");
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await axios.post(`${API_URL}/${id}/upload-image`, formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return { id, data: res.data };
 });
 
-// Sil
-export const deleteAd = createAsyncThunk("ads/deleteAd", async (id, { rejectWithValue }) => {
-  try {
-    const token = localStorage.getItem("token");
-    await axios.delete(`${API_URL}/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return id;
-  } catch (err) {
-    return rejectWithValue(err.response?.data || err.message);
-  }
+
+export const deleteAd = createAsyncThunk("ads/deleteAd", async (id) => {
+  const token = localStorage.getItem("token");
+  await axios.delete(`${API_URL}/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return id;
 });
 
-// Slice
+
 const adsSlice = createSlice({
   name: "ads",
   initialState: { list: [], loading: false, error: null },
@@ -79,7 +63,7 @@ const adsSlice = createSlice({
       })
       .addCase(fetchAds.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.error.message;
       })
       .addCase(addAd.fulfilled, (state, action) => {
         state.list.push(action.payload);

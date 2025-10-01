@@ -1,9 +1,11 @@
-* `ROLE_ADD_AD` → Reklam əlavə etmək
-* `ROLE_ADD_PICTURE_FOR_AD` → Reklama şəkil əlavə etmək
-* `ROLE_DELETE_PICTURE_FOR_AD` → Reklam şəkilini silmək
-* `ROLE_GET_ALL_ADS` → Bütün reklamları görmək +
-* `ROLE_UPDATE_AD` → Reklamı yeniləmək+
-* `ROLE_DELETE_AD` → Reklamı silmək+
+<======================Tamamlandi=======================>
+### 4️⃣ **Role (İstifadəçi Rolları)**
+
+* `ROLE_ADD_ROLE` → Yeni rol əlavə etmək+
+* `ROLE_FIND_ROLE` → Rol tapmaq+
+* `ROLE_UPDATE_ROLE` → Rol yeniləmək+
+* `ROLE_DELETE_ROLE` → Rol silmək+
+* `ROLE_GET_ALL_ROLES` → Bütün rolları görmək+
 
 ---
 
@@ -16,22 +18,36 @@
 
 ---
 
+### 9️⃣ **Business / Business Page**
+
+* `ROLE_ADD_BUSINESS` → Business əlavə etmək
+* `ROLE_UPDATE_BUSINESS_PAGE` → Business page yeniləmək
+* `ROLE_DELETE_BUSINESS_PAGE` → Business page silmək
+* `ROLE_FIND_BUSINESS_PAGE` → Business page tapmaq
+* `ROLE_GET_ALL_BUSINESS_BRANCHES` → Bütün business branch-ləri görmək
+
+---
+
+
+
+
+<==============================Tamamlanmadi======================>
+* `ROLE_ADD_AD` → Reklam əlavə etmək
+* `ROLE_ADD_PICTURE_FOR_AD` → Reklama şəkil əlavə etmək
+* `ROLE_DELETE_PICTURE_FOR_AD` → Reklam şəkilini silmək
+* `ROLE_GET_ALL_ADS` → Bütün reklamları görmək +
+* `ROLE_UPDATE_AD` → Reklamı yeniləmək+
+* `ROLE_DELETE_AD` → Reklamı silmək+
+
+---
+
+
 ### 3️⃣ **Tag (Etiketlər)**
 
 * `ROLE_ADD_TAG` → Tag əlavə etmək
 * `ROLE_FIND_TAG` → Tag tapmaq
 * `ROLE_UPDATE_TAG` → Tag yeniləmək
 * `ROLE_DELETE_TAG` → Tag silmək
-
----
-
-### 4️⃣ **Role (İstifadəçi Rolları)**
-
-* `ROLE_ADD_ROLE` → Yeni rol əlavə etmək+
-* `ROLE_FIND_ROLE` → Rol tapmaq+
-* `ROLE_UPDATE_ROLE` → Rol yeniləmək+
-* `ROLE_DELETE_ROLE` → Rol silmək+
-* `ROLE_GET_ALL_ROLES` → Bütün rolları görmək+
 
 ---
 
@@ -77,15 +93,6 @@
 
 ---
 
-### 9️⃣ **Business / Business Page**
-
-* `ROLE_ADD_BUSINESS` → Business əlavə etmək
-* `ROLE_UPDATE_BUSINESS_PAGE` → Business page yeniləmək
-* `ROLE_DELETE_BUSINESS_PAGE` → Business page silmək
-* `ROLE_FIND_BUSINESS_PAGE` → Business page tapmaq
-* `ROLE_GET_ALL_BUSINESS_BRANCHES` → Bütün business branch-ləri görmək
-
----
 
 ### 🔟 **Location (Yer / Şöbə)**
 
@@ -111,9 +118,3 @@
 * `ROLE_GET_ALL_REPORT_TRANSACTIONS` → Bütün əməliyyat hesabatlarını görmək
 
 ---
-
-### 1️⃣3️⃣ **Version / Login**
-
-* `ROLE_LOGIN` → Admin login
-* `ROLE_UPDATE_VERSION` → Versiya yeniləmək
-

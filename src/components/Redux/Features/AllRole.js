@@ -3,90 +3,51 @@ import axios from "axios";
 
 const API_URL = "http://194.163.173.179:3300/api/roles";
 
-// Bütün rolları götür
-export const fetchRoles = createAsyncThunk(
-  "roles/fetchRoles",
-  async (_, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(API_URL, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
+
+export const fetchRoles = createAsyncThunk("roles/fetchRoles", async () => {
+  const token = localStorage.getItem("token");
+  const res = await axios.get(API_URL, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+});
 
 
-// Yeni rol əlavə et
-export const addRole = createAsyncThunk(
-  "roles/addRole",
-  async (roleData, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.post(API_URL, roleData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
+export const addRole = createAsyncThunk("roles/addRole", async (roleData) => {
+  const token = localStorage.getItem("token");
+  const res = await axios.post(API_URL, roleData, {
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+  });
+  return res.data;
+});
 
-// Rol yenilə
-export const updateRole = createAsyncThunk(
-  "roles/updateRole",
-  async (roleData, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.put(API_URL, roleData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
 
-// Rol sil
-export const deleteRole = createAsyncThunk(
-  "roles/deleteRole",
-  async (id, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`${API_URL}/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return id;
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
+export const updateRole = createAsyncThunk("roles/updateRole", async (roleData) => {
+  const token = localStorage.getItem("token");
+  const res = await axios.put(API_URL, roleData, {
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+  });
+  return res.data;
+});
+
+
+export const deleteRole = createAsyncThunk("roles/deleteRole", async (id) => {
+  const token = localStorage.getItem("token");
+  await axios.delete(`${API_URL}/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return id;
+});
 
 const roleSlice = createSlice({
   name: "roles",
-  initialState: {
-    list: [],
-    loading: false,
-    error: null,
-  },
+  initialState: { list: [], loading: false, error: null },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchRoles.pending, (state) => { state.loading = true; })
       .addCase(fetchRoles.fulfilled, (state, action) => { state.loading = false; state.list = action.payload; })
-      .addCase(fetchRoles.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+      .addCase(fetchRoles.rejected, (state, action) => { state.loading = false; state.error = action.error.message; })
 
       .addCase(addRole.fulfilled, (state, action) => { state.list.push(action.payload); })
       .addCase(updateRole.fulfilled, (state, action) => {
