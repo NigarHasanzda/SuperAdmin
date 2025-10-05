@@ -1,54 +1,57 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../../../api"; 
 
-const BASE_URL = "http://194.163.173.179:3300";
-const getToken = () => localStorage.getItem("token");
-
-
+// 🔹 İstifadəçiləri gətir
 export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
-  const token = getToken();
-  const res = await axios.get(`${BASE_URL}/api/persons`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await api.get("/api/persons");
   return res.data;
 });
 
-
+// 🔹 İstifadəçini sil
 export const deleteUser = createAsyncThunk("users/deleteUser", async (id) => {
-  const token = getToken();
-  await axios.delete(`${BASE_URL}/api/persons/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  await api.delete(`/api/persons/${id}`);
   return id;
 });
 
+// 🔹 İstifadəçini yenilə
+export const updateUser = createAsyncThunk(
+  "users/updateUser",
+  async ({ id, userData }) => {
+    const res = await api.put(`/api/persons/${id}`, userData);
+    return res.data;
+  }
+);
 
-export const updateUser = createAsyncThunk("users/updateUser", async ({ id, userData }) => {
-  const token = getToken();
-  const res = await axios.put(`${BASE_URL}/api/persons/${id}`, userData, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return res.data;
-});
-
-
+// 🔹 Slice
 const usersSlice = createSlice({
   name: "users",
   initialState: { list: [], loading: false, error: null },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchUsers.pending, (state) => { state.loading = true; state.error = null; })
-      .addCase(fetchUsers.fulfilled, (state, action) => { state.loading = false; state.list = action.payload; })
-      .addCase(fetchUsers.rejected, (state, action) => { state.loading = false; state.error = action.error.message; })
-
-      .addCase(deleteUser.fulfilled, (state, action) => {
-        state.list = state.list.filter(u => u.id !== action.payload);
+      // Fetch
+      .addCase(fetchUsers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchUsers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list = action.payload;
+      })
+      .addCase(fetchUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       })
 
+      // Delete
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.list = state.list.filter((u) => u.id !== action.payload);
+      })
+
+      // Update
       .addCase(updateUser.fulfilled, (state, action) => {
-        const i = state.list.findIndex(u => u.id === action.payload.id);
-        if (i !== -1) state.list[i] = action.payload;
+        const index = state.list.findIndex((u) => u.id === action.payload.id);
+        if (index !== -1) state.list[index] = action.payload;
       });
   },
 });

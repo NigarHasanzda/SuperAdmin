@@ -174,6 +174,8 @@ console.log(ads);
 <h1><a href="/roles">role</a></h1>
 <h1><a href="/persons">person</a></h1>
 <h1><a href="/businesses">business</a></h1>
+<h1><a href="/products">products</a></h1>
+<h1><a href="/notification"> notification</a></h1>
     </div>
   );
 };

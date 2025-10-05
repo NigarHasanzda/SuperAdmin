@@ -7,6 +7,8 @@ import Category from "../components/pages/Home/Category";
 import Role from "../components/pages/Home/Role";
 import Persons from "../components/pages/Home/Persons";
 import Businesses from "../components/pages/Home/Businesses";
+import { Product } from "../components/pages/Home/Product";
+import { Notification } from "../components/pages/Home/Notification";
 
 const AppRouter = () => {
   return (
@@ -18,6 +20,8 @@ const AppRouter = () => {
       <Route path="/roles" element={<Role/>} />
         <Route path="/persons" element={<Persons/>} />
         <Route path="/businesses" element={<Businesses/>} />
+        <Route path="/products" element={<Product/>}/>
+        <Route path="?notification" element={<Notification/>}/>
     </Routes>
   );
 };

@@ -1,64 +1,38 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const BASE_URL = "http://194.163.173.179:3300";
-const getToken = () => localStorage.getItem("token");
-
+import api from "../../../api"; 
 
 export const fetchAllBusinesses = createAsyncThunk("businesses/fetchAllBusinesses", async () => {
-  const token = getToken();
-  const res = await axios.get(`${BASE_URL}/api/businesses`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await api.get("/api/businesses");
   return res.data;
 });
 
 export const fetchBusinessById = createAsyncThunk("businesses/fetchBusinessById", async (id) => {
-  const token = getToken();
-  const res = await axios.get(`${BASE_URL}/api/businesses/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await api.get(`/api/businesses/${id}`);
   return res.data;
 });
 
-
 export const fetchBranchesByAdmin = createAsyncThunk("businesses/fetchBranchesByAdmin", async (adminId) => {
-  const token = getToken();
-  const res = await axios.get(`${BASE_URL}/api/businesses/${adminId}/branches`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await api.get(`/api/businesses/${adminId}/branches`);
   return res.data;
 });
 
 export const fetchAllBranches = createAsyncThunk("businesses/fetchAllBranches", async () => {
-  const token = getToken();
-  const res = await axios.get(`${BASE_URL}/api/businesses/branches`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await api.get("/api/businesses/branches");
   return res.data;
 });
 
 export const fetchBranchById = createAsyncThunk("businesses/fetchBranchById", async (branchId) => {
-  const token = getToken();
-  const res = await axios.get(`${BASE_URL}/api/businesses/branches/${branchId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await api.get(`/api/businesses/branches/${branchId}`);
   return res.data;
 });
 
 export const fetchBranchStatsById = createAsyncThunk("businesses/fetchBranchStatsById", async (branchId) => {
-  const token = getToken();
-  const res = await axios.get(`${BASE_URL}/api/businesses/branches/${branchId}/stats`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await api.get(`/api/businesses/branches/${branchId}/stats`);
   return res.data;
 });
 
 export const fetchBranchesStats = createAsyncThunk("businesses/fetchBranchesStats", async () => {
-  const token = getToken();
-  const res = await axios.get(`${BASE_URL}/api/businesses/branches/stats`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await api.get("/api/businesses/branches/stats");
   return res.data;
 });
 
