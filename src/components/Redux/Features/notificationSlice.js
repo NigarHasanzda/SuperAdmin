@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../../api";
 
 export const fetchBroadcasts = createAsyncThunk("notifications/fetchBroadcasts", async () => {
-  const res = await api.get("/api/notifications/admin/broadcast");
+  const res = await api.get("/api/notifications");
   return res.data;
 });
 

@@ -1,10 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../../api";
 
-export const fetchProfiles = createAsyncThunk("profiles/fetchProfiles", async () => {
-  const res = await api.get("/api/professional-profiles");
-  return res.data;
-});
+export const fetchProfiles = createAsyncThunk(
+  "profiles/fetchProfiles",
+  async (page = 0) => {
+    const res = await api.get(`/api/professional-profiles?page=${page}`);
+    return res.data;
+  }
+);
 
 export const fetchProfileById = createAsyncThunk("profiles/fetchProfileById", async (id) => {
   const res = await api.get(`/api/professional-profiles/${id}`);

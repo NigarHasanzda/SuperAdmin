@@ -4,18 +4,27 @@ import { fetchBroadcasts, sendBroadcast } from "../../Redux/Features/notificatio
 
 export const Notification = () => {
   const dispatch = useDispatch();
-  const { list, loading, error } = useSelector(state => state.notifications);
+  const { list, loading, error } = useSelector((state) => state.notifications);
 
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
 
+  // 🔍 Debug üçün
+  useEffect(() => {
+    console.log("📩 Notification List:", list);
+  }, [list]);
+
+  // Fetch all notifications on mount
   useEffect(() => {
     dispatch(fetchBroadcasts());
   }, [dispatch]);
 
+  // Form submit
   const handleSend = (e) => {
     e.preventDefault();
-    if (!title || !desc) return alert("Title və Description doldurulmalıdır!");
+    if (!title.trim() || !desc.trim()) {
+      return alert("Title və Description doldurulmalıdır!");
+    }
     dispatch(sendBroadcast({ title, description: desc }));
     setTitle("");
     setDesc("");
@@ -26,8 +35,9 @@ export const Notification = () => {
       <h2>Broadcast Notifications</h2>
 
       {loading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p style={{ color: "red" }}>Xəta: {error}</p>}
 
+      {/* Form */}
       <form onSubmit={handleSend} style={{ marginBottom: "20px" }}>
         <div>
           <input
@@ -48,14 +58,29 @@ export const Notification = () => {
         </div>
       </form>
 
+      {/* Notification List */}
       <ul style={{ listStyle: "none", padding: 0 }}>
-        {list.map((item) => (
-          <li key={item.id} style={{ border: "1px solid #ccc", marginBottom: "8px", padding: "8px", borderRadius: "4px" }}>
-            <strong>{item.title}</strong>
-            <p>{item.description}</p>
-            <small>ID: {item.id}</small>
-          </li>
-        ))}
+        {Array.isArray(list) && list.length > 0 ? (
+          list
+            .filter((item) => item && item !== "" && item.title) // boş stringləri və null dəyərləri atırıq
+            .map((item, index) => (
+              <li
+                key={item.id || index} // unikal key
+                style={{
+                  border: "1px solid #ccc",
+                  marginBottom: "8px",
+                  padding: "8px",
+                  borderRadius: "4px",
+                }}
+              >
+                <strong>{item.title}</strong>
+                <p>{item.description}</p>
+                {item.id && <small>ID: {item.id}</small>}
+              </li>
+            ))
+        ) : (
+          <p>No notifications available</p>
+        )}
       </ul>
     </div>
   );

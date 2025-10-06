@@ -11,7 +11,7 @@ export const addRole = createAsyncThunk("roles/addRole", async (roleData) => {
   return res.data;
 });
 
-// ⚠️ düzəliş: PUT sorğusu id ilə göndərilməlidir
+
 export const updateRole = createAsyncThunk("roles/updateRole", async (roleData) => {
   const { id, ...data } = roleData;
   const res = await api.put(`/api/roles/${id}`, data);

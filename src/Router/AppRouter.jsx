@@ -9,6 +9,9 @@ import Persons from "../components/pages/Home/Persons";
 import Businesses from "../components/pages/Home/Businesses";
 import { Product } from "../components/pages/Home/Product";
 import { Notification } from "../components/pages/Home/Notification";
+import Profiles from "../components/pages/Home/Profiles";
+import ReportTransactions from "../components/pages/Home/Report";
+import WheelServices from "../components/pages/Home/WheelService";
 
 const AppRouter = () => {
   return (
@@ -22,6 +25,9 @@ const AppRouter = () => {
         <Route path="/businesses" element={<Businesses/>} />
         <Route path="/products" element={<Product/>}/>
         <Route path="?notification" element={<Notification/>}/>
+        <Route path="/profiles" element={<Profiles/>}/>
+        <Route path="/report" element={<ReportTransactions/>}/>
+        <Route path="/wheel" element={<WheelServices/>}/>
     </Routes>
   );
 };
