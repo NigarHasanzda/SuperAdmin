@@ -3,155 +3,131 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAds,
   addAd,
-  deleteAd,
   uploadAdImage,
+  deleteAd,
+  downloadFile,
+  toggleAdActive,
 } from "../../Redux/Features/AdsSlice";
 
-const Ads = () => {
+const AdsList = () => {
   const dispatch = useDispatch();
   const { list, loading, error } = useSelector((state) => state.ads);
 
-  const [link, setLink] = useState("");
-  const [file, setFile] = useState(null); // şəkil üçün
-  const [idToSearch, setIdToSearch] = useState("");
-  const [selectedAd, setSelectedAd] = useState(null);
+  const [newAd, setNewAd] = useState({ link: "", userId: 1 });
+  const [file, setFile] = useState(null);
 
-  // 🔸 Bütün reklamları gətir
   useEffect(() => {
     dispatch(fetchAds());
   }, [dispatch]);
 
-  // 🔸 Reklam əlavə et
-  const handleAdd = async () => {
-    if (!link.trim()) return alert("Link boş ola bilməz");
-    const newAd = {
-      link,
-      isActive: 1,
-      userId: 1, // Superadmin ID
-    };
-
-    const result = await dispatch(addAd(newAd));
-    if (result.payload?.id && file) {
-      await dispatch(uploadAdImage({ id: result.payload.id, file }));
-      alert("Reklam və şəkil uğurla əlavə olundu!");
-    } else {
-      alert("Reklam uğurla əlavə olundu!");
-    }
-    setLink("");
-    setFile(null);
+  const handleAddAd = () => {
+    if (!newAd.link.trim()) return alert("Link daxil edin!");
+    dispatch(addAd(newAd));
+    setNewAd({ link: "", userId: 1 });
   };
 
-  // 🔸 ID ilə reklam axtar
-  const handleSearch = () => {
-    const ad = list.find((a) => a.id === Number(idToSearch));
-    if (ad) {
-      setSelectedAd(ad);
-    } else {
-      alert("Bu ID ilə reklam tapılmadı");
-      setSelectedAd(null);
-    }
+  const handleUploadImage = (id) => {
+    if (!file) return alert("Fayl seçin!");
+    dispatch(uploadAdImage({ id, file }));
   };
 
-  // 🔸 Reklam sil
-  const handleDelete = (id) => {
-    if (window.confirm("Silmək istədiyinə əminsən?")) {
-      dispatch(deleteAd(id));
-    }
+  const handleDownload = (filename) => {
+    dispatch(downloadFile(filename));
+  };
+
+  const handleToggleActive = (ad) => {
+    dispatch(toggleAdActive({ id: ad.id, isActive: ad.isActive ? 0 : 1 }));
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>🧩 Reklam İdarəetməsi</h1>
+    <div className="p-6 max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold mb-4">📢 Reklam Siyahısı</h2>
 
-      {/* 🔸 Yeni reklam əlavə */}
-      {/* <div style={{ marginBottom: 20 }}>
+      {/* Yeni reklam əlavə et */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-2">
         <input
-          placeholder="Reklam linki"
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
-          style={{ marginRight: 10 }}
+          type="text"
+          placeholder="Link"
+          value={newAd.link}
+          onChange={(e) => setNewAd({ ...newAd, link: e.target.value })}
+          className="border p-2 flex-1 rounded shadow-sm"
         />
-        <input
-          type="file"
-          onChange={(e) => setFile(e.target.files[0])}
-          style={{ marginRight: 10 }}
-        />
-        <button onClick={handleAdd}>Əlavə et</button>
-      </div> */}
-
-      {/* 🔸 ID ilə axtar */}
-      <div style={{ marginBottom: 20 }}>
-        <input
-          placeholder="ID ilə axtar"
-          value={idToSearch}
-          onChange={(e) => setIdToSearch(e.target.value)}
-          style={{ marginRight: 10 }}
-        />
-        <button onClick={handleSearch}>Axtar</button>
+        <button
+          onClick={handleAddAd}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        >
+          Əlavə et
+        </button>
       </div>
 
-      {/* 🔸 Tapılan reklam */}
-      {selectedAd && (
-        <div style={{ marginTop: 10, padding: 10, border: "1px solid #ccc" }}>
-          <h3>Axtarış Nəticəsi</h3>
-          <p>ID: {selectedAd.id}</p>
-          <p>Link: {selectedAd.link}</p>
-          {selectedAd.pictureUrl && (
-            <img
-              src={`http://194.163.173.179:3300/uploads/${selectedAd.pictureUrl}`}
-              alt="Reklam"
-              width={200}
-            />
-          )}
-        </div>
-      )}
+      {/* Yüklənir / Error */}
+      {loading && <p className="text-gray-500">Yüklənir...</p>}
+      {error && <p className="text-red-500">{error}</p>}
 
-      {/* 🔸 Bütün reklamlar */}
-      <h2 style={{ marginTop: 30 }}>📋 Bütün Reklamlar</h2>
-      {loading && <p>Yüklənir...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+      {/* Reklam siyahısı */}
+      <ul className="space-y-4">
         {list.map((ad) => (
-          <div
+          <li
             key={ad.id}
-            style={{
-              border: "1px solid #ccc",
-              padding: 10,
-              borderRadius: 6,
-              width: 250,
-            }}
+            className="border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center shadow-sm"
           >
-            <p><strong>ID:</strong> {ad.id}</p>
-            <p><strong>Link:</strong> {ad.link}</p>
-            <p><strong>isActive:</strong> {ad.isActive ? "✅ Aktiv" : "❌ Passiv"}</p>
-            {ad.pictureUrl && (
-              <img
-                src={`http://194.163.173.179:3300/uploads/${ad.pictureUrl}`}
-                alt="Reklam şəkli"
-                width={200}
-                style={{ borderRadius: 4 }}
+            <div className="flex-1">
+              <p className="font-medium">🔗 {ad.link}</p>
+              <p className={`mt-1 font-semibold ${ad.isActive ? "text-green-600" : "text-red-600"}`}>
+                {ad.isActive ? "Aktiv" : "Deaktiv"}
+              </p>
+
+              {ad.pictureUrl && (
+                <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2">
+                  <img
+                    src={`https://p.kaktusbooking.app/website/api/files/download/${ad.pictureUrl}`}
+                    alt="ad"
+                    className="w-32 h-32 object-cover rounded"
+                  />
+                  <button
+                    onClick={() => handleDownload(ad.pictureUrl)}
+                    className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                  >
+                    📥 Endir
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2 mt-4 sm:mt-0">
+              <input
+                type="file"
+                onChange={(e) => setFile(e.target.files[0])}
+                className="mb-2 sm:mb-0"
               />
-            )}
-            <button
-              onClick={() => handleDelete(ad.id)}
-              style={{
-                background: "red",
-                color: "white",
-                marginTop: 10,
-                border: "none",
-                padding: "5px 10px",
-                borderRadius: 4,
-                cursor: "pointer",
-              }}
-            >
-              Sil
-            </button>
-          </div>
+              <button
+                onClick={() => handleUploadImage(ad.id)}
+                className="bg-purple-500 text-white px-3 py-1 rounded hover:bg-purple-600 transition"
+              >
+                Şəkil Yüklə
+              </button>
+
+              <button
+                onClick={() => handleToggleActive(ad)}
+                className={`px-3 py-1 rounded text-white transition ${
+                  ad.isActive ? "bg-yellow-500 hover:bg-yellow-600" : "bg-gray-500 hover:bg-gray-600"
+                }`}
+              >
+                {ad.isActive ? "Deaktiv et" : "Aktiv et"}
+              </button>
+
+              <button
+                onClick={() => dispatch(deleteAd(ad.id))}
+                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
+              >
+                Sil
+              </button>
+            </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 };
 
-export default Ads;
+export default AdsList;

@@ -1,14 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../../api";
 
-
-
-
+// 🔹 Reklamları gətir
 export const fetchAds = createAsyncThunk("ads/fetchAds", async () => {
   const res = await api.get("/api/ads");
   return res.data;
 });
 
+// 🔹 Yeni reklam əlavə et
 export const addAd = createAsyncThunk("ads/addAd", async (adData) => {
   const body = {
     link: adData.link,
@@ -19,7 +18,7 @@ export const addAd = createAsyncThunk("ads/addAd", async (adData) => {
   return res.data;
 });
 
-
+// 🔹 Reklama şəkil yüklə
 export const uploadAdImage = createAsyncThunk(
   "ads/uploadAdImage",
   async ({ id, file }) => {
@@ -27,18 +26,48 @@ export const uploadAdImage = createAsyncThunk(
     formData.append("file", file);
 
     const res = await api.post(`/api/ads/${id}/upload-image`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+      },
     });
 
     return { id, data: res.data };
   }
 );
 
+// 🔹 Faylı endir
+export const downloadFile = createAsyncThunk(
+  "ads/downloadFile",
+  async (filename) => {
+    const res = await api.get(`/api/files/download/${filename}`, {
+      responseType: "blob",
+    });
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    return filename;
+  }
+);
 
+// 🔹 Reklamı sil
 export const deleteAd = createAsyncThunk("ads/deleteAd", async (id) => {
   await api.delete(`/api/ads/${id}`);
   return id;
 });
+
+// 🔹 Reklamın aktiv/deaktiv vəziyyətini dəyiş
+export const toggleAdActive = createAsyncThunk(
+  "ads/toggleAdActive",
+  async ({ id, isActive }) => {
+    const res = await api.put(`/api/ads/${id}`, { isActive });
+    return res.data;
+  }
+);
 
 const adsSlice = createSlice({
   name: "ads",
@@ -50,10 +79,9 @@ const adsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-
+      // fetchAds
       .addCase(fetchAds.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(fetchAds.fulfilled, (state, action) => {
         state.loading = false;
@@ -64,45 +92,30 @@ const adsSlice = createSlice({
         state.error = action.error.message;
       })
 
-
-      .addCase(addAd.pending, (state) => {
-        state.loading = true;
-      })
+      // addAd
       .addCase(addAd.fulfilled, (state, action) => {
-        state.loading = false;
         state.list.push(action.payload);
       })
-      .addCase(addAd.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
 
-
-      .addCase(uploadAdImage.pending, (state) => {
-        state.loading = true;
-      })
+      // uploadAdImage
       .addCase(uploadAdImage.fulfilled, (state, action) => {
-        state.loading = false;
         const index = state.list.findIndex((ad) => ad.id === action.payload.id);
         if (index !== -1) {
           state.list[index].pictureUrl = action.payload.data?.uuidName;
         }
       })
-      .addCase(uploadAdImage.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
 
-      .addCase(deleteAd.pending, (state) => {
-        state.loading = true;
-      })
+      // deleteAd
       .addCase(deleteAd.fulfilled, (state, action) => {
-        state.loading = false;
         state.list = state.list.filter((ad) => ad.id !== action.payload);
       })
-      .addCase(deleteAd.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
+
+      // toggleAdActive
+      .addCase(toggleAdActive.fulfilled, (state, action) => {
+        const index = state.list.findIndex((ad) => ad.id === action.payload.id);
+        if (index !== -1) {
+          state.list[index].isActive = action.payload.isActive;
+        }
       });
   },
 });
