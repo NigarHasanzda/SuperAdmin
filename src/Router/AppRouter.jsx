@@ -12,6 +12,7 @@ import { Notification } from "../components/pages/Home/Notification";
 import Profiles from "../components/pages/Home/Profiles";
 import ReportTransactions from "../components/pages/Home/Report";
 import WheelServices from "../components/pages/Home/WheelService";
+import Log from "../components/pages/Home/Log";
 
 const AppRouter = () => {
   return (
@@ -28,6 +29,7 @@ const AppRouter = () => {
         <Route path="/profiles" element={<Profiles/>}/>
         <Route path="/report" element={<ReportTransactions/>}/>
         <Route path="/wheel" element={<WheelServices/>}/>
+        <Route path="/logs" element={<Log/>}/>
     </Routes>
   );
 };

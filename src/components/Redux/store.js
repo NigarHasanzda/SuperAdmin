@@ -11,6 +11,7 @@ import serviceCatalogSlice from "./Features/ServiceCatalog.js"
 import reportTransactionsSlice from "./Features/reportSlice.js"
 import notificationsSlice from "./Features/notificationSlice.js"
 import wheelServicesSlice from "./Features/WheelSlice.js"
+import logsSlice from "./Features/LogSlice.js"
 const store = configureStore({
   reducer: {
     auth: authSlice,
@@ -24,7 +25,8 @@ const store = configureStore({
     serviceCatalog:serviceCatalogSlice,
     reports:reportTransactionsSlice,
     notifications:notificationsSlice,
-    services:wheelServicesSlice
+    serviceCatalog:wheelServicesSlice,
+    logs:logsSlice
     
   },
 });

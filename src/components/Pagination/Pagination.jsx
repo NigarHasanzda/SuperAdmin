@@ -1,8 +1,11 @@
 import React, { useEffect } from "react";
 
 const Pagination = ({ currentPage, lastPage, onPageChange }) => {
+  // Əgər lastPage 0 və ya undefined-dirsə, 1 göstər
+  const totalPages = lastPage && lastPage > 0 ? lastPage : 1;
+
   const pages = [];
-  for (let i = 1; i <= lastPage; i++) {
+  for (let i = 1; i <= totalPages; i++) {
     pages.push(i);
   }
 
@@ -30,7 +33,11 @@ const Pagination = ({ currentPage, lastPage, onPageChange }) => {
           }
         }}
         disabled={currentPage === 1}
-        style={btnStyle}
+        style={{
+          ...btnStyle,
+          opacity: currentPage === 1 ? 0.5 : 1,
+          cursor: currentPage === 1 ? "not-allowed" : "pointer",
+        }}
         aria-label="Əvvəlki səhifə"
       >
         ‹
@@ -62,12 +69,16 @@ const Pagination = ({ currentPage, lastPage, onPageChange }) => {
       {/* Sağ ox — növbəti səhifə */}
       <button
         onClick={() => {
-          if (currentPage < lastPage) {
+          if (currentPage < totalPages) {
             onPageChange(currentPage + 1);
           }
         }}
-        disabled={currentPage === lastPage}
-        style={btnStyle}
+        disabled={currentPage === totalPages}
+        style={{
+          ...btnStyle,
+          opacity: currentPage === totalPages ? 0.5 : 1,
+          cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+        }}
         aria-label="Sonrakı səhifə"
       >
         ›
@@ -84,6 +95,7 @@ const btnStyle = {
   borderRadius: "4px",
   fontSize: "16px",
   userSelect: "none",
+  transition: "all 0.2s",
 };
 
 export default Pagination;

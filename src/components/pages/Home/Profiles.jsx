@@ -57,7 +57,7 @@ const Profiles = () => {
       </ul>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {totalPages >= 1 && (
         <Pagination
           currentPage={currentPage}
           lastPage={totalPages}

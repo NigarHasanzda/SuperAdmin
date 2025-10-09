@@ -9,8 +9,13 @@ import {
   unblockBusiness,
   approveBusiness,
   rejectBusiness,
+  acceptTIN,
+  rejectTIN,
+  searchApprovedBusinesses,
+  searchPendingBusinesses,
 } from "../../Redux/Features/Businesses";
 
+// Section komponenti
 const Section = ({ title, children, style }) => (
   <div
     style={{
@@ -36,44 +41,68 @@ const Businesses = () => {
     single: business,
     loading,
     error,
+    searchLoading,
+    tinAccepting,
+    tinRejecting,
   } = useSelector((state) => state.businesses);
 
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
   const [blockReason, setBlockReason] = useState("");
+  const [tinRejectReason, setTinRejectReason] = useState("");
+  const [approvedSearchTerm, setApprovedSearchTerm] = useState("");
+  const [pendingSearchTerm, setPendingSearchTerm] = useState("");
 
+  // İlk yükleme
   useEffect(() => {
     dispatch(fetchAllBusinesses());
     dispatch(fetchApprovedBusinesses());
     dispatch(fetchPendingBusinesses());
   }, [dispatch]);
 
+  // Search funksiyaları
+  const handleSearchApproved = () => {
+    if (!approvedSearchTerm.trim()) return;
+    dispatch(searchApprovedBusinesses(approvedSearchTerm));
+  };
+  const handleSearchPending = () => {
+    if (!pendingSearchTerm.trim()) return;
+    dispatch(searchPendingBusinesses(pendingSearchTerm));
+  };
+
   const handleSelectBusiness = (id) => {
     dispatch(fetchBusinessById(id));
     setSelectedBusiness(id);
   };
 
-  const handleApprove = (id) => {
-    dispatch(approveBusiness(id));
-  };
-
+  // Status və TIN əməliyyatları
+  const handleApprove = (id) => dispatch(approveBusiness(id));
   const handleReject = (id) => {
     if (!rejectReason.trim()) return alert("Rədd səbəbini daxil et!");
     dispatch(rejectBusiness({ companyId: id, reason: rejectReason }));
     setRejectReason("");
   };
-
   const handleBlock = (id) => {
     if (!blockReason.trim()) return alert("Blok səbəbini daxil et!");
     dispatch(blockBusiness({ companyId: id, reason: blockReason }));
     setBlockReason("");
   };
+  const handleUnblock = (id) => dispatch(unblockBusiness(id));
 
-  const handleUnblock = (id) => {
-    dispatch(unblockBusiness(id));
+  const handleAcceptTIN = (id) => dispatch(acceptTIN(id));
+  const handleRejectTIN = (id) => {
+    if (!tinRejectReason.trim()) return alert("TIN rədd səbəbini daxil et!");
+    dispatch(rejectTIN({ id, reason: tinRejectReason }));
+    setTinRejectReason("");
   };
 
-  if (loading) return <p>Yüklənir...</p>;
+  // Hər ikisini birlikdə etmək üçün
+  const handleApproveAndAcceptTIN = async (id) => {
+    await dispatch(approveBusiness(id));
+    await dispatch(acceptTIN(id));
+  };
+
+  if (loading || searchLoading) return <p>Yüklənir...</p>;
   if (error) return <p>Xəta: {JSON.stringify(error)}</p>;
 
   const renderBusinessList = (list) =>
@@ -110,6 +139,23 @@ const Businesses = () => {
               {b.status}
             </span>
           </p>
+          {b.tinStatus && (
+            <p>
+              <strong>TIN:</strong>{" "}
+              <span
+                style={{
+                  color:
+                    b.tinStatus === "ACCEPTED"
+                      ? "green"
+                      : b.tinStatus === "REJECTED"
+                      ? "red"
+                      : "#555",
+                }}
+              >
+                {b.tinStatus}
+              </span>
+            </p>
+          )}
         </div>
       ))
     ) : (
@@ -123,11 +169,59 @@ const Businesses = () => {
       {/* Bütün bizneslər */}
       <Section title="Bütün Bizneslər">{renderBusinessList(businesses)}</Section>
 
-      {/* Approved bizneslər */}
-      <Section title="Təsdiqlənmiş Bizneslər">{renderBusinessList(approved)}</Section>
+      {/* Approved bizneslər + Search */}
+      <Section title="Təsdiqlənmiş Bizneslər">
+        <div style={{ marginBottom: "10px" }}>
+          <input
+            type="text"
+            placeholder="Search approved..."
+            value={approvedSearchTerm}
+            onChange={(e) => setApprovedSearchTerm(e.target.value)}
+            style={{ marginRight: "5px", padding: "5px" }}
+          />
+          <button
+            onClick={handleSearchApproved}
+            style={{
+              padding: "6px 10px",
+              background: "#4caf50",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            Axtar 🔍
+          </button>
+        </div>
+        {approvedSearchTerm ? renderBusinessList(approved) : renderBusinessList(approved)}
+      </Section>
 
-      {/* Pending bizneslər */}
-      <Section title="Gözləmədə olan Bizneslər">{renderBusinessList(pending)}</Section>
+      {/* Pending bizneslər + Search */}
+      <Section title="Gözləmədə olan Bizneslər">
+        <div style={{ marginBottom: "10px" }}>
+          <input
+            type="text"
+            placeholder="Search pending..."
+            value={pendingSearchTerm}
+            onChange={(e) => setPendingSearchTerm(e.target.value)}
+            style={{ marginRight: "5px", padding: "5px" }}
+          />
+          <button
+            onClick={handleSearchPending}
+            style={{
+              padding: "6px 10px",
+              background: "#ff9800",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            Axtar 🔍
+          </button>
+        </div>
+        {pendingSearchTerm ? renderBusinessList(pending) : renderBusinessList(pending)}
+      </Section>
 
       {/* Seçilmiş biznesin detalları */}
       {business && (
@@ -145,7 +239,7 @@ const Businesses = () => {
             <strong>Kod:</strong> {business.businessCode}
           </p>
 
-          {/* 🔹 Əməliyyat düymələri */}
+          {/* Əməliyyat düymələri */}
           <div style={{ marginTop: "15px" }}>
             <input
               type="text"
@@ -161,6 +255,14 @@ const Businesses = () => {
               onChange={(e) => setBlockReason(e.target.value)}
               style={{ marginRight: "10px", padding: "5px" }}
             />
+            <input
+              type="text"
+              placeholder="TIN rədd səbəbi..."
+              value={tinRejectReason}
+              onChange={(e) => setTinRejectReason(e.target.value)}
+              style={{ marginRight: "10px", padding: "5px" }}
+            />
+
             <button
               onClick={() => handleApprove(business.id)}
               style={{
@@ -173,7 +275,7 @@ const Businesses = () => {
                 cursor: "pointer",
               }}
             >
-              ✅ Təsdiqlə
+              ✅ Status ACTIVE et
             </button>
             <button
               onClick={() => handleReject(business.id)}
@@ -207,6 +309,7 @@ const Businesses = () => {
               onClick={() => handleUnblock(business.id)}
               style={{
                 padding: "6px 10px",
+                marginRight: "5px",
                 background: "#2196f3",
                 color: "white",
                 border: "none",
@@ -215,6 +318,53 @@ const Businesses = () => {
               }}
             >
               🔓 Blokdan çıxar
+            </button>
+
+            {/* TIN düymələri */}
+            <button
+              onClick={() => handleAcceptTIN(business.id)}
+              style={{
+                padding: "6px 10px",
+                marginRight: "5px",
+                background: "#009688",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+              disabled={tinAccepting}
+            >
+              ✔️ TIN qəbul et
+            </button>
+            <button
+              onClick={() => handleRejectTIN(business.id)}
+              style={{
+                padding: "6px 10px",
+                background: "#607d8b",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+              disabled={tinRejecting}
+            >
+              ❌ TIN rədd et
+            </button>
+
+            {/* Hər ikisini birlikdə */}
+            <button
+              onClick={() => handleApproveAndAcceptTIN(business.id)}
+              style={{
+                padding: "6px 10px",
+                marginLeft: "10px",
+                background: "#3f51b5",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              ✅ ACTIVE & ✔️ TIN
             </button>
           </div>
 
@@ -271,8 +421,8 @@ const Businesses = () => {
                                     💬 <em>"{review.comment}"</em>
                                   </p>
                                   <p>
-                                    ⭐ <strong>{review.rating}</strong> —{" "}
-                                    {review.name} {review.surname}
+                                    ⭐ <strong>{review.rating}</strong> — {review.name}{" "}
+                                    {review.surname}
                                   </p>
                                 </div>
                               ))}

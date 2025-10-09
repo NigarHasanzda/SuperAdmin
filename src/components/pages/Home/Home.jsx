@@ -179,6 +179,7 @@ console.log(ads);
 <h1><a href="/profiles">profiles</a></h1>
 <h1><a href="/report">report</a></h1>
 <h1><a href="/wheel">wheel</a></h1>
+<h1><a href="/logs">logs</a></h1>
     </div>
   );
 };

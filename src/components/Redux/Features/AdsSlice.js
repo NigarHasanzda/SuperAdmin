@@ -1,6 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../../api";
 
+// ============================
+// 🔹 Async Thunks
+// ============================
+
 // 🔹 Reklamları gətir
 export const fetchAds = createAsyncThunk("ads/fetchAds", async () => {
   const res = await api.get("/api/ads");
@@ -21,18 +25,36 @@ export const addAd = createAsyncThunk("ads/addAd", async (adData) => {
 // 🔹 Reklama şəkil yüklə
 export const uploadAdImage = createAsyncThunk(
   "ads/uploadAdImage",
-  async ({ id, file }) => {
+  async ({ id, file, locale = "AZ" }) => {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await api.post(`/api/ads/${id}/upload-image`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        "Authorization": `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
+    const res = await api.post(
+      `/api/ads/${id}/upload-image?locale=${locale}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
 
     return { id, data: res.data };
+  }
+);
+
+// 🔹 Reklamı sil
+export const deleteAd = createAsyncThunk("ads/deleteAd", async (id) => {
+  await api.delete(`/api/ads/${id}`);
+  return id;
+});
+
+// 🔹 Reklamın aktiv/deaktiv vəziyyətini dəyiş
+export const toggleAdActive = createAsyncThunk(
+  "ads/toggleAdActive",
+  async ({ id, isActive }) => {
+    const res = await api.put(`/api/ads/${id}`, { isActive });
+    return res.data;
   }
 );
 
@@ -54,21 +76,9 @@ export const downloadFile = createAsyncThunk(
   }
 );
 
-// 🔹 Reklamı sil
-export const deleteAd = createAsyncThunk("ads/deleteAd", async (id) => {
-  await api.delete(`/api/ads/${id}`);
-  return id;
-});
-
-// 🔹 Reklamın aktiv/deaktiv vəziyyətini dəyiş
-export const toggleAdActive = createAsyncThunk(
-  "ads/toggleAdActive",
-  async ({ id, isActive }) => {
-    const res = await api.put(`/api/ads/${id}`, { isActive });
-    return res.data;
-  }
-);
-
+// ============================
+// 🔹 Slice
+// ============================
 const adsSlice = createSlice({
   name: "ads",
   initialState: {
@@ -82,6 +92,7 @@ const adsSlice = createSlice({
       // fetchAds
       .addCase(fetchAds.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchAds.fulfilled, (state, action) => {
         state.loading = false;
@@ -93,16 +104,34 @@ const adsSlice = createSlice({
       })
 
       // addAd
+      .addCase(addAd.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(addAd.fulfilled, (state, action) => {
+        state.loading = false;
         state.list.push(action.payload);
+      })
+      .addCase(addAd.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       })
 
       // uploadAdImage
+      .addCase(uploadAdImage.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(uploadAdImage.fulfilled, (state, action) => {
+        state.loading = false;
         const index = state.list.findIndex((ad) => ad.id === action.payload.id);
         if (index !== -1) {
           state.list[index].pictureUrl = action.payload.data?.uuidName;
         }
+      })
+      .addCase(uploadAdImage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       })
 
       // deleteAd
@@ -116,6 +145,19 @@ const adsSlice = createSlice({
         if (index !== -1) {
           state.list[index].isActive = action.payload.isActive;
         }
+      })
+
+      // downloadFile (sadec frontend üçün, state update yox)
+      .addCase(downloadFile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(downloadFile.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(downloadFile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
   },
 });

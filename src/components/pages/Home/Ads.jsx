@@ -14,7 +14,8 @@ const AdsList = () => {
   const { list, loading, error } = useSelector((state) => state.ads);
 
   const [newAd, setNewAd] = useState({ link: "", userId: 1 });
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState({}); // Hər reklam üçün ayrı file
+  const [locales, setLocales] = useState({}); // Hər reklam üçün ayrı locale seçimi
 
   useEffect(() => {
     dispatch(fetchAds());
@@ -27,8 +28,9 @@ const AdsList = () => {
   };
 
   const handleUploadImage = (id) => {
-    if (!file) return alert("Fayl seçin!");
-    dispatch(uploadAdImage({ id, file }));
+    if (!files[id]) return alert("Fayl seçin!");
+    const locale = locales[id] || "AZ";
+    dispatch(uploadAdImage({ id, file: files[id], locale }));
   };
 
   const handleDownload = (filename) => {
@@ -40,53 +42,80 @@ const AdsList = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">📢 Reklam Siyahısı</h2>
+    <div style={{ maxWidth: 800, margin: "20px auto", padding: 20 }}>
+      <h2 style={{ fontSize: 24, fontWeight: "bold", marginBottom: 20 }}>
+        📢 Reklam Siyahısı
+      </h2>
 
       {/* Yeni reklam əlavə et */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-2">
+      <div style={{ marginBottom: 20, display: "flex", gap: 10 }}>
         <input
           type="text"
           placeholder="Link"
           value={newAd.link}
           onChange={(e) => setNewAd({ ...newAd, link: e.target.value })}
-          className="border p-2 flex-1 rounded shadow-sm"
+          style={{
+            flex: 1,
+            padding: 8,
+            borderRadius: 6,
+            border: "1px solid #ccc",
+          }}
         />
         <button
           onClick={handleAddAd}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#5D56F1",
+            color: "white",
+            border: "none",
+            borderRadius: 6,
+            cursor: "pointer",
+          }}
         >
           Əlavə et
         </button>
       </div>
 
-      {/* Yüklənir / Error */}
-      {loading && <p className="text-gray-500">Yüklənir...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {loading && <p>Yüklənir...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       {/* Reklam siyahısı */}
-      <ul className="space-y-4">
+      <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 20 }}>
         {list.map((ad) => (
           <li
             key={ad.id}
-            className="border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center shadow-sm"
+            style={{
+              border: "1px solid #ccc",
+              borderRadius: 10,
+              padding: 16,
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+            }}
           >
-            <div className="flex-1">
-              <p className="font-medium">🔗 {ad.link}</p>
-              <p className={`mt-1 font-semibold ${ad.isActive ? "text-green-600" : "text-red-600"}`}>
+            <div>
+              <p style={{ fontWeight: "bold" }}>🔗 {ad.link}</p>
+              <p style={{ fontWeight: "bold", color: ad.isActive ? "green" : "red" }}>
                 {ad.isActive ? "Aktiv" : "Deaktiv"}
               </p>
 
               {ad.pictureUrl && (
-                <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2">
+                <div style={{ display: "flex", gap: 10, marginTop: 10, alignItems: "center" }}>
                   <img
                     src={`https://p.kaktusbooking.app/website/api/files/download/${ad.pictureUrl}`}
                     alt="ad"
-                    className="w-32 h-32 object-cover rounded"
+                    style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 6 }}
                   />
                   <button
                     onClick={() => handleDownload(ad.pictureUrl)}
-                    className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                    style={{
+                      padding: "6px 12px",
+                      backgroundColor: "green",
+                      color: "white",
+                      border: "none",
+                      borderRadius: 6,
+                      cursor: "pointer",
+                    }}
                   >
                     📥 Endir
                   </button>
@@ -94,31 +123,61 @@ const AdsList = () => {
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-2 mt-4 sm:mt-0">
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
               <input
                 type="file"
-                onChange={(e) => setFile(e.target.files[0])}
-                className="mb-2 sm:mb-0"
+                onChange={(e) =>
+                  setFiles((prev) => ({ ...prev, [ad.id]: e.target.files[0] }))
+                }
               />
+              <select
+                value={locales[ad.id] || "AZ"}
+                onChange={(e) =>
+                  setLocales((prev) => ({ ...prev, [ad.id]: e.target.value }))
+                }
+              >
+                <option value="AZ">AZ</option>
+                <option value="EN">EN</option>
+                <option value="RU">RU</option>
+              </select>
               <button
                 onClick={() => handleUploadImage(ad.id)}
-                className="bg-purple-500 text-white px-3 py-1 rounded hover:bg-purple-600 transition"
+                style={{
+                  padding: "6px 12px",
+                  backgroundColor: "#5D56F1",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                }}
               >
                 Şəkil Yüklə
               </button>
 
               <button
                 onClick={() => handleToggleActive(ad)}
-                className={`px-3 py-1 rounded text-white transition ${
-                  ad.isActive ? "bg-yellow-500 hover:bg-yellow-600" : "bg-gray-500 hover:bg-gray-600"
-                }`}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: 6,
+                  border: "none",
+                  backgroundColor: ad.isActive ? "orange" : "gray",
+                  color: "white",
+                  cursor: "pointer",
+                }}
               >
                 {ad.isActive ? "Deaktiv et" : "Aktiv et"}
               </button>
 
               <button
                 onClick={() => dispatch(deleteAd(ad.id))}
-                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: 6,
+                  border: "none",
+                  backgroundColor: "red",
+                  color: "white",
+                  cursor: "pointer",
+                }}
               >
                 Sil
               </button>

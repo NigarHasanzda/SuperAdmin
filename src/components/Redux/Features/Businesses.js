@@ -1,9 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../../api";
 
-// ===============================
-// BUSINESS GETTERS
-// ===============================
+// -----------------------------
+// Thunk-lar
+// -----------------------------
+
 export const fetchAllBusinesses = createAsyncThunk(
   "businesses/fetchAllBusinesses",
   async () => {
@@ -20,90 +21,6 @@ export const fetchBusinessById = createAsyncThunk(
   }
 );
 
-export const fetchBranchesByAdmin = createAsyncThunk(
-  "businesses/fetchBranchesByAdmin",
-  async (adminId) => {
-    const res = await api.get(`/api/businesses/${adminId}/branches`);
-    return res.data;
-  }
-);
-
-export const fetchAllBranches = createAsyncThunk(
-  "businesses/fetchAllBranches",
-  async () => {
-    const res = await api.get("/api/businesses/branches");
-    return res.data;
-  }
-);
-
-export const fetchBranchById = createAsyncThunk(
-  "businesses/fetchBranchById",
-  async (branchId) => {
-    const res = await api.get(`/api/businesses/branches/${branchId}`);
-    return res.data;
-  }
-);
-
-export const fetchBranchStatsById = createAsyncThunk(
-  "businesses/fetchBranchStatsById",
-  async (branchId) => {
-    const res = await api.get(`/api/businesses/branches/${branchId}/stats`);
-    return res.data;
-  }
-);
-
-export const fetchBranchesStats = createAsyncThunk(
-  "businesses/fetchBranchesStats",
-  async () => {
-    const res = await api.get("/api/businesses/branches/stats");
-    return res.data;
-  }
-);
-
-// ===============================
-// BUSINESS ACTIONS (BLOCK / UNBLOCK / APPROVE / REJECT)
-// ===============================
-
-// 🔒 Şirkəti blokla
-export const blockBusiness = createAsyncThunk(
-  "businesses/blockBusiness",
-  async ({ companyId, reason }) => {
-    const res = await api.put("/api/businesses/block", { companyId, reason });
-    return { id: companyId, status: "INACTIVE", reason, res: res.data };
-  }
-);
-
-// 🔓 Şirkətin blokunu aç
-export const unblockBusiness = createAsyncThunk(
-  "businesses/unblockBusiness",
-  async (id) => {
-    const res = await api.put(`/api/businesses/${id}/unblock`);
-    return { id, status: "ACTIVE", res: res.data };
-  }
-);
-
-// ✅ Şirkəti təsdiqlə
-export const approveBusiness = createAsyncThunk(
-  "businesses/approveBusiness",
-  async (id) => {
-    const res = await api.put(`/api/businesses/${id}/approve`);
-    return { id, status: "APPROVED", res: res.data };
-  }
-);
-
-// ❌ Şirkəti rədd et
-export const rejectBusiness = createAsyncThunk(
-  "businesses/rejectBusiness",
-  async ({ companyId, reason }) => {
-    const res = await api.put(`/api/businesses/reject`, { companyId, reason });
-    return { id: companyId, status: "REJECTED", reason, res: res.data };
-  }
-);
-
-//=====================
-//Aproved Reject
-//==================
-// ✅ Təsdiqlənmiş şirkətləri gətir
 export const fetchApprovedBusinesses = createAsyncThunk(
   "businesses/fetchApprovedBusinesses",
   async (_, { rejectWithValue }) => {
@@ -111,12 +28,11 @@ export const fetchApprovedBusinesses = createAsyncThunk(
       const res = await api.get("/api/businesses/approved");
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response.data);
+      return rejectWithValue(err.response?.data || err.message);
     }
   }
 );
 
-// ⏳ Gözləmədə olan şirkətləri gətir
 export const fetchPendingBusinesses = createAsyncThunk(
   "businesses/fetchPendingBusinesses",
   async (_, { rejectWithValue }) => {
@@ -124,88 +40,163 @@ export const fetchPendingBusinesses = createAsyncThunk(
       const res = await api.get("/api/businesses/pending");
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response.data);
+      return rejectWithValue(err.response?.data || err.message);
     }
   }
 );
 
+// Search funksiyaları
+export const searchApprovedBusinesses = createAsyncThunk(
+  "businesses/searchApprovedBusinesses",
+  async (companyName, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/api/businesses/search/approved?companyName=${companyName}`);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
+export const searchPendingBusinesses = createAsyncThunk(
+  "businesses/searchPendingBusinesses",
+  async (companyName, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/api/businesses/search/pending?companyName=${companyName}`);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
+export const approveBusiness = createAsyncThunk(
+  "businesses/approveBusiness",
+  async (id) => {
+    await api.put(`/api/businesses/${id}/approve`);
+    return { id, status: "ACTIVE" }; // status ACTIVE oldu
+  }
+);
 
 
-// ===============================
-// SLICE
-// ===============================
+export const rejectBusiness = createAsyncThunk(
+  "businesses/rejectBusiness",
+  async ({ companyId, reason }) => {
+    await api.put(`/api/businesses/reject`, { companyId, reason });
+    return { id: companyId, status: "REJECTED", reason };
+  }
+);
+
+export const blockBusiness = createAsyncThunk(
+  "businesses/blockBusiness",
+  async ({ companyId, reason }) => {
+    await api.put("/api/businesses/block", { companyId, reason });
+    return { id: companyId, status: "INACTIVE", reason };
+  }
+);
+
+export const unblockBusiness = createAsyncThunk(
+  "businesses/unblockBusiness",
+  async (id) => {
+    await api.put(`/api/businesses/${id}/unblock`);
+    return { id, status: "ACTIVE" };
+  }
+);
+
+// TIN əməliyyatları
+// TIN qəbul et
+export const acceptTIN = createAsyncThunk(
+  "businesses/acceptTIN",
+  async (id) => {
+    await api.post(`/api/businesses/${id}/accept-tin`);
+    return { id, status: "ACCEPTED" };
+  }
+);
+
+// TIN rədd et
+export const rejectTIN = createAsyncThunk(
+  "businesses/rejectTIN",
+  async ({ id, reason }) => {
+    if (!reason) throw new Error("Reason required"); // frontend-də yoxlama
+    await api.post(`/api/businesses/${id}/reject-tin?reason=${encodeURIComponent(reason)}`);
+    return { id, status: "REJECTED", reason };
+  }
+);
+
+
+// -----------------------------
+// Slice
+// -----------------------------
 const businessesSlice = createSlice({
   name: "businesses",
   initialState: {
     all: [],
     single: null,
-    branches: [],
-    branch: null,
-    branchesStats: [],
-    branchStats: null,
-      approved: [],   // ✅ əlavə edildi
-  pending: [],    // ✅ əlavə edildi
+    approved: [],
+    pending: [],
+    searchApprovedResults: [],
+    searchPendingResults: [],
     loading: false,
+    searchLoading: false,
     error: null,
+    tinAccepting: false,
+    tinRejecting: false,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       // GET-lər
       .addCase(fetchAllBusinesses.pending, (state) => { state.loading = true; state.error = null; })
-      .addCase(fetchAllBusinesses.fulfilled, (state, action) => {
-        state.loading = false;
-        state.all = action.payload;
-      })
-      .addCase(fetchAllBusinesses.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
+      .addCase(fetchAllBusinesses.fulfilled, (state, action) => { state.loading = false; state.all = action.payload; })
+      .addCase(fetchAllBusinesses.rejected, (state, action) => { state.loading = false; state.error = action.payload || action.error.message; })
 
       .addCase(fetchBusinessById.fulfilled, (state, action) => { state.single = action.payload; })
-      .addCase(fetchBranchesByAdmin.fulfilled, (state, action) => { state.branches = action.payload; })
-      .addCase(fetchAllBranches.fulfilled, (state, action) => { state.branches = action.payload.content || []; })
-      .addCase(fetchBranchById.fulfilled, (state, action) => { state.branch = action.payload; })
-      .addCase(fetchBranchStatsById.fulfilled, (state, action) => { state.branchStats = action.payload; })
-      .addCase(fetchBranchesStats.fulfilled, (state, action) => { state.branchesStats = action.payload; })
+      .addCase(fetchApprovedBusinesses.fulfilled, (state, action) => { state.approved = action.payload; })
+      .addCase(fetchPendingBusinesses.fulfilled, (state, action) => { state.pending = action.payload; })
 
-      builder
-  // Approved
-  .addCase(fetchApprovedBusinesses.pending, (state) => { state.loading = true; state.error = null; })
-  .addCase(fetchApprovedBusinesses.fulfilled, (state, action) => { state.loading = false; state.approved = action.payload; })
-  .addCase(fetchApprovedBusinesses.rejected, (state, action) => { state.loading = false; state.error = action.payload?.message || action.error.message; })
+      // Search
+      .addCase(searchApprovedBusinesses.pending, (state) => { state.searchLoading = true; })
+      .addCase(searchApprovedBusinesses.fulfilled, (state, action) => { state.searchLoading = false; state.searchApprovedResults = action.payload; })
+      .addCase(searchApprovedBusinesses.rejected, (state) => { state.searchLoading = false; })
 
-  // Pending
-  .addCase(fetchPendingBusinesses.pending, (state) => { state.loading = true; state.error = null; })
-  .addCase(fetchPendingBusinesses.fulfilled, (state, action) => { state.loading = false; state.pending = action.payload; })
-  .addCase(fetchPendingBusinesses.rejected, (state, action) => { state.loading = false; state.error = action.payload?.message || action.error.message; })
+      .addCase(searchPendingBusinesses.pending, (state) => { state.searchLoading = true; })
+      .addCase(searchPendingBusinesses.fulfilled, (state, action) => { state.searchLoading = false; state.searchPendingResults = action.payload; })
+      .addCase(searchPendingBusinesses.rejected, (state) => { state.searchLoading = false; })
 
-      // PUT-lər (bloklama və s.)
+      .addCase(approveBusiness.fulfilled, (state, action) => {
+  const b = state.all.find(b => b.id === action.payload.id);
+  if (b) b.status = action.payload.status; // ACTIVE
+})
+
+      .addCase(rejectBusiness.fulfilled, (state, action) => {
+        const b = state.all.find(b => b.id === action.payload.id);
+        if (b) { b.status = "REJECTED"; b.rejectReason = action.payload.reason; }
+      })
       .addCase(blockBusiness.fulfilled, (state, action) => {
-        const index = state.all.findIndex((b) => b.id === action.payload.id);
-        if (index !== -1) {
-          state.all[index].status = "INACTIVE";
-          state.all[index].blockReason = action.payload.reason;
-        }
+        const b = state.all.find(b => b.id === action.payload.id);
+        if (b) { b.status = "INACTIVE"; b.blockReason = action.payload.reason; }
       })
       .addCase(unblockBusiness.fulfilled, (state, action) => {
-        const index = state.all.findIndex((b) => b.id === action.payload.id);
-        if (index !== -1) {
-          state.all[index].status = "ACTIVE";
-          state.all[index].blockReason = null;
-        }
+        const b = state.all.find(b => b.id === action.payload.id);
+        if (b) { b.status = "ACTIVE"; b.blockReason = null; }
       })
-      .addCase(approveBusiness.fulfilled, (state, action) => {
-        const index = state.all.findIndex((b) => b.id === action.payload.id);
-        if (index !== -1) state.all[index].status = "APPROVED";
+
+      // TIN
+      .addCase(acceptTIN.pending, (state) => { state.tinAccepting = true; })
+      .addCase(acceptTIN.fulfilled, (state, action) => {
+        state.tinAccepting = false;
+        const b = state.all.find(b => b.id === action.payload.id);
+        if (b) b.tinStatus = "ACCEPTED";
       })
-      .addCase(rejectBusiness.fulfilled, (state, action) => {
-        const index = state.all.findIndex((b) => b.id === action.payload.id);
-        if (index !== -1) {
-          state.all[index].status = "REJECTED";
-          state.all[index].rejectReason = action.payload.reason;
-        }
-      });
+      .addCase(acceptTIN.rejected, (state) => { state.tinAccepting = false; })
+
+      .addCase(rejectTIN.pending, (state) => { state.tinRejecting = true; })
+      .addCase(rejectTIN.fulfilled, (state, action) => {
+        state.tinRejecting = false;
+        const b = state.all.find(b => b.id === action.payload.id);
+        if (b) { b.tinStatus = "REJECTED"; b.tinRejectReason = action.payload.reason; }
+      })
+      .addCase(rejectTIN.rejected, (state) => { state.tinRejecting = false; });
   },
 });
 
