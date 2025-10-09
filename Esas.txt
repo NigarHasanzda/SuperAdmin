@@ -1,7 +1,207 @@
-/api/products get 
-/api/professional-profiles get
-üzərlərinə tıklayanda id ləri açılsın 
-/api/service-catalog-professional-pages, business pages auto vash vheel 
-/api/products
-/api/report-transactions 
-/api/notifications/admin/broadcast title desc
+// businessesSlice.js
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import api from "../../../api";
+
+// ===========================
+// Async actions
+// ===========================
+
+// GET bütün bizneslər
+export const fetchAllBusinesses = createAsyncThunk(
+  "businesses/fetchAllBusinesses",
+  async () => {
+    const res = await api.get("/api/businesses");
+    return res.data;
+  }
+);
+
+// GET id-ə görə biznes
+export const fetchBusinessById = createAsyncThunk(
+  "businesses/fetchBusinessById",
+  async (id) => {
+    const res = await api.get(`/api/businesses/${id}`);
+    return res.data;
+  }
+);
+
+// PUT block / unblock
+export const blockBusiness = createAsyncThunk(
+  "businesses/blockBusiness",
+  async (id) => {
+    const res = await api.put(`/api/businesses/${id}/block`);
+    return res.data;
+  }
+);
+
+export const unblockBusiness = createAsyncThunk(
+  "businesses/unblockBusiness",
+  async (id) => {
+    const res = await api.put(`/api/businesses/${id}/unblock`);
+    return res.data;
+  }
+);
+
+// PUT approve / reject
+export const approveBusiness = createAsyncThunk(
+  "businesses/approveBusiness",
+  async (id) => {
+    const res = await api.put(`/api/businesses/approve`, { id });
+    return res.data;
+  }
+);
+
+export const rejectBusiness = createAsyncThunk(
+  "businesses/rejectBusiness",
+  async (id) => {
+    const res = await api.put(`/api/businesses/reject`, { id });
+    return res.data;
+  }
+);
+
+// POST accept / reject TIN
+export const acceptTin = createAsyncThunk(
+  "businesses/acceptTin",
+  async (id) => {
+    const res = await api.post(`/api/businesses/${id}/accept-tin`);
+    return res.data;
+  }
+);
+
+export const rejectTin = createAsyncThunk(
+  "businesses/rejectTin",
+  async (id) => {
+    const res = await api.post(`/api/businesses/${id}/reject-tin`);
+    return res.data;
+  }
+);
+
+// GET pending / approved
+export const fetchPending = createAsyncThunk(
+  "businesses/fetchPending",
+  async () => {
+    const res = await api.get("/api/businesses/pending");
+    return res.data;
+  }
+);
+
+export const fetchApproved = createAsyncThunk(
+  "businesses/fetchApproved",
+  async () => {
+    const res = await api.get("/api/businesses/approved");
+    return res.data;
+  }
+);
+
+// Search pending / approved
+export const searchPending = createAsyncThunk(
+  "businesses/searchPending",
+  async (query) => {
+    const res = await api.get(`/api/businesses/search/pending?q=${query}`);
+    return res.data;
+  }
+);
+
+export const searchApproved = createAsyncThunk(
+  "businesses/searchApproved",
+  async (query) => {
+    const res = await api.get(`/api/businesses/search/approved?q=${query}`);
+    return res.data;
+  }
+);
+
+// GET bütün filiallar
+export const fetchAllBranches = createAsyncThunk(
+  "businesses/fetchAllBranches",
+  async () => {
+    const res = await api.get("/api/businesses/branches");
+    return res.data;
+  }
+);
+
+// GET filial detallar / stats
+export const fetchBranchById = createAsyncThunk(
+  "businesses/fetchBranchById",
+  async (branchId) => {
+    const res = await api.get(`/api/businesses/branches/${branchId}`);
+    return res.data;
+  }
+);
+
+export const fetchBranchStatsById = createAsyncThunk(
+  "businesses/fetchBranchStatsById",
+  async (branchId) => {
+    const res = await api.get(`/api/businesses/branches/${branchId}/stats`);
+    return res.data;
+  }
+);
+
+export const fetchBranchesStats = createAsyncThunk(
+  "businesses/fetchBranchesStats",
+  async () => {
+    const res = await api.get("/api/businesses/branches/stats");
+    return res.data;
+  }
+);
+
+// ===========================
+// Slice
+// ===========================
+const businessesSlice = createSlice({
+  name: "businesses",
+  initialState: {
+    all: [],
+    single: null,
+    branches: [],
+    branch: null,
+    branchesStats: [],
+    branchStats: null,
+    pending: [],
+    approved: [],
+    loading: false,
+    error: null,
+  },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      // all businesses
+      .addCase(fetchAllBusinesses.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(fetchAllBusinesses.fulfilled, (state, action) => { state.loading = false; state.all = action.payload; })
+      .addCase(fetchAllBusinesses.rejected, (state, action) => { state.loading = false; state.error = action.error.message; })
+
+      // single business
+      .addCase(fetchBusinessById.fulfilled, (state, action) => { state.single = action.payload; })
+
+      // block/unblock
+      .addCase(blockBusiness.fulfilled, (state, action) => { state.single = action.payload; })
+      .addCase(unblockBusiness.fulfilled, (state, action) => { state.single = action.payload; })
+
+      // approve/reject
+      .addCase(approveBusiness.fulfilled, (state, action) => { state.single = action.payload; })
+      .addCase(rejectBusiness.fulfilled, (state, action) => { state.single = action.payload; })
+
+      // accept/reject TIN
+      .addCase(acceptTin.fulfilled, (state, action) => { state.single = action.payload; })
+      .addCase(rejectTin.fulfilled, (state, action) => { state.single = action.payload; })
+
+      // pending/approved
+      .addCase(fetchPending.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(fetchPending.fulfilled, (state, action) => { state.loading = false; state.pending = action.payload; })
+      .addCase(fetchPending.rejected, (state, action) => { state.loading = false; state.error = action.error.message; })
+
+      .addCase(fetchApproved.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(fetchApproved.fulfilled, (state, action) => { state.loading = false; state.approved = action.payload; })
+      .addCase(fetchApproved.rejected, (state, action) => { state.loading = false; state.error = action.error.message; })
+
+      // search
+      .addCase(searchPending.fulfilled, (state, action) => { state.pending = action.payload; })
+      .addCase(searchApproved.fulfilled, (state, action) => { state.approved = action.payload; })
+
+      // branches
+      .addCase(fetchAllBranches.fulfilled, (state, action) => { state.branches = action.payload; })
+      .addCase(fetchBranchById.fulfilled, (state, action) => { state.branch = action.payload; })
+      .addCase(fetchBranchStatsById.fulfilled, (state, action) => { state.branchStats = action.payload; })
+      .addCase(fetchBranchesStats.fulfilled, (state, action) => { state.branchesStats = action.payload; });
+  },
+});
+
+export default businessesSlice.reducer;

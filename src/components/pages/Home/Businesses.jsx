@@ -1,11 +1,14 @@
-// Businesses.jsx
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllBusinesses,
   fetchBusinessById,
-  fetchBranchesByAdmin,
-  fetchBranchById,
+  fetchApprovedBusinesses,
+  fetchPendingBusinesses,
+  blockBusiness,
+  unblockBusiness,
+  approveBusiness,
+  rejectBusiness,
 } from "../../Redux/Features/Businesses";
 
 const Section = ({ title, children, style }) => (
@@ -26,14 +29,23 @@ const Section = ({ title, children, style }) => (
 
 const Businesses = () => {
   const dispatch = useDispatch();
-  const { all: businesses, single: business, loading, error } = useSelector(
-    (state) => state.businesses
-  );
+  const {
+    all: businesses,
+    approved,
+    pending,
+    single: business,
+    loading,
+    error,
+  } = useSelector((state) => state.businesses);
 
   const [selectedBusiness, setSelectedBusiness] = useState(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const [blockReason, setBlockReason] = useState("");
 
   useEffect(() => {
     dispatch(fetchAllBusinesses());
+    dispatch(fetchApprovedBusinesses());
+    dispatch(fetchPendingBusinesses());
   }, [dispatch]);
 
   const handleSelectBusiness = (id) => {
@@ -41,33 +53,81 @@ const Businesses = () => {
     setSelectedBusiness(id);
   };
 
+  const handleApprove = (id) => {
+    dispatch(approveBusiness(id));
+  };
+
+  const handleReject = (id) => {
+    if (!rejectReason.trim()) return alert("Rədd səbəbini daxil et!");
+    dispatch(rejectBusiness({ companyId: id, reason: rejectReason }));
+    setRejectReason("");
+  };
+
+  const handleBlock = (id) => {
+    if (!blockReason.trim()) return alert("Blok səbəbini daxil et!");
+    dispatch(blockBusiness({ companyId: id, reason: blockReason }));
+    setBlockReason("");
+  };
+
+  const handleUnblock = (id) => {
+    dispatch(unblockBusiness(id));
+  };
+
   if (loading) return <p>Yüklənir...</p>;
   if (error) return <p>Xəta: {JSON.stringify(error)}</p>;
+
+  const renderBusinessList = (list) =>
+    Array.isArray(list) && list.length > 0 ? (
+      list.map((b) => (
+        <div
+          key={b.id}
+          onClick={() => handleSelectBusiness(b.id)}
+          style={{
+            border: "1px solid #ddd",
+            borderRadius: "6px",
+            padding: "10px",
+            marginBottom: "10px",
+            cursor: "pointer",
+            background: selectedBusiness === b.id ? "#e0f7fa" : "#fff",
+          }}
+        >
+          <strong>{b.shopName}</strong> <br />
+          <small>{b.tagline}</small>
+          <p>
+            <strong>Status:</strong>{" "}
+            <span
+              style={{
+                color:
+                  b.status === "ACTIVE"
+                    ? "green"
+                    : b.status === "INACTIVE"
+                    ? "red"
+                    : b.status === "APPROVED"
+                    ? "blue"
+                    : "#555",
+              }}
+            >
+              {b.status}
+            </span>
+          </p>
+        </div>
+      ))
+    ) : (
+      <p>Biznes tapılmadı</p>
+    );
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
       <h1 style={{ marginBottom: "20px" }}>Biznes Siyahısı</h1>
 
       {/* Bütün bizneslər */}
-      <Section title="Bütün Bizneslər">
-        {businesses.map((b) => (
-          <div
-            key={b.id}
-            onClick={() => handleSelectBusiness(b.id)}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: "6px",
-              padding: "10px",
-              marginBottom: "10px",
-              cursor: "pointer",
-              background: selectedBusiness === b.id ? "#e0f7fa" : "#fff",
-            }}
-          >
-            <strong>{b.shopName}</strong> <br />
-            <small>{b.tagline}</small>
-          </div>
-        ))}
-      </Section>
+      <Section title="Bütün Bizneslər">{renderBusinessList(businesses)}</Section>
+
+      {/* Approved bizneslər */}
+      <Section title="Təsdiqlənmiş Bizneslər">{renderBusinessList(approved)}</Section>
+
+      {/* Pending bizneslər */}
+      <Section title="Gözləmədə olan Bizneslər">{renderBusinessList(pending)}</Section>
 
       {/* Seçilmiş biznesin detalları */}
       {business && (
@@ -84,6 +144,79 @@ const Businesses = () => {
           <p>
             <strong>Kod:</strong> {business.businessCode}
           </p>
+
+          {/* 🔹 Əməliyyat düymələri */}
+          <div style={{ marginTop: "15px" }}>
+            <input
+              type="text"
+              placeholder="Rədd səbəbi..."
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              style={{ marginRight: "10px", padding: "5px" }}
+            />
+            <input
+              type="text"
+              placeholder="Blok səbəbi..."
+              value={blockReason}
+              onChange={(e) => setBlockReason(e.target.value)}
+              style={{ marginRight: "10px", padding: "5px" }}
+            />
+            <button
+              onClick={() => handleApprove(business.id)}
+              style={{
+                padding: "6px 10px",
+                marginRight: "5px",
+                background: "#4caf50",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              ✅ Təsdiqlə
+            </button>
+            <button
+              onClick={() => handleReject(business.id)}
+              style={{
+                padding: "6px 10px",
+                marginRight: "5px",
+                background: "#f44336",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              ❌ Rədd et
+            </button>
+            <button
+              onClick={() => handleBlock(business.id)}
+              style={{
+                padding: "6px 10px",
+                marginRight: "5px",
+                background: "#ff9800",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              🔒 Blokla
+            </button>
+            <button
+              onClick={() => handleUnblock(business.id)}
+              style={{
+                padding: "6px 10px",
+                background: "#2196f3",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              🔓 Blokdan çıxar
+            </button>
+          </div>
 
           {/* Filiallar */}
           <Section title="Filiallar">
