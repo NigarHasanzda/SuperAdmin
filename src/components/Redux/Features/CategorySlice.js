@@ -34,15 +34,36 @@ export const deleteCategory = createAsyncThunk("categories/deleteCategory", asyn
   return id;
 });
 
+export const searchCategoryById = createAsyncThunk(
+  "categories/searchCategoryById", 
+  async (id, { rejectWithValue }) => {
+    try {
+      console.log("Searching category with ID:", id);
+      const res = await api.get(`/api/categories/${id}`);
+      console.log("Search API response:", res.data);
+      return res.data;
+    } catch (error) {
+      console.error("Search category error:", error.response?.data || error.message);
+      return rejectWithValue(error.response?.data?.message || "Kateqoriya tapılmadı");
+    }
+  }
+);
+
 const categorySlice = createSlice({
   name: "categories",
   initialState: {
     list: [],
     localized: [],
+    searchResult: null,
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    clearSearchResult: (state) => {
+      state.searchResult = null;
+      state.error = null;
+    }
+  },
   extraReducers: (builder) => {
     builder
 
@@ -72,8 +93,24 @@ const categorySlice = createSlice({
       .addCase(deleteCategory.fulfilled, (state, action) => {
         state.list = state.list.filter(cat => cat.id !== action.payload);
         state.localized = state.localized.filter(cat => cat.id !== action.payload);
+      })
+
+      .addCase(searchCategoryById.pending, (state) => { 
+        state.loading = true; 
+        state.error = null;
+      })
+      .addCase(searchCategoryById.fulfilled, (state, action) => { 
+        state.loading = false; 
+        state.searchResult = action.payload;
+        state.error = null;
+      })
+      .addCase(searchCategoryById.rejected, (state, action) => { 
+        state.loading = false; 
+        state.error = action.payload || action.error.message;
+        state.searchResult = null;
       });
   },
 });
 
+export const { clearSearchResult } = categorySlice.actions;
 export default categorySlice.reducer;

@@ -1,28 +1,65 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../../..//api";
+import api from "../../../api";
 
-export const fetchRoles = createAsyncThunk("roles/fetchRoles", async () => {
-  const res = await api.get("/api/roles");
-  return res.data;
-});
+// ============================
+// 🔹 Async Thunks
+// ============================
 
-export const addRole = createAsyncThunk("roles/addRole", async (roleData) => {
-  const res = await api.post("/api/roles", roleData);
-  return res.data;
-});
+// 🔹 Rolları gətir
+export const fetchRoles = createAsyncThunk(
+  "roles/fetchRoles",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get("/api/roles");
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
 
+// 🔹 Yeni rol əlavə et
+export const addRole = createAsyncThunk(
+  "roles/addRole",
+  async (roleData, { rejectWithValue }) => {
+    try {
+      const res = await api.post("/api/roles", roleData);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
 
-export const updateRole = createAsyncThunk("roles/updateRole", async (roleData) => {
-  const { id, ...data } = roleData;
-  const res = await api.put(`/api/roles/${id}`, data);
-  return res.data;
-});
+// 🔹 Rolu yenilə (PUT)
+export const updateRole = createAsyncThunk(
+  "roles/updateRole",
+  async (roleData, { rejectWithValue }) => {
+    try {
+      const res = await api.put("/api/roles", roleData);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
 
-export const deleteRole = createAsyncThunk("roles/deleteRole", async (id) => {
-  await api.delete(`/api/roles/${id}`);
-  return id;
-});
+// 🔹 Rolu sil
+export const deleteRole = createAsyncThunk(
+  "roles/deleteRole",
+  async (id, { rejectWithValue }) => {
+    try {
+      await api.delete(`/api/roles/${id}`);
+      return id;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
 
+// ============================
+// 🔹 Slice
+// ============================
 const roleSlice = createSlice({
   name: "roles",
   initialState: {
@@ -33,7 +70,7 @@ const roleSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // 📌 fetchRoles
+      // fetchRoles
       .addCase(fetchRoles.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -44,12 +81,13 @@ const roleSlice = createSlice({
       })
       .addCase(fetchRoles.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
       })
 
-      // 📌 addRole
+      // addRole
       .addCase(addRole.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(addRole.fulfilled, (state, action) => {
         state.loading = false;
@@ -57,28 +95,28 @@ const roleSlice = createSlice({
       })
       .addCase(addRole.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
       })
 
-      // 📌 updateRole
+      // updateRole
       .addCase(updateRole.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(updateRole.fulfilled, (state, action) => {
         state.loading = false;
         const index = state.list.findIndex((r) => r.id === action.payload.id);
-        if (index >= 0) {
-          state.list[index] = action.payload;
-        }
+        if (index !== -1) state.list[index] = action.payload;
       })
       .addCase(updateRole.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
       })
 
-      // 📌 deleteRole
+      // deleteRole
       .addCase(deleteRole.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(deleteRole.fulfilled, (state, action) => {
         state.loading = false;
@@ -86,7 +124,7 @@ const roleSlice = createSlice({
       })
       .addCase(deleteRole.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
       });
   },
 });

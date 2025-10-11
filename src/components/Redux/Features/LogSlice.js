@@ -9,7 +9,7 @@ export const getAllLog=createAsyncThunk("get/log",async()=>{
     logs:[],
     loading: false,
     error: null,
-
+    status: 'idle'
  }
 
  export const logSLice=createSlice({
@@ -20,14 +20,17 @@ export const getAllLog=createAsyncThunk("get/log",async()=>{
         builder
         .addCase(getAllLog.pending, (state) => {
         state.status = "loading";
+        state.loading = true;
         state.error = null;
       })
       .addCase(getAllLog.fulfilled, (state, action) => {
         state.status = "succeeded";
+        state.loading = false;
         state.logs = action.payload || [];
       })
       .addCase(getAllLog.rejected, (state, action) => {
         state.status = "failed";
+        state.loading = false;
         state.error = action.payload || "Something went wrong!";
       });
     }

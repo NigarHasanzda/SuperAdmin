@@ -6,24 +6,29 @@ import {
   uploadAdImage,
   deleteAd,
   downloadFile,
-  toggleAdActive,
+  updateAd,
 } from "../../Redux/Features/AdsSlice";
+import "./Ads.css";
 
 const AdsList = () => {
   const dispatch = useDispatch();
   const { list, loading, error } = useSelector((state) => state.ads);
+  const { token, user } = useSelector((state) => state.auth);
 
   const [newAd, setNewAd] = useState({ link: "", userId: 1 });
-  const [files, setFiles] = useState({}); // Hər reklam üçün ayrı file
-  const [locales, setLocales] = useState({}); // Hər reklam üçün ayrı locale seçimi
+  const [files, setFiles] = useState({});
+  const [locales, setLocales] = useState({});
 
   useEffect(() => {
-    dispatch(fetchAds());
-  }, [dispatch]);
+    if (token) {
+      dispatch(fetchAds());
+    }
+  }, [dispatch, token]);
 
   const handleAddAd = () => {
     if (!newAd.link.trim()) return alert("Link daxil edin!");
-    dispatch(addAd(newAd));
+    const adData = { ...newAd, userId: user?.id || 1 };
+    dispatch(addAd(adData));
     setNewAd({ link: "", userId: 1 });
   };
 
@@ -38,153 +43,147 @@ const AdsList = () => {
   };
 
   const handleToggleActive = (ad) => {
-    dispatch(toggleAdActive({ id: ad.id, isActive: ad.isActive ? 0 : 1 }));
+    const updatedAd = {
+      ...ad,
+      isActive: ad.isActive ? 0 : 1,
+    };
+    dispatch(updateAd(updatedAd));
   };
 
   return (
-    <div style={{ maxWidth: 800, margin: "20px auto", padding: 20 }}>
-      <h2 style={{ fontSize: 24, fontWeight: "bold", marginBottom: 20 }}>
-        📢 Reklam Siyahısı
-      </h2>
-
-      {/* Yeni reklam əlavə et */}
-      <div style={{ marginBottom: 20, display: "flex", gap: 10 }}>
-        <input
-          type="text"
-          placeholder="Link"
-          value={newAd.link}
-          onChange={(e) => setNewAd({ ...newAd, link: e.target.value })}
-          style={{
-            flex: 1,
-            padding: 8,
-            borderRadius: 6,
-            border: "1px solid #ccc",
-          }}
-        />
-        <button
-          onClick={handleAddAd}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#5D56F1",
-            color: "white",
-            border: "none",
-            borderRadius: 6,
-            cursor: "pointer",
-          }}
-        >
-          Əlavə et
-        </button>
+    <div className="ads-container">
+      <div className="ads-header">
+        <h1 className="ads-title">📢 Reklam İdarəetməsi</h1>
+        <p className="ads-subtitle">Bütün reklamları idarə edin, şəkil yükləyin və statuslarını dəyişin</p>
       </div>
 
-      {loading && <p>Yüklənir...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      <div className="add-ad-form">
+        <div className="form-group">
+          <div className="form-input">
+            <label className="form-label">🔗 Reklam Linki</label>
+            <input
+              type="url"
+              placeholder="https://example.com"
+              value={newAd.link}
+              onChange={(e) => setNewAd({ ...newAd, link: e.target.value })}
+              className="input-field"
+            />
+          </div>
+          <button onClick={handleAddAd} className="btn btn-primary" disabled={loading}>
+            ✨ Reklam Əlavə Et
+          </button>
+        </div>
+      </div>
 
-      {/* Reklam siyahısı */}
-      <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 20 }}>
-        {list.map((ad) => (
-          <li
-            key={ad.id}
-            style={{
-              border: "1px solid #ccc",
-              borderRadius: 10,
-              padding: 16,
-              display: "flex",
-              flexDirection: "column",
-              gap: 10,
-            }}
-          >
-            <div>
-              <p style={{ fontWeight: "bold" }}>🔗 {ad.link}</p>
-              <p style={{ fontWeight: "bold", color: ad.isActive ? "green" : "red" }}>
-                {ad.isActive ? "Aktiv" : "Deaktiv"}
-              </p>
+      {loading && (
+        <div className="loading-state">
+          <div className="loading-spinner"></div>
+          <p>Reklamlar yüklənir...</p>
+        </div>
+      )}
 
-              {ad.pictureUrl && (
-                <div style={{ display: "flex", gap: 10, marginTop: 10, alignItems: "center" }}>
-                  <img
-                    src={`https://p.kaktusbooking.app/website/api/files/download/${ad.pictureUrl}`}
-                    alt="ad"
-                    style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 6 }}
-                  />
-                  <button
-                    onClick={() => handleDownload(ad.pictureUrl)}
-                    style={{
-                      padding: "6px 12px",
-                      backgroundColor: "green",
-                      color: "white",
-                      border: "none",
-                      borderRadius: 6,
-                      cursor: "pointer",
-                    }}
-                  >
-                    📥 Endir
-                  </button>
-                </div>
-              )}
+      {error && <div className="error-state">⚠️ Xəta: {error}</div>}
+
+      {!loading && !error && (
+        <>
+          {list.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">🎯</div>
+              <h3>Hələ heç bir reklam yoxdur</h3>
+              <p>Yuxarıdakı formu istifadə edərək ilk reklamınızı əlavə edin.</p>
             </div>
+          ) : (
+            <ul className="ads-list">
+              {list.map((ad) => (
+                <li key={ad.id} className="ad-card">
+                  <div className="ad-header-info">
+                    <div className="ad-link">
+                      <h3>🌐 Reklam Linki</h3>
+                      <p>{ad.link}</p>
+                    </div>
+                    <div className={`ad-status ${ad.isActive ? 'status-active' : 'status-inactive'}`}>
+                      {ad.isActive ? '🟢 Aktiv' : '🔴 Deaktiv'}
+                    </div>
+                  </div>
 
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-              <input
-                type="file"
-                onChange={(e) =>
-                  setFiles((prev) => ({ ...prev, [ad.id]: e.target.files[0] }))
-                }
-              />
-              <select
-                value={locales[ad.id] || "AZ"}
-                onChange={(e) =>
-                  setLocales((prev) => ({ ...prev, [ad.id]: e.target.value }))
-                }
-              >
-                <option value="AZ">AZ</option>
-                <option value="EN">EN</option>
-                <option value="RU">RU</option>
-              </select>
-              <button
-                onClick={() => handleUploadImage(ad.id)}
-                style={{
-                  padding: "6px 12px",
-                  backgroundColor: "#5D56F1",
-                  color: "white",
-                  border: "none",
-                  borderRadius: 6,
-                  cursor: "pointer",
-                }}
-              >
-                Şəkil Yüklə
-              </button>
+                  <div className="ad-image-section">
+                    <div className="ad-image-preview">
+                      {ad.pictureUrl ? (
+                        <>
+                          <img
+                            src={`https://p.kaktusbooking.app/website/api/files/download/${ad.pictureUrl}`}
+                            alt="Reklam şəkli"
+                            className="ad-image"
+                          />
+                          <button
+                            onClick={() => handleDownload(ad.pictureUrl)}
+                            className="btn btn-success"
+                          >
+                            📥 Şəkli Endir
+                          </button>
+                        </>
+                      ) : (
+                        <div className="image-upload-area">
+                          <div className="no-image">🖼️</div>
+                          <p className="image-upload-text">Şəkil yüklənməyib</p>
+                        </div>
+                      )}
+                    </div>
 
-              <button
-                onClick={() => handleToggleActive(ad)}
-                style={{
-                  padding: "6px 12px",
-                  borderRadius: 6,
-                  border: "none",
-                  backgroundColor: ad.isActive ? "orange" : "gray",
-                  color: "white",
-                  cursor: "pointer",
-                }}
-              >
-                {ad.isActive ? "Deaktiv et" : "Aktiv et"}
-              </button>
+                    <div className="upload-controls">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) =>
+                          setFiles((prev) => ({ ...prev, [ad.id]: e.target.files[0] }))
+                        }
+                        className="file-input"
+                      />
+                      <select
+                        value={locales[ad.id] || "AZ"}
+                        onChange={(e) =>
+                          setLocales((prev) => ({ ...prev, [ad.id]: e.target.value }))
+                        }
+                        className="locale-select"
+                      >
+                        <option value="AZ">🇦🇿 AZ</option>
+                        <option value="EN">🇺🇸 EN</option>
+                        <option value="RU">🇷🇺 RU</option>
+                      </select>
+                      <button
+                        onClick={() => handleUploadImage(ad.id)}
+                        className="btn btn-primary"
+                        disabled={!files[ad.id]}
+                      >
+                        📤 Şəkil Yüklə
+                      </button>
+                    </div>
+                  </div>
 
-              <button
-                onClick={() => dispatch(deleteAd(ad.id))}
-                style={{
-                  padding: "6px 12px",
-                  borderRadius: 6,
-                  border: "none",
-                  backgroundColor: "red",
-                  color: "white",
-                  cursor: "pointer",
-                }}
-              >
-                Sil
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+                  <div className="ad-actions">
+                    <button
+                      onClick={() => handleToggleActive(ad)}
+                      className={`btn ${ad.isActive ? 'btn-warning' : 'btn-secondary'}`}
+                    >
+                      {ad.isActive ? '⏹️ Deaktiv Et' : '✅ Aktiv Et'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (window.confirm('Bu reklamı silməkdə əminsiniz?')) {
+                          dispatch(deleteAd(ad.id));
+                        }
+                      }}
+                      className="btn btn-danger"
+                    >
+                      🗑️ Sil
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
     </div>
   );
 };
