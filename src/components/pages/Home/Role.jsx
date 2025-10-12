@@ -114,12 +114,12 @@ const Role = () => {
   return (
     <div className="role-container">
       {/* Header */}
-      <div className="role-header">
+      {/* <div className="role-header">
         <h1 className="role-title">🛡️ Rol İdarəetməsi</h1>
         <p className="role-subtitle">
           İstifadəçi rollarını idarə edin, icazələri təyin edin və sistemə giriş səviyyələrini müəyyən edin
         </p>
-      </div>
+      </div> */}
 
       {/* Controls */}
       <div className="role-controls">

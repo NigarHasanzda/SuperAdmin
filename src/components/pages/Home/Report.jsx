@@ -214,14 +214,14 @@ const Report = () => {
   return (
     <div className="reports-container">
       {/* Header */}
-      <div className="reports-header">
+      {/* <div className="reports-header">
         <h1 className="reports-title">
           📋 Report İdarəetməsi
         </h1>
         <p className="reports-subtitle">
           İstifadəçi şikayətlərini izləyin, cavablandırın və həll edin
         </p>
-      </div>
+      </div> */}
 
       {/* Controls */}
       <div className="reports-controls">

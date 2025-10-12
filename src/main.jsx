@@ -6,7 +6,7 @@ import store from "./components/Redux/store";
 import { setupInterceptors } from "./api";
 
 
-// 🔹 Axios interceptors-u store ilə qur
+
 setupInterceptors(store);
 
 ReactDOM.createRoot(document.getElementById("root")).render(

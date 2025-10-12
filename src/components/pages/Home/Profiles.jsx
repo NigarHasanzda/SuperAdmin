@@ -211,14 +211,14 @@ const Profiles = () => {
   return (
     <div className="profiles-container">
       {/* Header */}
-      <div className="profiles-header">
+      {/* <div className="profiles-header">
         <h1 className="profiles-title">
           👤 Profil İdarəetməsi
         </h1>
         <p className="profiles-subtitle">
           İstifadəçi profilləri və professional məlumatları idarə edin
         </p>
-      </div>
+      </div> */}
 
       {/* Controls */}
       <div className="profiles-controls">

@@ -54,8 +54,8 @@ export const fetchAutoWashServices = createAsyncThunk(
 // 🔸 Slice
 // ============================
 
-const serviceCatalogSlice = createSlice({
-  name: "serviceCatalog",
+const wheelServicesSlice = createSlice({
+  name: "wheelServices",
   initialState: {
     professionalPages: { content: [], page: {} },
     wheelServices: { content: [], page: {} },
@@ -105,5 +105,5 @@ const serviceCatalogSlice = createSlice({
   },
 });
 
-export const { clearCatalogError } = serviceCatalogSlice.actions;
-export default serviceCatalogSlice.reducer;
+export const { clearCatalogError } = wheelServicesSlice.actions;
+export default wheelServicesSlice.reducer;

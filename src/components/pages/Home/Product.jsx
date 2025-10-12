@@ -151,14 +151,14 @@ export const Product = () => {
   return (
     <div className="products-container">
       {/* Header */}
-      <div className="products-header">
+      {/* <div className="products-header">
         <h1 className="products-title">
           🛍️ Məhsul İdarəetməsi
         </h1>
         <p className="products-subtitle">
           Bütün məhsulları idarə edin, məlumatlarını görün və inventar sistemini idarə edin
         </p>
-      </div>
+      </div> */}
 
       {/* Controls */}
       <div className="products-controls">

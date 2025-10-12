@@ -44,7 +44,7 @@ const Businesses = () => {
     dispatch(fetchAllBusinesses());
     dispatch(fetchApprovedBusinesses());
     dispatch(fetchPendingBusinesses());
-  }, [dispatch]);
+  }, []);
 
   // Search funksiyaları
   const handleSearchApproved = () => {
@@ -184,14 +184,14 @@ const Businesses = () => {
   return (
     <div className="businesses-container">
       {/* Header */}
-      <div className="businesses-header">
+      {/* <div className="businesses-header">
         <h1 className="businesses-title">
           🏢 Biznes İdarəetməsi
         </h1>
         <p className="businesses-subtitle">
           Biznesləri idarə edin, statuslarını dəyişin və TIN təsdiqləmələrini həyata keçirin
         </p>
-      </div>
+      </div> */}
 
       {/* Tab Navigation */}
       <div className="tab-navigation">

@@ -7,11 +7,12 @@ import adsSlice from "./Features/AdsSlice";
 import categorySlice from "./Features/CategorySlice";
 import productSlice from "./Features/ProductSlice";
 import profileSlice from "./Features/ProfessionalProfile";
-import serviceCatalogSlice from "./Features/ServiceCatalog";
+// import serviceCatalogSlice from "./Features/ServiceCatalog";
 import reportTransactionsSlice from "./Features/reportSlice";
 import notificationsSlice from "./Features/notificationSlice";
 import wheelServicesSlice from "./Features/WheelSlice";
 import logsSlice from "./Features/LogSlice";
+import refreshSlice from "./Features/RefreshSlice"
 
 const store = configureStore({
   reducer: {
@@ -23,11 +24,12 @@ const store = configureStore({
     categories: categorySlice,
     products: productSlice,
     profiles: profileSlice,
-    serviceCatalog: serviceCatalogSlice,
+    // serviceCatalog: serviceCatalogSlice,
     reports: reportTransactionsSlice,
     notifications: notificationsSlice,
     wheelServices: wheelServicesSlice,
     logs: logsSlice,
+    refresh:refreshSlice
   },
 });
 

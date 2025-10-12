@@ -137,8 +137,13 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         state.isAuthenticated = true;
         state.error = null;
+
+        // Refresh token varsa localStorage-a əlavə et
         if (action.payload.refreshToken)
           localStorage.setItem("refreshToken", action.payload.refreshToken);
+
+        // 🔹 Konsola istifadəçi məlumatlarını çıxart
+        console.log("Login oldu! İstifadəçi məlumatları:", state.user);
       })
       .addCase(loginAdmin.rejected, (state, action) => {
         state.loading = false;

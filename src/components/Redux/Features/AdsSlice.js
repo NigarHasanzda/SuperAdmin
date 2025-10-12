@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../../api";
 
 // ============================
@@ -20,16 +20,22 @@ export const fetchAds = createAsyncThunk(
   }
 );
 
-// 🔹 Yeni reklam əlavə et
+// 🔹 Yeni reklam əlavə et (user məlumatı ilə)
 export const addAd = createAsyncThunk(
   "ads/addAd",
-  async (adData, { rejectWithValue }) => {
+  async (adData, { getState, rejectWithValue }) => {
     try {
-      const res = await api.post("/api/ads", adData, {
+      const state = getState();
+      const currentUser = state.auth?.user || JSON.parse(localStorage.getItem("user")) || {};
+      const body = { ...adData, userId: currentUser.id, userName: currentUser.name };
+
+      const res = await api.post("/api/ads", body, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
+      console.log("AddAd response:", res.data);
       return res.data;
     } catch (error) {
+      console.log("AddAd error:", error.response?.data || error.message);
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
@@ -42,14 +48,18 @@ export const uploadAdImage = createAsyncThunk(
     try {
       const formData = new FormData();
       formData.append("file", file);
+
       const res = await api.post(`/api/ads/${id}/upload-image?locale=${locale}`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",
         },
       });
-      return { id, data: res.data };
+
+      console.log("UploadAdImage response:", res.data);
+      return { id, uuidName: res.data.uuidName, locale };
     } catch (error) {
+      console.log("UploadAdImage error:", error.response?.data || error.message);
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
@@ -63,14 +73,16 @@ export const deleteAd = createAsyncThunk(
       await api.delete(`/api/ads/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
+      console.log("DeleteAd success:", id);
       return id;
     } catch (error) {
+      console.log("DeleteAd error:", error.response?.data || error.message);
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
-// 🔹 Reklamı yenilə (PUT) – bütün dataları göndərərək
+// 🔹 Reklamı yenilə (PUT)
 export const updateAd = createAsyncThunk(
   "ads/updateAd",
   async ({ id, updatedFields }, { getState, rejectWithValue }) => {
@@ -80,13 +92,17 @@ export const updateAd = createAsyncThunk(
       if (!ad) throw new Error("Reklam tapılmadı");
 
       const body = { ...ad, ...updatedFields };
+      console.log("UpdateAd body:", body);
+      console.log("UpdateAd headers token:", localStorage.getItem("token"));
 
       const res = await api.put(`/api/ads/${id}`, body, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
 
+      console.log("UpdateAd response:", res.data);
       return res.data;
     } catch (error) {
+      console.log("UpdateAd error:", error.response?.data || error.message);
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
@@ -110,8 +126,10 @@ export const downloadFile = createAsyncThunk(
       link.click();
       link.remove();
 
+      console.log("DownloadFile success:", filename);
       return filename;
     } catch (error) {
+      console.log("DownloadFile error:", error.response?.data || error.message);
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
@@ -165,8 +183,11 @@ const adsSlice = createSlice({
       })
       .addCase(uploadAdImage.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.list.findIndex(ad => ad.id === action.payload.id);
-        if (index !== -1) state.list[index].pictureUrl = action.payload.data?.uuidName;
+        const { id, uuidName } = action.payload;
+        const index = state.list.findIndex(ad => ad.id === id);
+        if (index !== -1) {
+          state.list[index].pictureUrl = uuidName;
+        }
       })
       .addCase(uploadAdImage.rejected, (state, action) => {
         state.loading = false;

@@ -15,48 +15,87 @@ const AdsList = () => {
   const { list, loading, error } = useSelector((state) => state.ads);
   const { token, user } = useSelector((state) => state.auth);
 
-  const [newAd, setNewAd] = useState({ link: "", userId: 1 });
+  const [newAd, setNewAd] = useState({ link: "", userId: user?.id || 1 });
   const [files, setFiles] = useState({});
   const [locales, setLocales] = useState({});
+  const [imageUrls, setImageUrls] = useState({});
+  const [editedAds, setEditedAds] = useState({}); // Dəyişiklikləri saxlayır
 
+  const BASE_URL = "http://194.163.173.179:3300";
+
+  // Ads yüklə
   useEffect(() => {
-    if (token) {
-      dispatch(fetchAds());
-    }
-  }, [dispatch, token]);
+    if (token) dispatch(fetchAds());
+  }, [token, dispatch]);
 
+  // Blob preview
+  useEffect(() => {
+    list.forEach((ad) => {
+      if (ad.pictureUrl && !imageUrls[ad.id]) {
+        fetch(`${BASE_URL}/api/files/download/${ad.pictureUrl}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+          .then((res) => res.blob())
+          .then((blob) => {
+            const url = URL.createObjectURL(blob);
+            setImageUrls((prev) => ({ ...prev, [ad.id]: url }));
+          })
+          .catch(console.error);
+      }
+    });
+  }, [list, token]);
+
+  // Yeni reklam əlavə et
   const handleAddAd = () => {
     if (!newAd.link.trim()) return alert("Link daxil edin!");
-    const adData = { ...newAd, userId: user?.id || 1 };
-    dispatch(addAd(adData));
-    setNewAd({ link: "", userId: 1 });
+    dispatch(addAd({ ...newAd, userId: user?.id }));
+    setNewAd({ link: "", userId: user?.id || 1 });
   };
 
+  // Şəkil yüklə
   const handleUploadImage = (id) => {
     if (!files[id]) return alert("Fayl seçin!");
     const locale = locales[id] || "AZ";
-    dispatch(uploadAdImage({ id, file: files[id], locale }));
+
+    dispatch(uploadAdImage({ id, file: files[id], locale }))
+      .unwrap()
+      .then((res) => {
+        const url = `${BASE_URL}/api/files/download/${res.uuidName}`;
+        setImageUrls((prev) => ({ ...prev, [id]: url }));
+      })
+      .catch(console.error);
   };
 
+  // Faylı endir
   const handleDownload = (filename) => {
     dispatch(downloadFile(filename));
   };
 
-  const handleToggleActive = (ad) => {
-    const updatedAd = {
-      ...ad,
-      isActive: ad.isActive ? 0 : 1,
-    };
-    dispatch(updateAd(updatedAd));
+  // Dəyişiklikləri state-də saxla
+  const handleEditField = (id, field, value) => {
+    setEditedAds((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value },
+    }));
+  };
+
+  // Redaktə et
+  const handleUpdateAd = (ad) => {
+    const updatedFields = editedAds[ad.id];
+    if (!updatedFields) return alert("Heç bir dəyişiklik yoxdur!");
+    dispatch(updateAd({ id: ad.id, updatedFields }))
+      .unwrap()
+      .then(() => {
+        setEditedAds((prev) => {
+          const copy = { ...prev };
+          delete copy[ad.id];
+          return copy;
+        });
+      });
   };
 
   return (
     <div className="ads-container">
-      <div className="ads-header">
-        <h1 className="ads-title">📢 Reklam İdarəetməsi</h1>
-        <p className="ads-subtitle">Bütün reklamları idarə edin, şəkil yükləyin və statuslarını dəyişin</p>
-      </div>
-
       <div className="add-ad-form">
         <div className="form-group">
           <div className="form-input">
@@ -99,10 +138,22 @@ const AdsList = () => {
                   <div className="ad-header-info">
                     <div className="ad-link">
                       <h3>🌐 Reklam Linki</h3>
-                      <p>{ad.link}</p>
+                      <input
+                        type="url"
+                        value={editedAds[ad.id]?.link ?? ad.link}
+                        onChange={(e) => handleEditField(ad.id, "link", e.target.value)}
+                        className="input-field"
+                      />
                     </div>
-                    <div className={`ad-status ${ad.isActive ? 'status-active' : 'status-inactive'}`}>
-                      {ad.isActive ? '🟢 Aktiv' : '🔴 Deaktiv'}
+                    <div className="ad-status">
+                      <select
+                        value={editedAds[ad.id]?.isActive ?? ad.isActive}
+                        onChange={(e) => handleEditField(ad.id, "isActive", Number(e.target.value))}
+                        className="locale-select"
+                      >
+                        <option value={1}>🟢 Aktiv</option>
+                        <option value={0}>🔴 Deaktiv</option>
+                      </select>
                     </div>
                   </div>
 
@@ -111,7 +162,7 @@ const AdsList = () => {
                       {ad.pictureUrl ? (
                         <>
                           <img
-                            src={`https://p.kaktusbooking.app/website/api/files/download/${ad.pictureUrl}`}
+                            src={imageUrls[ad.id] || `${BASE_URL}/api/files/download/${ad.pictureUrl}`}
                             alt="Reklam şəkli"
                             className="ad-image"
                           />
@@ -162,10 +213,10 @@ const AdsList = () => {
 
                   <div className="ad-actions">
                     <button
-                      onClick={() => handleToggleActive(ad)}
-                      className={`btn ${ad.isActive ? 'btn-warning' : 'btn-secondary'}`}
+                      onClick={() => handleUpdateAd(ad)}
+                      className="btn btn-warning"
                     >
-                      {ad.isActive ? '⏹️ Deaktiv Et' : '✅ Aktiv Et'}
+                      ✏️ Redaktə Et
                     </button>
                     <button
                       onClick={() => {

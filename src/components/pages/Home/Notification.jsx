@@ -198,7 +198,7 @@ export const Notification = () => {
   return (
     <div className="notifications-container">
       {/* Header */}
-      <div className="notifications-header">
+      {/* <div className="notifications-header">
         <h1 className="notifications-title">
           📢 Bildiriş İdarəetməsi
         </h1>
@@ -211,7 +211,7 @@ export const Notification = () => {
         >
           ➕ Yeni Bildiriş Göndər
         </button>
-      </div>
+      </div> */}
 
       {/* Controls */}
       <div className="notifications-controls">
