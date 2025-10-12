@@ -6,6 +6,7 @@ import "./Persons.css";
 const Persons = () => {
   const dispatch = useDispatch();
   const { list, loading, error } = useSelector((state) => state.users);
+  
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState([]);

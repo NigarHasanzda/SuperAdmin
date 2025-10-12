@@ -117,23 +117,14 @@ export const downloadFile = createAsyncThunk(
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         responseType: "blob",
       });
-
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", filename);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-
-      console.log("DownloadFile success:", filename);
-      return filename;
+      return res.data; // yalnız blob qaytarılır
     } catch (error) {
       console.log("DownloadFile error:", error.response?.data || error.message);
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
+
 
 // ============================
 // 🔹 Slice

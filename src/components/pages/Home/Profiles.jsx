@@ -15,8 +15,8 @@ const Profiles = () => {
   const [viewMode, setViewMode] = useState('grid');
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  
-  console.log(list);
+
+console.log(list);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -337,137 +337,129 @@ const Profiles = () => {
         </>
       )}
 
-      {/* Profile Detail Modal */}
-      {showDetailModal && selectedProfile && (
-        <div className="modal-overlay" onClick={() => setShowDetailModal(false)}>
-          <div className="profile-detail-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div className="modal-title">
-                <h2>👤 {selectedProfile.name} {selectedProfile.surname}</h2>
-                <button className="close-btn" onClick={() => setShowDetailModal(false)}>❌</button>
-              </div>
-              <div className="profile-badges-row">
-                {selectedProfile.isActive && <div className="status-badge active">🟢 Aktiv</div>}
-                {selectedProfile.isVerified && <div className="status-badge verified">✅ Təsdiqli</div>}
-                <div className="profile-id-badge">ID: #{selectedProfile.id}</div>
-              </div>
-            </div>
+{/* Profile Detail Modal */}
+{showDetailModal && selectedProfile && (
+  <div className="modal-overlay" style={{color:"black"}} onClick={() => setShowDetailModal(false)}>
+    <div className="profile-detail-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-header">
+        <div className="modal-title">
+          <h2>👤 {selectedProfile.name} {selectedProfile.surname}</h2>
+          <button className="close-btn" onClick={() => setShowDetailModal(false)}>❌</button>
+        </div>
+        <div className="profile-badges-row">
+          {selectedProfile.isActive && <div className="status-badge active">🟢 Aktiv</div>}
+          {selectedProfile.verified && <div className="status-badge verified">✅ Təsdiqli</div>}
+          <div className="profile-id-badge">ID: #{selectedProfile.id}</div>
+        </div>
+      </div>
 
-            <div className="modal-content">
-              {/* Profile Avatar Section */}
-              <div className="profile-avatar-section">
-                <div className="profile-avatar-large" style={{ backgroundColor: getProfileColor(selectedProfile.id) }}>
-                  {selectedProfile.profileImage ? (
-                    <img src={selectedProfile.profileImage} alt={`${selectedProfile.name} ${selectedProfile.surname}`} />
-                  ) : (
-                    <span className="profile-initials-large">{getProfileInitials(selectedProfile.name, selectedProfile.surname)}</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Profile Info */}
-              <div className="profile-info-section">
-                <h3>📋 Əsas Məlumatlar</h3>
-                <div className="info-grid">
-                  <div className="info-item">
-                    <strong>👤 Ad:</strong> {selectedProfile.name}
-                  </div>
-                  <div className="info-item">
-                    <strong>👤 Soyad:</strong> {selectedProfile.surname}
-                  </div>
-                  <div className="info-item">
-                    <strong>📝 İstifadəçi adı:</strong> @{selectedProfile.username}
-                  </div>
-                  <div className="info-item">
-                    <strong>📧 Email:</strong> {selectedProfile.email || 'Məlumat yoxdur'}
-                  </div>
-                  <div className="info-item">
-                    <strong>📞 Telefon:</strong> {selectedProfile.phone || 'Məlumat yoxdur'}
-                  </div>
-                  <div className="info-item">
-                    <strong>📅 Qeydiyyat tarixi:</strong> {formatDate(selectedProfile.createdAt)}
-                  </div>
-                </div>
-              </div>
-
-              {/* Professional Info */}
-              {single && (
-                <div className="professional-info-section">
-                  <h3>🔧 Professional Məlumatlar</h3>
-                  <div className="info-grid">
-                    {single.profession && (
-                      <div className="info-item">
-                        <strong>💼 Peşə:</strong> {single.profession}
-                      </div>
-                    )}
-                    {single.experience && (
-                      <div className="info-item">
-                        <strong>⭐ Təcrübə:</strong> {single.experience}
-                      </div>
-                    )}
-                    {single.skills && (
-                      <div className="info-item">
-                        <strong>🛠️ Bacarıqlar:</strong> {single.skills}
-                      </div>
-                    )}
-                    {single.portfolio && (
-                      <div className="info-item">
-                        <strong>📁 Portfolio:</strong> 
-                        <a href={single.portfolio} target="_blank" rel="noopener noreferrer">
-                          {single.portfolio}
-                        </a>
-                      </div>
-                    )}
-                    {single.rating && (
-                      <div className="info-item">
-                        <strong>⭐ Reytinq:</strong> {single.rating}/5
-                      </div>
-                    )}
-                    {single.completedJobs && (
-                      <div className="info-item">
-                        <strong>✅ Tamamlanmış işlər:</strong> {single.completedJobs}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Description */}
-              {(selectedProfile.bio || single?.description) && (
-                <div className="profile-description-section">
-                  <h3>📝 Təsvir</h3>
-                  <div className="description-content">
-                    {selectedProfile.bio || single?.description}
-                  </div>
-                </div>
-              )}
-
-              {/* Additional Info */}
-              <div className="additional-info-section">
-                <h3>🔧 Əlavə Məlumatlar</h3>
-                <div className="info-grid">
-                  <div className="info-item">
-                    <strong>🔒 Status:</strong> {selectedProfile.isActive ? 'Aktiv' : 'Qeyri-aktiv'}
-                  </div>
-                  <div className="info-item">
-                    <strong>✅ Təsdiq statusu:</strong> {selectedProfile.isVerified ? 'Təsdiqlənmiş' : 'Təsdiqlənməmiş'}
-                  </div>
-                  {selectedProfile.lastLoginAt && (
-                    <div className="info-item">
-                      <strong>🕐 Son giriş:</strong> {formatDate(selectedProfile.lastLoginAt)}
-                    </div>
-                  )}
-                  {selectedProfile.location && (
-                    <div className="info-item">
-                      <strong>📍 Məkan:</strong> {selectedProfile.location}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+      <div className="modal-content">
+        {/* Avatar */}
+        <div className="profile-avatar-section">
+          <div className="profile-avatar-large" style={{ backgroundColor: getProfileColor(selectedProfile.id) }}>
+            {selectedProfile.profilePictureUrl ? (
+              <img src={selectedProfile.profilePictureUrl} alt={selectedProfile.name} />
+            ) : (
+              <span className="profile-initials-large">{getProfileInitials(selectedProfile.name, selectedProfile.surname)}</span>
+            )}
           </div>
         </div>
-      )}
+
+        {/* Əsas məlumatlar */}
+        <div className="profile-info-section">
+          <h3>📋 Əsas Məlumatlar</h3>
+          <div className="info-grid">
+            <div className="info-item"><strong>👤 Ad:</strong> {selectedProfile.name}</div>
+            <div className="info-item"><strong>👤 Soyad:</strong> {selectedProfile.surname}</div>
+            <div className="info-item"><strong>📝 İstifadəçi adı:</strong> @{selectedProfile.username}</div>
+            <div className="info-item"><strong>📞 Telefon:</strong> {selectedProfile.phone}</div>
+            <div className="info-item"><strong>📅 Yaradılma tarixi:</strong> {formatDate(selectedProfile.createdAt)}</div>
+            <div className="info-item"><strong>📅 Yenilənmə tarixi:</strong> {formatDate(selectedProfile.updatedAt)}</div>
+            <div className="info-item"><strong>📍 Ünvan:</strong> {selectedProfile.address || 'Məlumat yoxdur'}</div>
+            <div className="info-item"><strong>🏷️ Başlıq:</strong> {selectedProfile.title || 'Məlumat yoxdur'}</div>
+            <div className="info-item"><strong>🧰 Təsvir:</strong> {selectedProfile.description || 'Yoxdur'}</div>
+          </div>
+        </div>
+
+        {/* Əlavə məlumatlar */}
+        <div className="additional-info-section">
+          <h3>🔧 Əlavə Məlumatlar</h3>
+          <div className="info-grid">
+            <div className="info-item"><strong>🧭 Əlçatanlıq:</strong> {selectedProfile.availabilityStatus}</div>
+            <div className="info-item"><strong>⭐ Ortalama reytinq:</strong> {selectedProfile.averageRating || '0'}</div>
+            <div className="info-item"><strong>🏢 Filialdır:</strong> {selectedProfile.branch ? 'Bəli' : 'Xeyr'}</div>
+            <div className="info-item"><strong>👥 İstifadəçi tipi:</strong> {selectedProfile.userType}</div>
+            <div className="info-item"><strong>📦 Say:</strong> {selectedProfile.count}</div>
+            <div className="info-item"><strong>🚘 Sürücüsü var:</strong> {selectedProfile.hasDriver ? 'Bəli' : 'Xeyr'}</div>
+            <div className="info-item"><strong>📏 Məsafə:</strong> {selectedProfile.distance || 'Yoxdur'}</div>
+            <div className="info-item"><strong>🕓 Enlem:</strong> {selectedProfile.latitude}</div>
+            <div className="info-item"><strong>🕓 Uzunluq:</strong> {selectedProfile.longitude}</div>
+          </div>
+        </div>
+
+        {/* Şəkillər */}
+        {/* {(selectedProfile.coverPictureUrl || selectedProfile.profilePictureUrl) && (
+          <div className="profile-images-section">
+            <h3>🖼️ Şəkillər</h3>
+            <div className="images-grid">
+              {selectedProfile.coverPictureUrl && (
+                <img src={selectedProfile.coverPictureUrl} alt="Cover" className="cover-image" />
+              )}
+              {selectedProfile.profilePictureUrl && (
+                <img src={selectedProfile.profilePictureUrl} alt="Profil" className="profile-image" />
+              )}
+            </div>
+          </div>
+        )} */}
+
+        {/* İş günləri */}
+        {selectedProfile.workTimes?.length > 0 && (
+          <div className="worktimes-section">
+            <h3>🕒 İş Qrafiki</h3>
+            <table className="worktimes-table">
+              <thead>
+                <tr>
+                  <th>Gün</th>
+                  <th>Açıqdır?</th>
+                  <th>Açılış</th>
+                  <th>Bağlanış</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedProfile.workTimes.map((w) => (
+                  <tr key={w.id}>
+                    <td>{w.day}</td>
+                    <td>{w.isOpen ? '✅' : '❌'}</td>
+                    <td>{w.opensAt || '-'}</td>
+                    <td>{w.closesAt || '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Service Catalog Pages */}
+        {selectedProfile.serviceCatalogPages?.length > 0 && (
+          <div className="service-catalog-section">
+            <h3>📚 Professional Səhifələr</h3>
+            <div className="info-grid">
+              {selectedProfile.serviceCatalogPages.map((s) => (
+                <div key={s.id} className="info-item">
+                  <strong>👨‍🔧 {s.name} {s.surname}</strong> <br />
+                  <span>📞 {s.phone}</span> <br />
+                  <span>🆔 ID: {s.id}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 };
