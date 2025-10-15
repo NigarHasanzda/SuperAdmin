@@ -116,7 +116,8 @@
 
 .main-content {
   flex: 1;
-  transition: margin-left 0.3s ease;
+  width: 100% !important;
+  background-color: rebeccapurple;
 }
 
 .header {
@@ -162,13 +163,12 @@
 }
 
 .content {
-  padding: 30px;
   min-height: calc(100vh - 80px);
   max-width: 1400px;
 }
 
 .dashboard-container {
-  max-width: 100%;
+  width: 100%;
 }
 
 .welcome-card {
@@ -232,10 +232,6 @@
 @media (max-width: 768px) {
   .sidebar {
     width: 70px !important;
-  }
-  
-  .main-content {
-    margin-left: 70px !important;
   }
   
   .header {

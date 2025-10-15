@@ -7,6 +7,8 @@ import "./Profiles.css";
 const Profiles = () => {
   const dispatch = useDispatch();
   const { list, single, loading, error } = useSelector((state) => state.profiles);
+  console.log(list);
+  
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -210,16 +212,6 @@ console.log(list);
 
   return (
     <div className="profiles-container">
-      {/* Header */}
-      {/* <div className="profiles-header">
-        <h1 className="profiles-title">
-          👤 Profil İdarəetməsi
-        </h1>
-        <p className="profiles-subtitle">
-          İstifadəçi profilləri və professional məlumatları idarə edin
-        </p>
-      </div> */}
-
       {/* Controls */}
       <div className="profiles-controls">
         <div className="search-sort-section">
@@ -396,21 +388,6 @@ console.log(list);
             <div className="info-item"><strong>🕓 Uzunluq:</strong> {selectedProfile.longitude}</div>
           </div>
         </div>
-
-        {/* Şəkillər */}
-        {/* {(selectedProfile.coverPictureUrl || selectedProfile.profilePictureUrl) && (
-          <div className="profile-images-section">
-            <h3>🖼️ Şəkillər</h3>
-            <div className="images-grid">
-              {selectedProfile.coverPictureUrl && (
-                <img src={selectedProfile.coverPictureUrl} alt="Cover" className="cover-image" />
-              )}
-              {selectedProfile.profilePictureUrl && (
-                <img src={selectedProfile.profilePictureUrl} alt="Profil" className="profile-image" />
-              )}
-            </div>
-          </div>
-        )} */}
 
         {/* İş günləri */}
         {selectedProfile.workTimes?.length > 0 && (

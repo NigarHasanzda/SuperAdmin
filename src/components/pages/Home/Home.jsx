@@ -159,7 +159,7 @@ const Home = () => {
 
       <div
         className="main-content"
-        style={{ marginLeft: sidebarCollapsed ? "70px" : "250px" }}
+        style={{ marginLeft: "250px" }}
       >
         <div className="header">
           <h1 className="page-title">
@@ -174,7 +174,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="content">{renderContent()}</div>
+        <div className="content" style={{marginLeft:"100px"}}>{renderContent()}</div>
       </div>
     </div>
   );

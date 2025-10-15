@@ -116,7 +116,8 @@ const Login = () => {
           <div className="logo-section">
             <div className="logo-icon">🛡️</div>
             <h1 className="login-title">Admin Panel</h1>
-            <p className="login-subtitle">Super Admin İdarəetmə Sistemi</p>
+            {/* <p className="login-subtitle">Super Admin İdarəetmə Sistemi</p> */}
+             
           </div>
           
           <div className="time-display">
@@ -136,11 +137,10 @@ const Login = () => {
         {/* Login Form */}
         <form className="login-form" onSubmit={handleSubmit} noValidate>
           <div className="form-group">
-            <label htmlFor="login-username" className="form-label">
-              � İstifadəçi adı
-            </label>
+            {/* <label htmlFor="login-username" className="form-label">
+               İstifadəçi adı
+            </label> */}
             <div className="input-container">
-              <span className="input-icon">�</span>
               <input
                 id="login-username"
                 type="text"
@@ -153,11 +153,10 @@ const Login = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="login-password" className="form-label">
-              🔒 Şifrə
-            </label>
+            {/* <label htmlFor="login-password" className="form-label">
+               Şifrə
+            </label> */}
             <div className="input-container">
-              <span className="input-icon">🔑</span>
               <input
                 id="login-password"
                 type={showPassword ? "text" : "password"}
@@ -224,17 +223,6 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Status Indicators */}
-      <div className="status-indicators">
-        <div className="status-item">
-          <div className="status-dot online"></div>
-          <span>Server Online</span>
-        </div>
-        <div className="status-item">
-          <div className="status-dot secure"></div>
-          <span>SSL Secure</span>
-        </div>
-      </div>
     </div>
   );
 };

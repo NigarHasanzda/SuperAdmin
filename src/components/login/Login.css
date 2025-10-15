@@ -131,7 +131,10 @@
 }
 
 .logo-section {
-  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
 }
 
 .logo-icon {
@@ -166,6 +169,7 @@
 
 .time-display {
   text-align: right;
+  margin: 0 auto;
   background: rgba(255, 255, 255, 0.1);
   padding: 1rem;
   border-radius: 15px;
@@ -230,8 +234,8 @@
   font-size: 1rem;
   font-weight: 600;
   color: #ffffff;
-  margin-bottom: 0.5rem;
-  text-align: center;
+  margin-left: -100px;
+  margin-bottom: 0.5rem
 }
 
 .input-container {

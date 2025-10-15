@@ -99,7 +99,7 @@ const AdsList = () => {
       <div className="add-ad-form">
         <div className="form-group">
           <div className="form-input">
-            <label className="form-label">🔗 Reklam Linki</label>
+
             <input
               type="url"
               placeholder="https://example.com"
