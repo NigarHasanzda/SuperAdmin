@@ -5,9 +5,9 @@ import {
   checkTokenExpiration,
   clearExpiredToken,
 } from "../../Redux/Features/Login";
-import "./AdminPanel.css";
+import "./AdminPanel.css"; // Xarici CSS stil faylı daxil edilir
 
-// Səhifə Komponentləri
+// Səhifə Komponentləri (Fərz edilir ki, bu fayllar mövcuddur)
 import Ads from "./Ads";
 import Category from "./Category";
 import Role from "./Role";
@@ -20,47 +20,27 @@ import Report from "./Report";
 import WheelService from "./WheelService";
 import Log from "./Log";
 
-// Redux Fetch Funksiyaları
+// Redux Fetch Funksiyaları (Fərz edilir ki, bu fayllar mövcuddur)
 import { fetchUsers } from "../../Redux/Features/AllUserSlice";
 import { fetchAllBusinesses } from "../../Redux/Features/Businesses";
 import { fetchProducts } from "../../Redux/Features/ProductSlice";
 import { fetchAds } from "../../Redux/Features/AdsSlice";
-import {
-  clearRefreshState,
-  refreshToken,
-} from "../../Redux/Features/RefreshSlice";
 
+/**
+ * Əsas Admin Panel Komponenti
+ */
 const Home = () => {
   const dispatch = useDispatch();
   const { token, user } = useSelector((state) => state.auth);
   const [activePage, setActivePage] = useState("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // 🔹 Refresh token yalnız token expired və ya 403 error zamanı
-  // useEffect(() => {
-  //   const callRefreshIfNeeded = async () => {
-  //     if (!token) return;
-
-  //     try {
-  //       if (checkTokenExpiration()) {
-  //         console.log("Token expired, refresh edilir...");
-  //         await dispatch(refreshToken()).unwrap();
-  //       }
-  //     } catch (err) {
-  //       console.log("Refresh token alınmadı:", err);
-  //       dispatch(clearRefreshState());
-  //       window.location.href = "/login";
-  //     }
-  //   };
-
-  //   callRefreshIfNeeded();
-  // }, [dispatch, token]);
-
-  // 🔹 Token expiration yoxlaması səhifə yüklənəndə
+  // Tokenin bitmə müddətini yoxla
   useEffect(() => {
     if (!token) return;
 
-    if (checkTokenExpiration()) {
+    // Fərz edilir ki, checkTokenExpiration funksiyası bitmə tarixini yoxlayır
+    if (checkTokenExpiration()) { 
       dispatch(clearExpiredToken());
       alert("Sessiya müddəti bitdi. Yenidən daxil olun.");
       window.location.href = "/login";
@@ -82,7 +62,7 @@ const Home = () => {
     { id: "businesses", label: "Bizneslər", icon: "🏢" },
     { id: "products", label: "Məhsullar", icon: "📦" },
     { id: "notification", label: "Bildirişlər", icon: "🔔" },
-    { id: "profiles", label: "Xidmət göstərənlər", icon: "👤" },
+    { id: "profiles", label: "Xidmət göstərənlər", icon: "🛠️" }, // İkona düzəliş
     { id: "report", label: "Hesabatlar", icon: "📈" },
     { id: "wheel", label: "Təkər Xidməti", icon: "⚙️" },
     { id: "logs", label: "Loglar", icon: "📝" },
@@ -119,6 +99,7 @@ const Home = () => {
 
   return (
     <div className="admin-container">
+      {/* Sidebar */}
       <div
         className="sidebar"
         style={{ width: sidebarCollapsed ? "70px" : "250px" }}
@@ -128,7 +109,8 @@ const Home = () => {
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             className="toggle-button"
           >
-            {sidebarCollapsed ? "☰" : "✕"}
+            {/* Sidebar kiçik olduqda '☰' görünür */}
+            {sidebarCollapsed ? "☰" : "✕"} 
           </button>
           {!sidebarCollapsed && <h2 className="logo">Admin Panel</h2>}
         </div>
@@ -157,9 +139,11 @@ const Home = () => {
         </div>
       </div>
 
+      {/* Əsas Məzmun */}
       <div
         className="main-content"
-        style={{ marginLeft: "250px" }}
+        // Sidebar-ın eninə uyğun margin
+        style={{ marginLeft: sidebarCollapsed ? "70px" : "250px" }} 
       >
         <div className="header">
           <h1 className="page-title">
@@ -174,24 +158,27 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="content" style={{marginLeft:"100px"}}>{renderContent()}</div>
+        {/* Content CSS-dəki paddinglə idarə olunur */}
+        <div className="content">{renderContent()}</div> 
       </div>
     </div>
   );
 };
 
-// ===========================================
-// Dashboard Home Komponenti
-// ===========================================
+/**
+ * Dashboard Əsas Səhifə Komponenti
+ */
 const DashboardHome = ({ setActivePage }) => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
-  const users = useSelector((state) => state.users.list || []);
-  const businesses = useSelector((state) => state.businesses.all || []);
-  const products = useSelector((state) => state.products.list || {});
-  const ads = useSelector((state) => state.ads.list || []);
+  // Redux state-dən metrika məlumatları
+  const users = useSelector((state) => state.users?.list || []);
+  const businesses = useSelector((state) => state.businesses?.all || []);
+  const products = useSelector((state) => state.products?.list || {});
+  const ads = useSelector((state) => state.ads?.list || []);
 
+  // Məlumatların Array/Object olmasından asılı olaraq sayını hesablayır
   const userNumber = Array.isArray(users)
     ? users.length
     : users.content?.length || 0;
@@ -208,6 +195,7 @@ const DashboardHome = ({ setActivePage }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [loginTime] = useState(new Date());
 
+  // Komponent yükləndikdə metrika datalarını çəkmək
   useEffect(() => {
     dispatch(fetchUsers());
     dispatch(fetchAllBusinesses());
@@ -215,6 +203,7 @@ const DashboardHome = ({ setActivePage }) => {
     dispatch(fetchAds());
   }, [dispatch]);
 
+  // Saatı yeniləmək üçün timer
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -226,6 +215,7 @@ const DashboardHome = ({ setActivePage }) => {
       minute: "2-digit",
       second: "2-digit",
     });
+    
   const formatDate = (date) =>
     date.toLocaleDateString("az-AZ", {
       weekday: "long",
@@ -261,6 +251,7 @@ const DashboardHome = ({ setActivePage }) => {
 
   return (
     <div className="dashboard-container">
+      {/* Hero Section */}
       <div className="dashboard-hero">
         <div className="hero-content">
           <div className="welcome-info">
@@ -292,10 +283,11 @@ const DashboardHome = ({ setActivePage }) => {
         </div>
       </div>
 
+      {/* Metrics Grid */}
       <div className="metrics-grid">
         <div
           className="metric-card users"
-          style={{ "--metric-color": "#3b82f6" }}
+          style={{ "--metric-color": "#3b82f6" }} // Mavi
         >
           <div className="metric-icon">👥</div>
           <div className="metric-info">
@@ -315,7 +307,7 @@ const DashboardHome = ({ setActivePage }) => {
         </div>
         <div
           className="metric-card businesses"
-          style={{ "--metric-color": "#10b981" }}
+          style={{ "--metric-color": "#10b981" }} // Yaşıl
         >
           <div className="metric-icon">🏢</div>
           <div className="metric-info">
@@ -335,7 +327,7 @@ const DashboardHome = ({ setActivePage }) => {
         </div>
         <div
           className="metric-card products"
-          style={{ "--metric-color": "#f59e0b" }}
+          style={{ "--metric-color": "#f59e0b" }} // Sarı
         >
           <div className="metric-icon">📦</div>
           <div className="metric-info">
@@ -355,7 +347,7 @@ const DashboardHome = ({ setActivePage }) => {
         </div>
         <div
           className="metric-card revenue"
-          style={{ "--metric-color": "#ef4444" }}
+          style={{ "--metric-color": "#ef4444" }} // Qırmızı
         >
           <div className="metric-icon">📢</div>
           <div className="metric-info">
