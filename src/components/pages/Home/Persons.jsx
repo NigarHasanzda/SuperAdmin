@@ -6,7 +6,6 @@ import "./Persons.css";
 const Persons = () => {
   const dispatch = useDispatch();
   const { list, loading, error } = useSelector((state) => state.users);
-  
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -82,12 +81,19 @@ const Persons = () => {
               className="search-input"
             />
             {searchTerm && (
-              <button onClick={() => setSearchTerm("")} className="clear-search-btn">
+              <button
+                onClick={() => setSearchTerm("")}
+                className="clear-search-btn"
+              >
                 ❌
               </button>
             )}
           </div>
-          {searchTerm && <div className="search-info">🎯 {filteredUsers.length} nəticə tapıldı</div>}
+          {searchTerm && (
+            <div className="search-info">
+              🎯 {filteredUsers.length} nəticə tapıldı
+            </div>
+          )}
         </div>
 
         <div className="stats-section">
@@ -135,16 +141,28 @@ const Persons = () => {
                       <th onClick={() => handleSort("id")} className="sortable">
                         🆔 ID {getSortIcon("id")}
                       </th>
-                      <th onClick={() => handleSort("name")} className="sortable">
+                      <th
+                        onClick={() => handleSort("name")}
+                        className="sortable"
+                      >
                         👤 Ad {getSortIcon("name")}
                       </th>
-                      <th onClick={() => handleSort("surname")} className="sortable">
+                      <th
+                        onClick={() => handleSort("surname")}
+                        className="sortable"
+                      >
                         👤 Soyad {getSortIcon("surname")}
                       </th>
-                      <th onClick={() => handleSort("email")} className="sortable">
+                      <th
+                        onClick={() => handleSort("email")}
+                        className="sortable"
+                      >
                         📧 Email {getSortIcon("email")}
                       </th>
-                      <th onClick={() => handleSort("phone")} className="sortable">
+                      <th
+                        onClick={() => handleSort("phone")}
+                        className="sortable"
+                      >
                         📞 Telefon {getSortIcon("phone")}
                       </th>
                     </tr>
@@ -153,7 +171,9 @@ const Persons = () => {
                     {currentUsers.map((user, index) => (
                       <tr
                         key={user.id}
-                        className={`user-row ${index % 2 === 0 ? "even" : "odd"}`}
+                        className={`user-row ${
+                          index % 2 === 0 ? "even" : "odd"
+                        }`}
                       >
                         <td className="user-id">{user.id}</td>
                         <td className="user-name">{user.name || "-"}</td>
@@ -181,7 +201,9 @@ const Persons = () => {
                       <button
                         key={i + 1}
                         onClick={() => paginate(i + 1)}
-                        className={`pagination-number ${currentPage === i + 1 ? "active" : ""}`}
+                        className={`pagination-number ${
+                          currentPage === i + 1 ? "active" : ""
+                        }`}
                       >
                         {i + 1}
                       </button>
@@ -200,7 +222,8 @@ const Persons = () => {
               {/* Table Info */}
               <div className="table-info">
                 <span>
-                  {indexOfFirstUser + 1}-{Math.min(indexOfLastUser, sortedUsers.length)} /{" "}
+                  {indexOfFirstUser + 1}-
+                  {Math.min(indexOfLastUser, sortedUsers.length)} /{" "}
                   {sortedUsers.length} istifadəçi göstərilir
                 </span>
               </div>

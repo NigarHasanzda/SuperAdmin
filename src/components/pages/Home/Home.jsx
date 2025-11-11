@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   logoutAdmin,
   checkTokenExpiration,
   clearExpiredToken,
 } from "../../Redux/Features/Login";
-import "./AdminPanel.css"; // Xarici CSS stil faylı daxil edilir
+import "./AdminPanel.css";
 
-// Səhifə Komponentləri (Fərz edilir ki, bu fayllar mövcuddur)
+// Səhifə Komponentləri
 import Ads from "./Ads";
 import Category from "./Category";
 import Role from "./Role";
@@ -17,43 +17,43 @@ import { Product } from "./Product";
 import { Notification } from "./Notification";
 import Profiles from "./Profiles";
 import Report from "./Report";
-import WheelService from "./WheelService";
 import Log from "./Log";
 
-// Redux Fetch Funksiyaları (Fərz edilir ki, bu fayllar mövcuddur)
+// Redux Fetch Funksiyaları
 import { fetchUsers } from "../../Redux/Features/AllUserSlice";
 import { fetchAllBusinesses } from "../../Redux/Features/Businesses";
 import { fetchProducts } from "../../Redux/Features/ProductSlice";
 import { fetchAds } from "../../Redux/Features/AdsSlice";
+// Refresh token funksiyaları tələb olunmadığı üçün istifadə edilmir
 
-/**
- * Əsas Admin Panel Komponenti
- */
+// ===========================================
+// 🔹 Əsas Komponent: Home (Admin Panel)
+// ===========================================
+
 const Home = () => {
   const dispatch = useDispatch();
   const { token, user } = useSelector((state) => state.auth);
   const [activePage, setActivePage] = useState("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // Tokenin bitmə müddətini yoxla
+  // Token expiration yoxlaması səhifə yüklənəndə
   useEffect(() => {
     if (!token) return;
 
-    // Fərz edilir ki, checkTokenExpiration funksiyası bitmə tarixini yoxlayır
-    if (checkTokenExpiration()) { 
+    if (checkTokenExpiration()) {
       dispatch(clearExpiredToken());
       alert("Sessiya müddəti bitdi. Yenidən daxil olun.");
       window.location.href = "/login";
     }
   }, [dispatch, token]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     if (window.confirm("Çıxış etmək istədiyinizə əminsiniz?")) {
       dispatch(logoutAdmin());
     }
-  };
+  }, [dispatch]);
 
-  const menuItems = [
+  const menuItems = useMemo(() => [
     { id: "dashboard", label: "Dashboard", icon: "📊" },
     { id: "ads", label: "Reklamlar", icon: "📢" },
     { id: "category", label: "Kateqoriyalar", icon: "📋" },
@@ -62,11 +62,11 @@ const Home = () => {
     { id: "businesses", label: "Bizneslər", icon: "🏢" },
     { id: "products", label: "Məhsullar", icon: "📦" },
     { id: "notification", label: "Bildirişlər", icon: "🔔" },
-    { id: "profiles", label: "Xidmət göstərənlər", icon: "🛠️" }, // İkona düzəliş
+    { id: "profiles", label: "Xidmət göstərənlər", icon: "🛠️" }, // İkonu dəyişdim
     { id: "report", label: "Hesabatlar", icon: "📈" },
-    { id: "wheel", label: "Təkər Xidməti", icon: "⚙️" },
+    // { id: "wheel", label: "Təkər Xidməti", icon: "⚙️" },
     { id: "logs", label: "Loglar", icon: "📝" },
-  ];
+  ], []);
 
   const renderContent = () => {
     switch (activePage) {
@@ -88,29 +88,31 @@ const Home = () => {
         return <Profiles />;
       case "report":
         return <Report />;
-      case "wheel":
-        return <WheelService />;
+      // case "wheel":
+      //   return <WheelService />;
       case "logs":
         return <Log />;
       default:
         return <DashboardHome setActivePage={setActivePage} />;
     }
   };
+  
+  // CSS-də istifadə etmək üçün sidebar state-ini class-a əlavə edirik
+  const sidebarClass = sidebarCollapsed ? "sidebar collapsed" : "sidebar";
+  const mainContentClass = sidebarCollapsed ? "main-content expanded" : "main-content";
+  
+  const currentPageTitle = menuItems.find((item) => item.id === activePage)?.label || "Dashboard";
 
   return (
     <div className="admin-container">
-      {/* Sidebar */}
-      <div
-        className="sidebar"
-        style={{ width: sidebarCollapsed ? "70px" : "250px" }}
-      >
+      <div className={sidebarClass}>
         <div className="sidebar-header">
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             className="toggle-button"
+            title={sidebarCollapsed ? "Genişləndir" : "Yığışdır"}
           >
-            {/* Sidebar kiçik olduqda '☰' görünür */}
-            {sidebarCollapsed ? "☰" : "✕"} 
+            {sidebarCollapsed ? "≫" : "≪"}
           </button>
           {!sidebarCollapsed && <h2 className="logo">Admin Panel</h2>}
         </div>
@@ -121,7 +123,7 @@ const Home = () => {
               key={item.id}
               onClick={() => setActivePage(item.id)}
               className={`menu-item ${activePage === item.id ? "active" : ""}`}
-              title={sidebarCollapsed ? item.label : ""}
+              title={item.label}
             >
               <span className="menu-icon">{item.icon}</span>
               {!sidebarCollapsed && (
@@ -139,63 +141,49 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Əsas Məzmun */}
-      <div
-        className="main-content"
-        // Sidebar-ın eninə uyğun margin
-        style={{ marginLeft: sidebarCollapsed ? "70px" : "250px" }} 
-      >
+      <div className={mainContentClass}>
         <div className="header">
-          <h1 className="page-title">
-            {menuItems.find((item) => item.id === activePage)?.label ||
-              "Dashboard"}
-          </h1>
+          <h1 className="page-title">{currentPageTitle}</h1>
           <div className="user-info">
-            <span>Xoş gəlmisiniz, {user?.name || "Admin"}</span>
+            <span className="welcome-text">Xoş gəlmisiniz, <strong>{user?.name || "Admin"}</strong></span>
             <button onClick={handleLogout} className="header-logout-button">
               Çıxış
             </button>
           </div>
         </div>
 
-        {/* Content CSS-dəki paddinglə idarə olunur */}
-        <div className="content">{renderContent()}</div> 
+        <div className="content">
+          {renderContent()}
+        </div>
       </div>
     </div>
   );
 };
 
-/**
- * Dashboard Əsas Səhifə Komponenti
- */
+// ===========================================
+// 🔹 Dashboard Home Komponenti (Daha Səliqəli)
+// ===========================================
+
 const DashboardHome = ({ setActivePage }) => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
-  // Redux state-dən metrika məlumatları
-  const users = useSelector((state) => state.users?.list || []);
-  const businesses = useSelector((state) => state.businesses?.all || []);
-  const products = useSelector((state) => state.products?.list || {});
-  const ads = useSelector((state) => state.ads?.list || []);
+  // Redux datalarını çıxarmaq
+  const users = useSelector((state) => state.users.list || []);
+  const businesses = useSelector((state) => state.businesses.all || []);
+  const products = useSelector((state) => state.products.list || {});
+  const ads = useSelector((state) => state.ads.list || []);
 
-  // Məlumatların Array/Object olmasından asılı olaraq sayını hesablayır
-  const userNumber = Array.isArray(users)
-    ? users.length
-    : users.content?.length || 0;
-  const businessLength = Array.isArray(businesses)
-    ? businesses.length
-    : businesses.content?.length || 0;
-  const productLength = Array.isArray(products)
-    ? products.length
-    : products.content?.length || 0;
-  const allAdsLength = Array.isArray(ads)
-    ? ads.length
-    : ads.content?.length || 0;
+  // Datadan sayları çıxarmaq
+  const userNumber = Array.isArray(users) ? users.length : users.content?.length || 0;
+  const businessLength = Array.isArray(businesses) ? businesses.length : businesses.content?.length || 0;
+  const productLength = Array.isArray(products) ? products.length : products.content?.length || 0;
+  const allAdsLength = Array.isArray(ads) ? ads.length : ads.content?.length || 0;
 
   const [currentTime, setCurrentTime] = useState(new Date());
   const [loginTime] = useState(new Date());
 
-  // Komponent yükləndikdə metrika datalarını çəkmək
+  // Data fetch
   useEffect(() => {
     dispatch(fetchUsers());
     dispatch(fetchAllBusinesses());
@@ -203,7 +191,7 @@ const DashboardHome = ({ setActivePage }) => {
     dispatch(fetchAds());
   }, [dispatch]);
 
-  // Saatı yeniləmək üçün timer
+  // Saat yenilənməsi
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -215,7 +203,6 @@ const DashboardHome = ({ setActivePage }) => {
       minute: "2-digit",
       second: "2-digit",
     });
-    
   const formatDate = (date) =>
     date.toLocaleDateString("az-AZ", {
       weekday: "long",
@@ -235,23 +222,36 @@ const DashboardHome = ({ setActivePage }) => {
   const getWelcomeMessage = () => {
     const hour = loginTime.getHours();
     const minute = loginTime.getMinutes();
-    const timeStr = `${hour.toString().padStart(2, "0")}:${minute
-      .toString()
-      .padStart(2, "0")}`;
-    if (hour >= 5 && hour < 9)
-      return `Admin panelinizə ${timeStr}-da daxil oldunuz. Səhər işlərinizə uğurlar diləyirik!`;
-    if (hour >= 9 && hour < 12)
-      return `Admin panelinizə ${timeStr}-da daxil oldunuz. Səhər saatlarında sisteminizdə hər şey qaydasındadır.`;
-    if (hour >= 12 && hour < 17)
-      return `Admin panelinizə ${timeStr}-da daxil oldunuz. Günortadan sonra da aktiv iş gününüz davam edir!`;
-    if (hour >= 17 && hour < 22)
-      return `Admin panelinizə ${timeStr}-da daxil oldunuz. Axşam saatlarında da sisteminizdə hər şey nəzarətdədir.`;
-    return `Admin panelinizə ${timeStr}-da daxil oldunuz. Gecə geç saatlarda da aktivsiniz, əla!`;
+    const timeStr = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+    
+    if (hour >= 5 && hour < 9) return `Admin panelinizə ${timeStr}-da daxil oldunuz. Səhər işlərinizə uğurlar diləyirik!`;
+    if (hour >= 9 && hour < 12) return `Səhər saatlarında daxil oldunuz. Sistemdə hər şey qaydasındadır.`;
+    if (hour >= 12 && hour < 17) return `Günortadan sonra da aktiv iş gününüz davam edir!`;
+    if (hour >= 17 && hour < 22) return `Axşam saatlarında sisteminizdə hər şey nəzarətdədir.`;
+    return `Gecə keç saatlarda da aktivsiniz, əla!`;
   };
+
+  const metrics = [
+    { 
+      id: 'users', label: 'Ümumi İstifadəçi', value: userNumber, color: '#3b82f6', 
+      icon: '👥', trend: 'Aktiv sistem'
+    },
+    { 
+      id: 'businesses', label: 'Təsdiqlənmiş Biznes', value: businessLength, color: '#10b981', 
+      icon: '🏢', trend: businessLength > 0 ? "Aktiv bazada" : "Məlumat yoxdur"
+    },
+    { 
+      id: 'products', label: 'Məhsul Sayı', value: productLength, color: '#f59e0b', 
+      icon: '📦', trend: productLength > 0 ? "Məhsul bazası aktivdir" : "Məlumat yoxdur"
+    },
+    { 
+      id: 'ads', label: 'Reklam Sayı', value: allAdsLength, color: '#ef4444', 
+      icon: '📢', trend: allAdsLength > 0 ? "Aktiv reklamlar" : "Reklam yoxdur"
+    }
+  ];
 
   return (
     <div className="dashboard-container">
-      {/* Hero Section */}
       <div className="dashboard-hero">
         <div className="hero-content">
           <div className="welcome-info">
@@ -283,88 +283,30 @@ const DashboardHome = ({ setActivePage }) => {
         </div>
       </div>
 
-      {/* Metrics Grid */}
       <div className="metrics-grid">
-        <div
-          className="metric-card users"
-          style={{ "--metric-color": "#3b82f6" }} // Mavi
-        >
-          <div className="metric-icon">👥</div>
-          <div className="metric-info">
-            <div className="metric-value">{userNumber}</div>
-            <div className="metric-label">Ümumi İstifadəçi</div>
+        {metrics.map(metric => (
             <div
-              className="metric-trend"
-              style={{
-                background: "rgba(59, 130, 246, 0.2)",
-                border: "1px solid rgba(59, 130, 246, 0.5)",
-                color: "#3b82f6",
-              }}
+                key={metric.id}
+                className={`metric-card ${metric.id}`}
+                style={{ "--metric-color": metric.color }}
             >
-              Aktiv sistem
+                <div className="metric-icon">{metric.icon}</div>
+                <div className="metric-info">
+                    <div className="metric-value">{metric.value}</div>
+                    <div className="metric-label">{metric.label}</div>
+                    <div
+                        className="metric-trend"
+                        style={{
+                            background: `color-mix(in srgb, ${metric.color} 20%, transparent)`,
+                            border: `1px solid color-mix(in srgb, ${metric.color} 50%, transparent)`,
+                            color: metric.color,
+                        }}
+                    >
+                        {metric.trend}
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-        <div
-          className="metric-card businesses"
-          style={{ "--metric-color": "#10b981" }} // Yaşıl
-        >
-          <div className="metric-icon">🏢</div>
-          <div className="metric-info">
-            <div className="metric-value">{businessLength}</div>
-            <div className="metric-label">Təsdiqlənmiş Biznes</div>
-            <div
-              className="metric-trend"
-              style={{
-                background: "rgba(16, 185, 129, 0.2)",
-                border: "1px solid rgba(16, 185, 129, 0.5)",
-                color: "#10b981",
-              }}
-            >
-              {businessLength > 0 ? "Aktiv bazada" : "Məlumat yoxdur"}
-            </div>
-          </div>
-        </div>
-        <div
-          className="metric-card products"
-          style={{ "--metric-color": "#f59e0b" }} // Sarı
-        >
-          <div className="metric-icon">📦</div>
-          <div className="metric-info">
-            <div className="metric-value">{productLength}</div>
-            <div className="metric-label">Məhsul Sayı</div>
-            <div
-              className="metric-trend"
-              style={{
-                background: "rgba(245, 158, 11, 0.2)",
-                border: "1px solid rgba(245, 158, 11, 0.5)",
-                color: "#f59e0b",
-              }}
-            >
-              {productLength > 0 ? "Məhsul bazası aktivdir" : "Məlumat yoxdur"}
-            </div>
-          </div>
-        </div>
-        <div
-          className="metric-card revenue"
-          style={{ "--metric-color": "#ef4444" }} // Qırmızı
-        >
-          <div className="metric-icon">📢</div>
-          <div className="metric-info">
-            <div className="metric-value">{allAdsLength}</div>
-            <div className="metric-label">Reklam Sayı</div>
-            <div
-              className="metric-trend"
-              style={{
-                background: "rgba(239, 68, 68, 0.2)",
-                border: "1px solid rgba(239, 68, 68, 0.5)",
-                color: "#ef4444",
-              }}
-            >
-              {allAdsLength > 0 ? "Aktiv reklamlar" : "Reklam yoxdur"}
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

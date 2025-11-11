@@ -6,10 +6,7 @@ import {
   updateRole,
   deleteRole,
 } from "../../Redux/Features/AllRole";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import "./Role.css";
-import { FaAngleLeft ,FaAngleRight} from 'react-icons/fa';
 
 const permissions = [
   { key: "superAdmin", label: "Super Admin", icon: "👑" },
@@ -44,7 +41,7 @@ const Role = () => {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const rolesPerPage = 5;
+  const itemsPerPage = 9;
 
   useEffect(() => {
     dispatch(fetchRoles());
@@ -63,30 +60,37 @@ const Role = () => {
         )
       );
     }
-    setCurrentPage(1);
   }, [searchTerm, list]);
 
-  // Pagination logic
-  const indexOfLastRole = currentPage * rolesPerPage;
-  const indexOfFirstRole = indexOfLastRole - rolesPerPage;
-  const currentRoles = filteredRoles.slice(indexOfFirstRole, indexOfLastRole);
-  const totalPages = Math.ceil(filteredRoles.length / rolesPerPage);
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredRoles.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentRoles = filteredRoles.slice(startIndex, endIndex);
 
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber < 1 || pageNumber > totalPages) return;
-    setCurrentPage(pageNumber);
-  };
-
-  // ✅ Toast funksiyası
-  const showToast = (message, type = "success") => {
-    toast[type](message, {
-      position: "top-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "colored",
-    });
+  const getPageNumbers = () => {
+    const pages = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      // Always show first and last
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, 4, "...", totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(
+          1,
+          "...",
+          currentPage - 1,
+          currentPage,
+          currentPage + 1,
+          "...",
+          totalPages
+        );
+      }
+    }
+    return pages;
   };
 
   const handleToggleEdit = (perm) => {
@@ -99,22 +103,18 @@ const Role = () => {
 
   const handleUpdate = () => {
     if (!editRole.name.trim()) {
-      toast.error("⚠️ Rol adı boş ola bilməz");
+      alert("Rol adı boş ola bilməz");
       return;
     }
-    dispatch(updateRole(editRole)).then(() => {
-      showToast(`"${editRole.name}" rolu yeniləndi ✅`);
-      setEditRole(null);
-    });
+    dispatch(updateRole(editRole)).then(() => setEditRole(null));
   };
 
   const handleAdd = () => {
     if (!newRole.name.trim()) {
-      toast.error("⚠️ Rol adı boş ola bilməz");
+      alert("Rol adı boş ola bilməz");
       return;
     }
     dispatch(addRole(newRole)).then(() => {
-      showToast(`"${newRole.name}" rolu əlavə olundu ✨`);
       setNewRole({
         name: "",
         description: "",
@@ -131,10 +131,8 @@ const Role = () => {
   };
 
   const handleDelete = (id, name) => {
-    if (window.confirm(`"${name}" rolunu silmək istədiyinizə əminsiniz?`)) {
-      dispatch(deleteRole(id)).then(() => {
-        showToast(`"${name}" rolu silindi 🗑️`, "info");
-      });
+    if (window.confirm(`"${name}" rolunu silməkdə əminsiniz?`)) {
+      dispatch(deleteRole(id));
     }
   };
 
@@ -155,15 +153,6 @@ const Role = () => {
 
   return (
     <div className="role-container">
-            <ToastContainer
-        position="top-center"
-        autoClose={1500}
-        hideProgressBar={false}
-        closeOnClick
-        pauseOnHover
-        theme="colored"
-      />
-
       {/* Controls */}
       <div className="role-controls">
         <div className="search-section">
@@ -200,7 +189,7 @@ const Role = () => {
         </button>
       </div>
 
-      {/* Add Form */}
+      {/* Add New Role Form */}
       {showAddForm && (
         <div className="add-role-form">
           <div className="form-header">
@@ -212,6 +201,7 @@ const Role = () => {
                 <label className="form-label">📛 Rol Adı</label>
                 <input
                   type="text"
+                  placeholder="Məsələn: Moderator, Manager..."
                   value={newRole.name}
                   onChange={(e) =>
                     setNewRole({ ...newRole, name: e.target.value })
@@ -223,6 +213,7 @@ const Role = () => {
                 <label className="form-label">📝 Təsvir</label>
                 <input
                   type="text"
+                  placeholder="Bu rolun təsvirini yazın..."
                   value={newRole.description}
                   onChange={(e) =>
                     setNewRole({ ...newRole, description: e.target.value })
@@ -255,7 +246,7 @@ const Role = () => {
 
             <div className="form-actions">
               <button onClick={handleAdd} className="btn btn-success">
-                ✨ Əlavə Et
+                ✨ Rol Əlavə Et
               </button>
               <button onClick={resetNewRole} className="btn btn-secondary">
                 ❌ Ləğv Et
@@ -285,11 +276,12 @@ const Role = () => {
         <>
           {filteredRoles.length === 0 ? (
             <div className="empty-state">
-              <h3>🛡️ Heç bir rol tapılmadı</h3>
+              <div className="empty-icon">🛡️</div>
+              <h3>Heç bir rol tapılmadı</h3>
               <p>
                 {searchTerm
-                  ? `"${searchTerm}" üçün nəticə yoxdur`
-                  : "Hələ heç bir rol əlavə edilməyib"}
+                  ? `"${searchTerm}" axtarışına uyğun rol mövcud deyil`
+                  : "Hələ heç bir rol yoxdur. Yuxarıdakı formu istifadə edərək ilk rolunuzu əlavə edin"}
               </p>
             </div>
           ) : (
@@ -299,56 +291,67 @@ const Role = () => {
                   <div key={role.id} className="role-card">
                     {editRole?.id === role.id ? (
                       <div className="role-edit-form">
-                        <h3>✏️ Rol Düzəliş Et</h3>
+                        {/* Rolların düzəliş hissəsi */}
+                        <div className="edit-header">
+                          <h3>✏️ Rol Düzəliş Et</h3>
+                        </div>
                         <div className="form-row">
-                          <input
-                            type="text"
-                            value={editRole.name}
-                            onChange={(e) =>
-                              setEditRole({
-                                ...editRole,
-                                name: e.target.value,
-                              })
-                            }
-                            className="input-field"
-                          />
-                          <input
-                            type="text"
-                            value={editRole.description}
-                            onChange={(e) =>
-                              setEditRole({
-                                ...editRole,
-                                description: e.target.value,
-                              })
-                            }
-                            className="input-field"
-                          />
+                          <div className="form-group">
+                            <label className="form-label">📛 Rol Adı</label>
+                            <input
+                              type="text"
+                              value={editRole.name}
+                              onChange={(e) =>
+                                setEditRole({ ...editRole, name: e.target.value })
+                              }
+                              className="input-field"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label className="form-label">📝 Təsvir</label>
+                            <input
+                              type="text"
+                              value={editRole.description}
+                              onChange={(e) =>
+                                setEditRole({
+                                  ...editRole,
+                                  description: e.target.value,
+                                })
+                              }
+                              className="input-field"
+                            />
+                          </div>
                         </div>
-                        <div className="permissions-grid">
-                          {permissions.map((perm) => (
-                            <div
-                              key={perm.key}
-                              className={`permission-card ${
-                                editRole[perm.key] ? "active" : ""
-                              }`}
-                              onClick={() => handleToggleEdit(perm.key)}
-                            >
-                              <div className="permission-icon">{perm.icon}</div>
-                              <div className="permission-label">
-                                {perm.label}
+
+                        <div className="permissions-section">
+                          <label className="form-label">🔐 İcazələr</label>
+                          <div className="permissions-grid">
+                            {permissions.map((perm) => (
+                              <div
+                                key={perm.key}
+                                className={`permission-card ${
+                                  editRole[perm.key] ? "active" : ""
+                                }`}
+                                onClick={() => handleToggleEdit(perm.key)}
+                              >
+                                <div className="permission-icon">{perm.icon}</div>
+                                <div className="permission-label">
+                                  {perm.label}
+                                </div>
+                                <div className="permission-status">
+                                  {editRole[perm.key] ? "✅" : "❌"}
+                                </div>
                               </div>
-                              <div className="permission-status">
-                                {editRole[perm.key] ? "✅" : "❌"}
-                              </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
+
                         <div className="edit-actions">
                           <button
                             onClick={handleUpdate}
                             className="btn btn-success"
                           >
-                            ✅ Saxla
+                            ✅ Yadda Saxla
                           </button>
                           <button
                             onClick={() => setEditRole(null)}
@@ -360,22 +363,34 @@ const Role = () => {
                       </div>
                     ) : (
                       <div className="role-view">
-                        <h3 className="role-name">🏷️ {role.name}</h3>
-                        <p>{role.description || "Təsvir yoxdur"}</p>
+                        <div className="role-info">
+                          <div className="role-main-info">
+                            <h3 className="role-name">🏷️ {role.name}</h3>
+                            <p className="role-description">
+                              {role.description || "Təsvir əlavə edilməyib"}
+                            </p>
+                            <div className="role-id">🆔 ID: {role.id}</div>
+                          </div>
+                        </div>
 
-                        <div className="permissions-list">
-                          {permissions.map((perm) => (
-                            <div
-                              key={perm.key}
-                              className={`permission-item ${
-                                role[perm.key] ? "granted" : "denied"
-                              }`}
-                            >
-                              <span>{perm.icon}</span>
-                              <span>{perm.label}</span>
-                              <span>{role[perm.key] ? "✅" : "❌"}</span>
-                            </div>
-                          ))}
+                        <div className="role-permissions">
+                          <h4 className="permissions-title">🔐 İcazələr</h4>
+                          <div className="permissions-list">
+                            {permissions.map((perm) => (
+                              <div
+                                key={perm.key}
+                                className={`permission-item ${
+                                  role[perm.key] ? "granted" : "denied"
+                                }`}
+                              >
+                                <span className="permission-icon">{perm.icon}</span>
+                                <span className="permission-name">{perm.label}</span>
+                                <span className="permission-status">
+                                  {role[perm.key] ? "✅" : "❌"}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
 
                         <div className="role-actions">
@@ -398,73 +413,42 @@ const Role = () => {
                 ))}
               </div>
 
-              {/* ✅ Pagination (ellipses ilə) */}
-              {totalPages > 1 && (
-                <div className="pagination">
-                  <button
-                    className="page-btn"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                  >
-                    <FaAngleLeft/> 
-                  </button>
+              {/* Pagination */}
+              <div className="pagination">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  className="page-btn"
+                  disabled={currentPage === 1}
+                >
+                  ◀
+                </button>
 
-                  {currentPage > 2 && (
-                    <>
-                      <button
-                        className={`page-btn ${
-                          currentPage === 1 ? "active" : ""
-                        }`}
-                        onClick={() => handlePageChange(1)}
-                      >
-                        1
-                      </button>
-                      {currentPage > 3 && <span className="dots">...</span>}
-                    </>
-                  )}
+                {getPageNumbers().map((p, idx) =>
+                  p === "..." ? (
+                    <span key={idx} className="page-ellipsis">
+                      ...
+                    </span>
+                  ) : (
+                    <button
+                      key={idx}
+                      className={`page-btn ${currentPage === p ? "active" : ""}`}
+                      onClick={() => setCurrentPage(p)}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
 
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter(
-                      (num) =>
-                        num >= currentPage - 1 && num <= currentPage + 1
-                    )
-                    .map((num) => (
-                      <button
-                        key={num}
-                        className={`page-btn ${
-                          currentPage === num ? "active" : ""
-                        }`}
-                        onClick={() => handlePageChange(num)}
-                      >
-                        {num}
-                      </button>
-                    ))}
-
-                  {currentPage < totalPages - 1 && (
-                    <>
-                      {currentPage < totalPages - 2 && (
-                        <span className="dots">...</span>
-                      )}
-                      <button
-                        className={`page-btn ${
-                          currentPage === totalPages ? "active" : ""
-                        }`}
-                        onClick={() => handlePageChange(totalPages)}
-                      >
-                        {totalPages}
-                      </button>
-                    </>
-                  )}
-
-                  <button
-                    className="page-btn"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                  >
-                    <FaAngleRight/>
-                  </button>
-                </div>
-              )}
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                  className="page-btn"
+                  disabled={currentPage === totalPages}
+                >
+                  ▶
+                </button>
+              </div>
             </>
           )}
         </>

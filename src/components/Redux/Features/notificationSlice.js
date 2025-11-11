@@ -1,4 +1,3 @@
-
 // notificationSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../../api";
@@ -37,29 +36,49 @@ const notificationsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // FETCH
-      .addCase(fetchBroadcasts.pending, (state) => { state.loading = true; state.error = null; })
-      .addCase(fetchBroadcasts.fulfilled, (state, action) => { state.loading = false; state.list = action.payload; })
-      .addCase(fetchBroadcasts.rejected, (state, action) => { state.loading = false; state.error = action.error.message; })
+      .addCase(fetchBroadcasts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchBroadcasts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list = action.payload;
+      })
+      .addCase(fetchBroadcasts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
 
       // SEND
-      .addCase(sendBroadcast.pending, (state) => { state.loading = true; state.error = null; })
-      .addCase(sendBroadcast.fulfilled, (state, action) => { 
-        state.loading = false; 
+      .addCase(sendBroadcast.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(sendBroadcast.fulfilled, (state, action) => {
+        state.loading = false;
         if (action.payload) {
           state.list = [action.payload, ...state.list]; // 🔹 yeni bildiriş dərhal görünsün
         }
       })
-      .addCase(sendBroadcast.rejected, (state, action) => { state.loading = false; state.error = action.error.message; })
+      .addCase(sendBroadcast.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
 
       // DELETE
-      .addCase(deleteBroadcast.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(deleteBroadcast.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(deleteBroadcast.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = state.list.filter(n => n.id !== action.payload);
+        state.list = state.list.filter((n) => n.id !== action.payload);
       })
-      .addCase(deleteBroadcast.rejected, (state, action) => { state.loading = false; state.error = action.error.message; });
+      .addCase(deleteBroadcast.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      });
   },
 });
 
 export default notificationsSlice.reducer;
-

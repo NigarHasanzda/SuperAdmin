@@ -1,72 +1,96 @@
+// ✅ Redux/Features/authSlice.js
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const AuthUrl = "http://194.163.173.179:3300/api/auth/login";
-const RefreshUrl = "http://194.163.173.179:3300/api/auth/refresh";
+import api from "../../../api"; // Axios instance (baseURL daxil edilməlidir)
 
 // 🔹 Admin login
 export const loginAdmin = createAsyncThunk(
   "auth/loginAdmin",
-  async ({ username, password }) => {
-    const res = await axios.post(
-      AuthUrl,
-      { phone: username, password },
-      { headers: { "Content-Type": "application/json" } }
-    );
+  async ({ email, password }, { rejectWithValue }) => {
+    try {
+      // ✅ Düzgün endpoint və parametrlər
+      const res = await api.post("/api/auth/login/admin", {
+        email,
+        password,
+      });
 
-    localStorage.setItem("token", res.data.token);
-    localStorage.setItem("user", JSON.stringify(res.data.user || res.data));
-    const expirationTime = new Date().getTime() + 24 * 60 * 60 * 1000;
-    localStorage.setItem("tokenExpiration", expirationTime.toString());
+      // 🔹 Token və istifadəçi məlumatlarını yadda saxla
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user || res.data));
 
-    return res.data;
+      // 🔹 Token müddətini (24 saat) təyin et
+      const expirationTime = new Date().getTime() + 24 * 60 * 60 * 1000;
+      localStorage.setItem("tokenExpiration", expirationTime.toString());
+
+      // 🔹 Refresh token varsa, yadda saxla
+      if (res.data.refreshToken)
+        localStorage.setItem("refreshToken", res.data.refreshToken);
+
+      return res.data;
+    } catch (err) {
+      console.error("❌ Login error:", err.response?.data);
+      return rejectWithValue(
+        err.response?.data?.message ||
+          err.response?.data?.validations?.[0]?.message ||
+          "Email və ya şifrə yanlışdır"
+      );
+    }
   }
 );
 
 // 🔹 Admin logout
-export const logoutAdmin = createAsyncThunk("auth/logoutAdmin", async () => {
-  const token = localStorage.getItem("token");
-  if (token) {
+export const logoutAdmin = createAsyncThunk(
+  "auth/logoutAdmin",
+  async (_, { rejectWithValue }) => {
+    const token = localStorage.getItem("token");
+
     try {
-      await axios.post(
-        "http://194.163.173.179:3300/api/auth/logout",
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      if (token) {
+        await api.post(
+          "/api/auth/logout",
+          {},
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+      }
     } catch (err) {
       console.error("Logout error:", err);
+      return rejectWithValue(err.response?.data?.message || "Logout failed");
+    } finally {
+      // 🔹 Lokal məlumatları təmizlə
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("tokenExpiration");
+      localStorage.removeItem("refreshToken");
     }
+
+    return null;
   }
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-  localStorage.removeItem("tokenExpiration");
-  localStorage.removeItem("refreshToken");
-  return null;
-});
+);
 
 // 🔹 Refresh token
 export const refreshToken = createAsyncThunk(
   "auth/refreshToken",
-  async () => {
+  async (_, { rejectWithValue }) => {
     const refreshToken = localStorage.getItem("refreshToken");
-    if (!refreshToken) throw new Error("Refresh token mövcud deyil");
+    if (!refreshToken) return rejectWithValue("Refresh token tapılmadı");
 
-    const res = await axios.post(
-      RefreshUrl,
-      { refreshToken },
-      { headers: { "Content-Type": "application/json" } }
-    );
+    try {
+      const res = await api.post("/api/auth/refresh", { refreshToken });
 
-    localStorage.setItem("token", res.data.token);
-    localStorage.setItem("refreshToken", res.data.refreshToken);
-    const expirationTime = new Date().getTime() + res.data.expiresIn * 1000;
-    localStorage.setItem("tokenExpiration", expirationTime.toString());
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("refreshToken", res.data.refreshToken);
 
-    return res.data;
+      const expirationTime = new Date().getTime() + res.data.expiresIn * 1000;
+      localStorage.setItem("tokenExpiration", expirationTime.toString());
+
+      return res.data;
+    } catch (err) {
+      console.error("Refresh token error:", err.response?.data);
+      return rejectWithValue(
+        err.response?.data?.message || "Token yenilənməsi uğursuz oldu"
+      );
+    }
   }
 );
 
@@ -82,11 +106,12 @@ export const checkTokenExpiration = () => {
   return currentTime > parseInt(expirationTime);
 };
 
-// 🔹 İlkin state
+// 🔹 İlkin auth state
 const getInitialAuthState = () => {
   let token = localStorage.getItem("token");
   let user = localStorage.getItem("user");
 
+  // Token müddəti bitibsə təmizlə
   if (token && checkTokenExpiration()) {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -109,6 +134,7 @@ const getInitialAuthState = () => {
   };
 };
 
+// 🔹 Redux Slice
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -126,7 +152,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Login
+      // 🔸 Login
       .addCase(loginAdmin.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -137,21 +163,15 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         state.isAuthenticated = true;
         state.error = null;
-
-        // Refresh token varsa localStorage-a əlavə et
-        if (action.payload.refreshToken)
-          localStorage.setItem("refreshToken", action.payload.refreshToken);
-
-        // 🔹 Konsola istifadəçi məlumatlarını çıxart
-        console.log("Login oldu! İstifadəçi məlumatları:", state.user);
+        console.log("✅ Login uğurlu:", state.user);
       })
       .addCase(loginAdmin.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || "Xəta baş verdi";
+        state.error = action.payload || "Giriş zamanı xəta baş verdi";
         state.isAuthenticated = false;
       })
 
-      // Logout
+      // 🔸 Logout
       .addCase(logoutAdmin.fulfilled, (state) => {
         state.user = null;
         state.token = null;
@@ -159,7 +179,7 @@ const authSlice = createSlice({
         state.error = null;
       })
 
-      // Refresh token
+      // 🔸 Refresh token
       .addCase(refreshToken.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -176,7 +196,7 @@ const authSlice = createSlice({
         state.token = null;
         state.isAuthenticated = false;
         state.error =
-          action.error.message || "Token yenilənməsi alınmadı. Yenidən daxil olun.";
+          action.payload || "Token yenilənməsi alınmadı. Yenidən daxil olun.";
       });
   },
 });

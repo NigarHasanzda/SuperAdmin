@@ -9,6 +9,10 @@ import {
 } from "../../Redux/Features/CategorySlice";
 import "./Category.css";
 
+// 🔹 Toast
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 // ===========================================
 // Alt-Komponent: CategoryCard
 // ===========================================
@@ -23,7 +27,8 @@ const CategoryCard = ({
   getLocalizedName,
 }) => {
   const isEditing = editingId === category.id;
-  const localizedName = getLocalizedName(category.id, category.name) || category.name;
+  const localizedName =
+    getLocalizedName(category.id, category.name) || category.name;
 
   const handleCancelEdit = () => {
     handleEdit({ id: null });
@@ -114,15 +119,21 @@ const Category = () => {
 
   // 🔹 Lokal ad tapmaq funksiyası
   const getLocalizedName = (id, defaultName) => {
+    if (!localized) return defaultName; // localized undefined olsa
     const loc = localized.find((cat) => cat.id === id);
     return loc ? loc.name : defaultName;
   };
 
   // 🔹 Yeni kateqoriya əlavə et
-  const handleAdd = () => {
-    if (!newName.trim()) return alert("Kateqoriya adı boş ola bilməz!");
-    dispatch(addCategory({ name: newName }));
-    setNewName("");
+  const handleAdd = async () => {
+    if (!newName.trim()) return toast.error("Kateqoriya adı boş ola bilməz!");
+    try {
+      await dispatch(addCategory({ name: newName })).unwrap();
+      toast.success(`"${newName}" kateqoriyası əlavə edildi!`);
+      setNewName("");
+    } catch (err) {
+      toast.error(`Əlavə edilərkən xəta: ${err}`);
+    }
   };
 
   // 🔹 Redaktəyə başla / Ləğv et
@@ -137,17 +148,27 @@ const Category = () => {
   };
 
   // 🔹 Redaktəni saxla
-  const handleUpdate = () => {
-    if (!editName.trim()) return alert("Kateqoriya adı boş ola bilməz!");
-    dispatch(updateCategory({ id: editingId, name: editName, lang }));
-    setEditingId(null);
-    setEditName("");
+  const handleUpdate = async () => {
+    if (!editName.trim()) return toast.error("Kateqoriya adı boş ola bilməz!");
+    try {
+      await dispatch(updateCategory({ id: editingId, name: editName, lang })).unwrap();
+      toast.success("Kateqoriya uğurla yeniləndi!");
+      setEditingId(null);
+      setEditName("");
+    } catch (err) {
+      toast.error(`Yenilənərkən xəta: ${err}`);
+    }
   };
 
   // 🔹 Kateqoriya sil
-  const handleDelete = (id, name) => {
+  const handleDelete = async (id, name) => {
     if (window.confirm(`"${name}" kateqoriyasını silmək istədiyinizə əminsiniz?`)) {
-      dispatch(deleteCategory(id));
+      try {
+        await dispatch(deleteCategory(id)).unwrap();
+        toast.success(`"${name}" kateqoriyası silindi!`);
+      } catch (err) {
+        toast.error(`Silinərkən xəta: ${err}`);
+      }
     }
   };
 
@@ -162,6 +183,7 @@ const Category = () => {
 
   return (
     <div className="category-container">
+      <ToastContainer position="top-right" autoClose={2000} />
       <div className="category-controls">
         <div className="search-section">
           <input
