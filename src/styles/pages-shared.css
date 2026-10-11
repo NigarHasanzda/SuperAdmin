@@ -557,7 +557,7 @@
 .admin-container .log-detail-modal,
 .admin-container .send-form-modal,
 .admin-container .modal-content-wrapper,
-.admin-container [class*="modal"]:not(.modal-overlay) {
+.admin-container .business-detail-modal {
   background: var(--bg-surface);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
