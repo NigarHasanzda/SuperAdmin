@@ -30,9 +30,9 @@ import {
 import "./Businesses.css";
 
 const TABS = [
-  { id: "all", label: "Hamısı" },
-  { id: "approved", label: "Təsdiqlənmiş" },
-  { id: "pending", label: "Gözləmədə" },
+  { id: "all", label: "All" },
+  { id: "approved", label: "Approved" },
+  { id: "pending", label: "Pending" },
 ];
 
 function displayName(b) {
@@ -134,19 +134,19 @@ const Businesses = () => {
   }, [showDetailModal]);
 
   const handleReject = (id) => {
-    if (!rejectReason.trim()) return alert("Rədd səbəbini daxil edin");
+    if (!rejectReason.trim()) return alert("Enter a rejection reason");
     dispatch(rejectBusiness({ companyId: id, reason: rejectReason }));
     setRejectReason("");
   };
 
   const handleBlock = (id) => {
-    if (!blockReason.trim()) return alert("Blok səbəbini daxil edin");
+    if (!blockReason.trim()) return alert("Enter a block reason");
     dispatch(blockBusiness({ companyId: id, reason: blockReason }));
     setBlockReason("");
   };
 
   const handleRejectTIN = (id) => {
-    if (!tinRejectReason.trim()) return alert("TIN rədd səbəbini daxil edin");
+    if (!tinRejectReason.trim()) return alert("Enter a TIN rejection reason");
     dispatch(rejectTIN({ id, reason: tinRejectReason }));
     setTinRejectReason("");
   };
@@ -157,24 +157,23 @@ const Businesses = () => {
     <div className="biz-page">
       <header className="biz-page__header">
         <div>
-          <h2>Biznes idarəetməsi</h2>
+          <h2>Business management</h2>
           <p>
-            Qeydiyyatdan keçmiş şirkətləri nəzərdən keçirin, status və TIN
-            qərarlarını tətbiq edin.
+            Review registered companies and apply status and TIN decisions.
           </p>
         </div>
         <div className="biz-page__stats">
           <div className="biz-stat">
             <div className="biz-stat__value">{businesses?.length ?? 0}</div>
-            <div className="biz-stat__label">Hamısı</div>
+            <div className="biz-stat__label">All</div>
           </div>
           <div className="biz-stat biz-stat--active">
             <div className="biz-stat__value">{approved?.length ?? 0}</div>
-            <div className="biz-stat__label">Aktiv</div>
+            <div className="biz-stat__label">Active</div>
           </div>
           <div className="biz-stat biz-stat--pending">
             <div className="biz-stat__value">{pending?.length ?? 0}</div>
-            <div className="biz-stat__label">Gözləyən</div>
+            <div className="biz-stat__label">Pending</div>
           </div>
         </div>
       </header>
@@ -207,35 +206,35 @@ const Businesses = () => {
           <FiSearch size={18} aria-hidden />
           <input
             type="search"
-            placeholder="Ad, email, TIN və ya kod ilə axtar..."
+            placeholder="Search by name, email, TIN, or code..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            aria-label="Biznes axtarışı"
+            aria-label="Business search"
           />
         </div>
       </div>
 
       {error && (
         <div className="biz-page__error" role="alert">
-          Xəta: {typeof error === "string" ? error : JSON.stringify(error)}
+          Error: {typeof error === "string" ? error : JSON.stringify(error)}
         </div>
       )}
 
       {isBusy && (
         <div className="biz-page__state">
           <div className="biz-page__spinner" />
-          <p>Bizneslər yüklənir...</p>
+          <p>Loading businesses...</p>
         </div>
       )}
 
       {!isBusy && !error && filteredList.length === 0 && (
         <div className="biz-page__state">
           <FiBriefcase size={40} strokeWidth={1.5} opacity={0.35} />
-          <h3>Biznes tapılmadı</h3>
+          <h3>No businesses found</h3>
           <p>
             {searchTerm
-              ? "Axtarış meyarlarını dəyişin."
-              : "Bu filterdə biznes yoxdur."}
+              ? "Try different search terms."
+              : "No businesses in this filter."}
           </p>
         </div>
       )}
@@ -298,7 +297,7 @@ const Businesses = () => {
                   }}
                 >
                   <FiEye size={14} />
-                  Ətraflı bax
+                  View details
                 </button>
               </div>
             </article>
@@ -328,7 +327,7 @@ const Businesses = () => {
                     type="button"
                     className="biz-modal__close"
                     onClick={closeModal}
-                    aria-label="Bağla"
+                    aria-label="Close"
                   >
                     <FiX size={18} />
                   </button>
@@ -347,7 +346,7 @@ const Businesses = () => {
 
               <div className="biz-modal__scroll">
                 <div className="biz-modal__body">
-              <h3 className="biz-section-title">Əsas məlumat</h3>
+              <h3 className="biz-section-title">Overview</h3>
               <div className="biz-info-grid">
                 <div className="biz-info-item">
                   <strong>Tagline</strong>
@@ -358,7 +357,7 @@ const Businesses = () => {
                   {business.tin || "—"}
                 </div>
                 <div className="biz-info-item">
-                  <strong>Biznes kodu</strong>
+                  <strong>Business code</strong>
                   {business.businessCode || "—"}
                 </div>
                 <div className="biz-info-item">
@@ -366,38 +365,38 @@ const Businesses = () => {
                   {business.email || "—"}
                 </div>
                 <div className="biz-info-item">
-                  <strong>Telefon</strong>
+                  <strong>Phone</strong>
                   {business.phone || "—"}
                 </div>
                 <div className="biz-info-item">
-                  <strong>Təsvir</strong>
+                  <strong>Description</strong>
                   {business.description || "—"}
                 </div>
               </div>
 
-              <h3 className="biz-section-title">Qərar səbəbləri</h3>
+              <h3 className="biz-section-title">Decision reasons</h3>
               <div className="biz-reasons">
                 <input
                   type="text"
-                  placeholder="Rədd səbəbi (reject)"
+                  placeholder="Rejection reason"
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
                 />
                 <input
                   type="text"
-                  placeholder="Blok səbəbi"
+                  placeholder="Block reason"
                   value={blockReason}
                   onChange={(e) => setBlockReason(e.target.value)}
                 />
                 <input
                   type="text"
-                  placeholder="TIN rədd səbəbi"
+                  placeholder="TIN rejection reason"
                   value={tinRejectReason}
                   onChange={(e) => setTinRejectReason(e.target.value)}
                 />
               </div>
 
-              <h3 className="biz-section-title">Əməliyyatlar</h3>
+              <h3 className="biz-section-title">Actions</h3>
               <div className="biz-actions">
                 {business.status === "PENDING" && (
                   <>
@@ -407,7 +406,7 @@ const Businesses = () => {
                       onClick={() => dispatch(approveBusiness(business.id))}
                     >
                       <FiCheck size={14} />
-                      Təsdiq et
+                      Approve
                     </button>
                     <button
                       type="button"
@@ -415,7 +414,7 @@ const Businesses = () => {
                       onClick={() => handleReject(business.id)}
                     >
                       <FiSlash size={14} />
-                      Rədd et
+                      Reject
                     </button>
                   </>
                 )}
@@ -425,7 +424,7 @@ const Businesses = () => {
                   onClick={() => handleBlock(business.id)}
                 >
                   <FiLock size={14} />
-                  Blokla
+                  Block
                 </button>
                 <button
                   type="button"
@@ -433,7 +432,7 @@ const Businesses = () => {
                   onClick={() => dispatch(unblockBusiness(business.id))}
                 >
                   <FiUnlock size={14} />
-                  Blokdan çıxar
+                  Unblock
                 </button>
                 <button
                   type="button"
@@ -442,7 +441,7 @@ const Businesses = () => {
                   disabled={tinAccepting}
                 >
                   <FiFileText size={14} />
-                  TIN qəbul
+                  Accept TIN
                 </button>
                 <button
                   type="button"
@@ -451,14 +450,14 @@ const Businesses = () => {
                   disabled={tinRejecting}
                 >
                   <FiSlash size={14} />
-                  TIN rədd
+                  Reject TIN
                 </button>
               </div>
 
               {business.branches?.length > 0 && (
                 <div className="biz-branches">
                   <h3 className="biz-section-title">
-                    Filiallar ({business.branches.length})
+                    Branches ({business.branches.length})
                   </h3>
                   {business.branches.map((branch) => (
                     <div key={branch.id} className="biz-branch-card">

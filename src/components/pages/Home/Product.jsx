@@ -75,7 +75,7 @@ export const Product = () => {
   };
 
   const formatPrice = (price) => {
-    return price ? `${price.toLocaleString()} ₼` : "Qiymət yoxdur";
+    return price ? `${price.toLocaleString()} ₼` : "No price";
   };
 
   const renderProductCard = (product) => (
@@ -87,7 +87,7 @@ export const Product = () => {
       <div className="product-header">
         <div className="product-info">
           <h3 className="product-name">
-            {product.name || "Məhsul adı yoxdur"}
+            {product.name || "Unnamed product"}
           </h3>
           <div className="product-id">🆔 ID: {product.id}</div>
         </div>
@@ -105,7 +105,7 @@ export const Product = () => {
         )}
         {product.category && (
           <div className="product-category">
-            🏷️ Kateqoriya: {product.category}
+            🏷️ Category: {product.category}
           </div>
         )}
         {product.stock !== undefined && (
@@ -121,7 +121,7 @@ export const Product = () => {
             handleProductClick(product.id);
           }}
         >
-          👁️ Ətraflı Bax
+          👁️ View details
         </button>
       </div>
     </div>
@@ -136,7 +136,7 @@ export const Product = () => {
       <div className="product-list-info">
         <div className="product-list-main">
           <h4 className="product-list-name">
-            {product.name || "Məhsul adı yoxdur"}
+            {product.name || "Unnamed product"}
           </h4>
           <span className="product-list-id">ID: {product.id}</span>
         </div>
@@ -159,10 +159,10 @@ export const Product = () => {
       {/* Header */}
       {/* <div className="products-header">
         <h1 className="products-title">
-          🛍️ Məhsul İdarəetməsi
+          🛍️ Product management
         </h1>
         <p className="products-subtitle">
-          Bütün məhsulları idarə edin, məlumatlarını görün və inventar sistemini idarə edin
+          Manage products, view details, and track inventory.
         </p>
       </div> */}
 
@@ -173,7 +173,7 @@ export const Product = () => {
             <span className="search-icon">🔍</span>
             <input
               type="text"
-              placeholder="Məhsul adı və ya ID ilə axtar..."
+              placeholder="Search by product name or ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -199,7 +199,7 @@ export const Product = () => {
               className={`sort-btn ${sortBy === "price" ? "active" : ""}`}
               onClick={() => handleSort("price")}
             >
-              💰 Qiymət {getSortIcon("price")}
+              💰 Price {getSortIcon("price")}
             </button>
             <button
               className={`sort-btn ${sortBy === "id" ? "active" : ""}`}
@@ -215,14 +215,14 @@ export const Product = () => {
             <button
               className={`view-btn ${viewMode === "grid" ? "active" : ""}`}
               onClick={() => setViewMode("grid")}
-              title="Grid görünüşü"
+              title="Grid view"
             >
               ⊞ Grid
             </button>
             <button
               className={`view-btn ${viewMode === "list" ? "active" : ""}`}
               onClick={() => setViewMode("list")}
-              title="List görünüşü"
+              title="List view"
             >
               ☰ List
             </button>
@@ -231,15 +231,15 @@ export const Product = () => {
           <div className="stats-section">
             <div className="stat-card">
               <div className="stat-number">{list.content?.length || 0}</div>
-              <div className="stat-label">Bu Səhifədə</div>
+              <div className="stat-label">On this page</div>
             </div>
             <div className="stat-card">
               <div className="stat-number">{sortedProducts.length}</div>
-              <div className="stat-label">Filtrlənmiş</div>
+              <div className="stat-label">Filtered</div>
             </div>
             <div className="stat-card">
               <div className="stat-number">{page?.totalElements || 0}</div>
-              <div className="stat-label">Ümumi</div>
+              <div className="stat-label">Total</div>
             </div>
           </div>
         </div>
@@ -248,7 +248,7 @@ export const Product = () => {
       {/* Search Info */}
       {searchTerm && (
         <div className="search-info">
-          🎯 "{searchTerm}" üçün {sortedProducts.length} nəticə tapıldı
+          🎯 {sortedProducts.length} results for &quot;{searchTerm}&quot;
         </div>
       )}
 
@@ -256,12 +256,12 @@ export const Product = () => {
       {loading && (
         <div className="loading-state">
           <div className="loading-spinner"></div>
-          <p>Məhsullar yüklənir...</p>
+          <p>Loading products...</p>
         </div>
       )}
 
       {/* Error State */}
-      {error && <div className="error-state">⚠️ Xəta: {error}</div>}
+      {error && <div className="error-state">⚠️ Error: {error}</div>}
 
       {/* Products List */}
       {!loading && !error && (
@@ -269,11 +269,11 @@ export const Product = () => {
           {sortedProducts.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">🛍️</div>
-              <h3>Məhsul tapılmadı</h3>
+              <h3>No products found</h3>
               <p>
                 {searchTerm
-                  ? `"${searchTerm}" axtarışına uyğun məhsul mövcud deyil`
-                  : "Hələ heç bir məhsul yoxdur"}
+                  ? `No products match "${searchTerm}"`
+                  : "No products yet"}
               </p>
             </div>
           ) : (
@@ -312,7 +312,7 @@ export const Product = () => {
           >
             <div className="modal-header">
               <div className="modal-title">
-                <h2>🛍️ {single.name || "Məhsul Detalları"}</h2>
+                <h2>🛍️ {single.name || "Product details"}</h2>
                 <button className="close-btn" onClick={handleCloseModal}>
                   ❌
                 </button>
@@ -323,17 +323,17 @@ export const Product = () => {
             <div className="modal-content">
               {/* Product Info */}
               <div className="product-info-section">
-                <h3>📋 Əsas Məlumatlar</h3>
+                <h3>📋 Overview</h3>
                 <div className="info-grid">
                   <div className="info-item">
                     <strong>📛 Ad:</strong> {single.name || "N/A"}
                   </div>
                   <div className="info-item">
-                    <strong>💰 Qiymət:</strong> {formatPrice(single.price)}
+                    <strong>💰 Price:</strong> {formatPrice(single.price)}
                   </div>
                   {single.category && (
                     <div className="info-item">
-                      <strong>🏷️ Kateqoriya:</strong> {single.category}
+                      <strong>🏷️ Category:</strong> {single.category}
                     </div>
                   )}
                   {single.stock !== undefined && (
@@ -357,7 +357,7 @@ export const Product = () => {
               {/* Product Description */}
               {single.description && (
                 <div className="product-description-section">
-                  <h3>📝 Təsvir</h3>
+                  <h3>📝 Description</h3>
                   <div className="description-content">
                     {single.description}
                   </div>
@@ -367,7 +367,7 @@ export const Product = () => {
               {/* Product Images */}
               {single.images && single.images.length > 0 && (
                 <div className="product-images-section">
-                  <h3>🖼️ Şəkillər ({single.images.length})</h3>
+                  <h3>🖼️ Images ({single.images.length})</h3>
                   <div className="images-grid">
                     {single.images.map((image, index) => (
                       <div key={index} className="image-card">
@@ -402,14 +402,14 @@ export const Product = () => {
               <div className="additional-info">
                 {single.createdDate && (
                   <div className="info-item">
-                    <strong>📅 Yaradılma tarixi:</strong>{" "}
-                    {new Date(single.createdDate).toLocaleDateString("az-AZ")}
+                    <strong>📅 Created:</strong>{" "}
+                    {new Date(single.createdDate).toLocaleDateString("en-US")}
                   </div>
                 )}
                 {single.updatedDate && (
                   <div className="info-item">
-                    <strong>🔄 Yenilənmə tarixi:</strong>{" "}
-                    {new Date(single.updatedDate).toLocaleDateString("az-AZ")}
+                    <strong>🔄 Updated:</strong>{" "}
+                    {new Date(single.updatedDate).toLocaleDateString("en-US")}
                   </div>
                 )}
               </div>

@@ -75,7 +75,7 @@ const Persons = () => {
             <span className="search-icon">🔍</span>
             <input
               type="text"
-              placeholder="Ad, soyad, email, telefon və ya ID ilə axtar..."
+              placeholder="Search by name, surname, email, phone, or ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -91,7 +91,7 @@ const Persons = () => {
           </div>
           {searchTerm && (
             <div className="search-info">
-              🎯 {filteredUsers.length} nəticə tapıldı
+              🎯 {filteredUsers.length} results
             </div>
           )}
         </div>
@@ -99,11 +99,11 @@ const Persons = () => {
         <div className="stats-section">
           <div className="stat-card">
             <div className="stat-number">{list.length}</div>
-            <div className="stat-label">Ümumi İstifadəçi</div>
+            <div className="stat-label">Total users</div>
           </div>
           <div className="stat-card">
             <div className="stat-number">{filteredUsers.length}</div>
-            <div className="stat-label">Göstərilən</div>
+            <div className="stat-label">Showing</div>
           </div>
         </div>
       </div>
@@ -112,12 +112,12 @@ const Persons = () => {
       {loading && (
         <div className="loading-state">
           <div className="loading-spinner"></div>
-          <p>İstifadəçilər yüklənir...</p>
+          <p>Loading users...</p>
         </div>
       )}
 
       {/* Error */}
-      {error && <div className="error-state">⚠️ Xəta: {error}</div>}
+      {error && <div className="error-state">⚠️ Error: {error}</div>}
 
       {/* Users Table */}
       {!loading && !error && (
@@ -125,11 +125,11 @@ const Persons = () => {
           {currentUsers.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">👥</div>
-              <h3>İstifadəçi tapılmadı</h3>
+              <h3>No users found</h3>
               <p>
                 {searchTerm
-                  ? `"${searchTerm}" axtarışına uyğun istifadəçi mövcud deyil`
-                  : "Hələ heç bir istifadəçi yoxdur"}
+                  ? `No users match "${searchTerm}"`
+                  : "No users yet"}
               </p>
             </div>
           ) : (
@@ -163,7 +163,7 @@ const Persons = () => {
                         onClick={() => handleSort("phone")}
                         className="sortable"
                       >
-                        📞 Telefon {getSortIcon("phone")}
+                        📞 Phone {getSortIcon("phone")}
                       </th>
                     </tr>
                   </thead>
@@ -194,7 +194,7 @@ const Persons = () => {
                     disabled={currentPage === 1}
                     className="pagination-btn"
                   >
-                    ⬅️ Əvvəlki
+                    ⬅️ Previous
                   </button>
                   <div className="pagination-numbers">
                     {Array.from({ length: totalPages }, (_, i) => (
@@ -214,7 +214,7 @@ const Persons = () => {
                     disabled={currentPage === totalPages}
                     className="pagination-btn"
                   >
-                    Növbəti ➡️
+                    Next ➡️
                   </button>
                 </div>
               )}
@@ -224,7 +224,7 @@ const Persons = () => {
                 <span>
                   {indexOfFirstUser + 1}-
                   {Math.min(indexOfLastUser, sortedUsers.length)} /{" "}
-                  {sortedUsers.length} istifadəçi göstərilir
+                  {sortedUsers.length} users shown
                 </span>
               </div>
             </>

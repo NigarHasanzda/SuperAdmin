@@ -29,7 +29,7 @@ export function registerUser({ email, password, name }) {
   const normalizedEmail = email.trim().toLowerCase();
   const users = readUsers();
   if (users.some((u) => u.email.toLowerCase() === normalizedEmail)) {
-    throw new Error("Bu email artıq qeydiyyatdan keçib");
+    throw new Error("This email is already registered");
   }
   const user = {
     id: Date.now(),
@@ -50,7 +50,7 @@ export function authenticateUser({ email, password }) {
     (u) => u.email.toLowerCase() === normalizedEmail && u.password === password
   );
   if (!match) {
-    throw new Error("Email və ya şifrə yanlışdır");
+    throw new Error("Invalid email or password");
   }
   const token = `static-token-${match.id}-${Date.now()}`;
   const user = {

@@ -35,7 +35,7 @@ export const searchCategoryById = createAsyncThunk(
     try {
       return db.getCategoryById(id);
     } catch (error) {
-      return rejectWithValue(error.message || "Kateqoriya tapılmadı");
+      return rejectWithValue(error.message || "Category not found");
     }
   }
 );

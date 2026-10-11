@@ -23,7 +23,7 @@ export const loginAdmin = createAsyncThunk(
 
       return data;
     } catch (err) {
-      return rejectWithValue(err.message || "Email və ya şifrə yanlışdır");
+      return rejectWithValue(err.message || "Invalid email or password");
     }
   }
 );
@@ -35,7 +35,7 @@ export const registerAdmin = createAsyncThunk(
       const user = registerUser({ email, password, name });
       return user;
     } catch (err) {
-      return rejectWithValue(err.message || "Qeydiyyat uğursuz oldu");
+      return rejectWithValue(err.message || "Registration failed");
     }
   }
 );
@@ -49,7 +49,7 @@ export const refreshToken = createAsyncThunk(
   "auth/refreshToken",
   async (_, { rejectWithValue }) => {
     const token = localStorage.getItem("token");
-    if (!token) return rejectWithValue("Token tapılmadı");
+    if (!token) return rejectWithValue("Token not found");
     const expirationTime = new Date().getTime() + 24 * 60 * 60 * 1000;
     localStorage.setItem("tokenExpiration", expirationTime.toString());
     return { token, refreshToken: localStorage.getItem("refreshToken") };
@@ -104,7 +104,7 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-      state.error = "Sessiya müddəti bitdi. Yenidən daxil olun.";
+      state.error = "Session expired. Please sign in again.";
     },
     clearRegisterStatus: (state) => {
       state.registerSuccess = false;
@@ -126,10 +126,9 @@ const authSlice = createSlice({
       })
       .addCase(loginAdmin.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Giriş zamanı xəta baş verdi";
+        state.error = action.payload || "Sign-in failed";
         state.isAuthenticated = false;
       })
-
       .addCase(registerAdmin.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -142,17 +141,15 @@ const authSlice = createSlice({
       })
       .addCase(registerAdmin.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Qeydiyyat zamanı xəta baş verdi";
+        state.error = action.payload || "Registration failed";
         state.registerSuccess = false;
       })
-
       .addCase(logoutAdmin.fulfilled, (state) => {
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
         state.error = null;
       })
-
       .addCase(refreshToken.fulfilled, (state, action) => {
         state.loading = false;
         state.token = action.payload.token;
@@ -165,7 +162,7 @@ const authSlice = createSlice({
         state.token = null;
         state.isAuthenticated = false;
         state.error =
-          action.payload || "Token yenilənməsi alınmadı. Yenidən daxil olun.";
+          action.payload || "Could not refresh session. Please sign in again.";
       });
   },
 });

@@ -34,7 +34,7 @@ export const updateAd = createAsyncThunk(
     try {
       const state = getState();
       const ad = state.ads.list.find((a) => a.id === id);
-      if (!ad) throw new Error("Reklam tapılmadı");
+      if (!ad) throw new Error("Ad not found");
       return db.updateAd(id, { ...ad, ...updatedFields });
     } catch (error) {
       return rejectWithValue(error.message);

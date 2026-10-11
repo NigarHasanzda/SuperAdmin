@@ -52,7 +52,7 @@ function countGranted(role) {
 function PermissionsEditor({ value, onToggle }) {
   return (
     <>
-      <span className="roles-perms-label">İcazələr</span>
+      <span className="roles-perms-label">Permissions</span>
       <div className="roles-perms-grid">
         {PERMISSIONS.map((perm) => {
           const on = Number(value[perm.key]) === 1;
@@ -89,21 +89,21 @@ function RoleFormPanel({ title, data, setData, onSave, onCancel, saveLabel }) {
       <div className="roles-panel__body">
         <div className="roles-form-row">
           <div className="roles-field">
-            <label htmlFor={`role-name-${title}`}>Rol adı</label>
+            <label htmlFor={`role-name-${title}`}>Role name</label>
             <input
               id={`role-name-${title}`}
               type="text"
-              placeholder="Məs: Moderator"
+              placeholder="e.g. Moderator"
               value={data.name}
               onChange={(e) => setData({ ...data, name: e.target.value })}
             />
           </div>
           <div className="roles-field">
-            <label htmlFor={`role-desc-${title}`}>Təsvir</label>
+            <label htmlFor={`role-desc-${title}`}>Description</label>
             <input
               id={`role-desc-${title}`}
               type="text"
-              placeholder="Qısa təsvir"
+              placeholder="Short description"
               value={data.description}
               onChange={(e) =>
                 setData({ ...data, description: e.target.value })
@@ -128,7 +128,7 @@ function RoleFormPanel({ title, data, setData, onSave, onCancel, saveLabel }) {
             className="roles-action-btn roles-action-btn--ghost"
           >
             <FiX size={16} />
-            Ləğv et
+            Cancel et
           </button>
         </div>
       </div>
@@ -203,7 +203,7 @@ const Role = () => {
 
   const handleUpdate = () => {
     if (!editRole?.name?.trim()) {
-      alert("Rol adı boş ola bilməz");
+      alert("Role name cannot be empty");
       return;
     }
     dispatch(updateRole(editRole)).then(() => setEditRole(null));
@@ -211,7 +211,7 @@ const Role = () => {
 
   const handleAdd = () => {
     if (!newRole.name.trim()) {
-      alert("Rol adı boş ola bilməz");
+      alert("Role name cannot be empty");
       return;
     }
     dispatch(addRole(newRole)).then(() => {
@@ -221,7 +221,7 @@ const Role = () => {
   };
 
   const handleDelete = (id, name) => {
-    if (window.confirm(`"${name}" rolunu silmək istəyirsiniz?`)) {
+    if (window.confirm(`"${name}" role?`)) {
       dispatch(deleteRole(id));
     }
   };
@@ -237,24 +237,23 @@ const Role = () => {
     <div className="roles-page">
       <header className="roles-page__header">
         <div>
-          <h2>Rol və icazələr</h2>
+          <h2>Roles & permissions</h2>
           <p>
-            Sistem rollarını idarə edin, hər rol üçün granular icazələri
-            aktiv və ya passiv edin.
+            Manage system roles and toggle granular permissions per role.
           </p>
         </div>
         <div className="roles-page__stats">
           <div className="roles-stat">
             <div className="roles-stat__value">{list.length}</div>
-            <div className="roles-stat__label">Ümumi rol</div>
+            <div className="roles-stat__label">Total rol</div>
           </div>
           <div className="roles-stat">
             <div className="roles-stat__value">{filteredRoles.length}</div>
-            <div className="roles-stat__label">Göstərilən</div>
+            <div className="roles-stat__label">Showing</div>
           </div>
           <div className="roles-stat">
             <div className="roles-stat__value">{avgPerms}</div>
-            <div className="roles-stat__label">Ort. icazə</div>
+            <div className="roles-stat__label">Avg. permissions</div>
           </div>
         </div>
       </header>
@@ -264,17 +263,17 @@ const Role = () => {
           <FiSearch size={18} aria-hidden />
           <input
             type="search"
-            placeholder="Rol adı və ya təsvir..."
+            placeholder="Role name or description..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            aria-label="Axtarış"
+            aria-label="Search"
           />
           {searchTerm && (
             <button
               type="button"
               className="roles-search__clear"
               onClick={() => setSearchTerm("")}
-              aria-label="Təmizlə"
+              aria-label="Clear"
             >
               <FiX size={16} />
             </button>
@@ -292,11 +291,11 @@ const Role = () => {
         >
           {showAddForm ? (
             <>
-              <FiX size={18} /> Bağla
+              <FiX size={18} /> Close
             </>
           ) : (
             <>
-              <FiPlus size={18} /> Yeni rol
+              <FiPlus size={18} /> New role
             </>
           )}
         </button>
@@ -304,7 +303,7 @@ const Role = () => {
 
       {showAddForm && (
         <RoleFormPanel
-          title="Yeni rol"
+          title="New role"
           data={newRole}
           setData={setNewRole}
           onSave={handleAdd}
@@ -312,42 +311,42 @@ const Role = () => {
             setNewRole({ ...EMPTY_ROLE });
             setShowAddForm(false);
           }}
-          saveLabel="Rol yarat"
+          saveLabel="Create role"
         />
       )}
 
       {editRole && (
         <RoleFormPanel
-          title={`Redaktə: ${editRole.name}`}
+          title={`Edit: ${editRole.name}`}
           data={editRole}
           setData={setEditRole}
           onSave={handleUpdate}
           onCancel={() => setEditRole(null)}
-          saveLabel="Yadda saxla"
+          saveLabel="Save"
         />
       )}
 
       {loading && (
         <div className="roles-page__state">
           <div className="roles-page__spinner" />
-          <p>Rollar yüklənir...</p>
+          <p>Loading roles...</p>
         </div>
       )}
 
       {error && (
         <div className="roles-page__error" role="alert">
-          Xəta: {typeof error === "string" ? error : JSON.stringify(error)}
+          Error: {typeof error === "string" ? error : JSON.stringify(error)}
         </div>
       )}
 
       {!loading && !error && filteredRoles.length === 0 && (
         <div className="roles-page__state">
           <FiShield size={40} strokeWidth={1.5} opacity={0.35} />
-          <h3>Rol tapılmadı</h3>
+          <h3>No roles found</h3>
           <p>
             {searchTerm
-              ? "Axtarışı dəyişin və ya yeni rol əlavə edin."
-              : "Yuxarıdan ilk rolunuzu yaradın."}
+              ? "Change your search or add a new role."
+              : "Create your first role above."}
           </p>
         </div>
       )}
@@ -372,11 +371,11 @@ const Role = () => {
                       <span className="roles-card__id">#{role.id}</span>
                     </div>
                     <p className="roles-card__desc">
-                      {role.description || "Təsvir əlavə edilməyib"}
+                      {role.description || "No description provided"}
                     </p>
                     <div className="roles-card__meter">
                       <div className="roles-card__meter-label">
-                        <span>Aktiv icazələr</span>
+                        <span>Active permissions</span>
                         <span>
                           {granted}/{PERMISSIONS.length}
                         </span>
@@ -415,13 +414,13 @@ const Role = () => {
                       className="roles-action-btn roles-action-btn--save"
                     >
                       <FiEdit2 size={14} />
-                      Redaktə
+                      Edit
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDelete(role.id, role.name)}
                       className="roles-action-btn roles-action-btn--danger"
-                      aria-label="Sil"
+                      aria-label="Delete"
                     >
                       <FiTrash2 size={14} />
                     </button>
@@ -432,7 +431,7 @@ const Role = () => {
           </div>
 
           {totalPages > 1 && (
-            <nav className="roles-pagination" aria-label="Səhifələmə">
+            <nav className="roles-pagination" aria-label="Pagination">
               <button
                 type="button"
                 className="roles-page-btn"

@@ -56,10 +56,10 @@ const Log = () => {
     const now = new Date();
     const diffTime = now - date;
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) return "Bugün";
-    if (diffDays === 1) return "Dünən";
-    if (diffDays <= 7) return `${diffDays} gün əvvəl`;
-    return date.toLocaleString("az-AZ", {
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays <= 7) return `${diffDays} days ago`;
+    return date.toLocaleString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -108,7 +108,7 @@ const Log = () => {
       <div className="logs-container">
         <div className="loading-state">
           <div className="loading-spinner"></div>
-          <p>Log məlumatları yüklənir...</p>
+          <p>Loading logs...</p>
         </div>
       </div>
     );
@@ -118,7 +118,7 @@ const Log = () => {
     return (
       <div className="logs-container">
         <div className="error-state">
-          ⚠️ Xəta baş verdi:{" "}
+          ⚠️ Error:{" "}
           {typeof error === "string" ? error : JSON.stringify(error)}
         </div>
       </div>
@@ -134,7 +134,7 @@ const Log = () => {
             <span className="search-icon">🔍</span>
             <input
               type="text"
-              placeholder="Loglarda axtar (istifadəçi, mesaj)..."
+              placeholder="Search logs (user, message)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -151,11 +151,11 @@ const Log = () => {
               onChange={(e) => setFilterType(e.target.value)}
               className="filter-select"
             >
-              <option value="all">🗂️ Bütün Növlər</option>
-              <option value="new_service_product">Yeni məhsul/xidmət</option>
-              <option value="report_action">Hesabat</option>
-              <option value="payment">Ödəniş</option>
-              <option value="user_registered">İstifadəçi qeydiyyatı</option>
+              <option value="all">🗂️ All types</option>
+              <option value="new_service_product">New product/service</option>
+              <option value="report_action">Report</option>
+              <option value="payment">Payment</option>
+              <option value="user_registered">User registration</option>
             </select>
           </div>
         </div>
@@ -165,8 +165,8 @@ const Log = () => {
       {sortedLogs.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">📋</div>
-          <h3>Log məlumatı tapılmadı</h3>
-          <p>Axtarış kriteriyalarınızı dəyişdirərək yenidən cəhd edin</p>
+          <h3>No logs found</h3>
+          <p>Try adjusting your search filters</p>
         </div>
       ) : (
         <>
@@ -175,11 +175,11 @@ const Log = () => {
               <thead>
                 <tr>
                   <th>🆔 ID</th>
-                  <th>📅 Tarix</th>
-                  <th>👤 İstifadəçi</th>
+                  <th>📅 Date</th>
+                  <th>👤 User</th>
                   <th>Tip</th>
                   <th>Mesaj</th>
-                  <th>Əməliyyat</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -207,7 +207,7 @@ const Log = () => {
                     </td>
                     <td>
                       <button onClick={() => handleLogDetail(log)}>
-                        Ətraflı
+                        Details
                       </button>
                     </td>
                   </tr>
@@ -237,7 +237,7 @@ const Log = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h2>Log Detayları</h2>
+              <h2>Log details</h2>
               <button onClick={() => setShowDetailModal(false)}>❌</button>
             </div>
             <div className="modal-content">
@@ -245,11 +245,11 @@ const Log = () => {
                 <strong>ID:</strong> {selectedLog.id}
               </p>
               <p>
-                <strong>İstifadəçi:</strong>{" "}
+                <strong>User:</strong>{" "}
                 {selectedLog.user || selectedLog.userId || "Sistem"}
               </p>
               <p>
-                <strong>Tarix:</strong> {formatDate(selectedLog.createdAt)}
+                <strong>Date:</strong> {formatDate(selectedLog.createdAt)}
               </p>
               <p>
                 <strong>Tip:</strong> {selectedLog.type}

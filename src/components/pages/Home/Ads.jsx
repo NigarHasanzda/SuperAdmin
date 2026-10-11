@@ -44,13 +44,13 @@ const AdsList = () => {
   }, [list]);
 
   const handleAddAd = () => {
-    if (!newAd.link.trim()) return alert("Link daxil edin!");
+    if (!newAd.link.trim()) return alert("Enter a link!");
     dispatch(addAd({ ...newAd, userId: user?.id, isActive: 1 }));
     setNewAd({ link: "", userId: user?.id || 1 });
   };
 
   const handleUploadImage = (id) => {
-    if (!files[id]) return alert("Fayl seçin!");
+    if (!files[id]) return alert("Choose a file!");
     const locale = locales[id] || "AZ";
     dispatch(uploadAdImage({ id, file: files[id], locale }))
       .unwrap()
@@ -99,37 +99,36 @@ const AdsList = () => {
     <div className="ads-page">
       <header className="ads-page__header">
         <div className="ads-page__header-text">
-          <h2>Reklam kampaniyaları</h2>
+          <h2>Ad campaigns</h2>
           <p>
-            Banner linklərini idarə edin, statusu dəyişin və dillərə görə
-            şəkilləri yeniləyin.
+            Manage banner links, status, and locale images.
           </p>
         </div>
         <div className="ads-page__stats">
           <div className="ads-stat">
             <div className="ads-stat__value">{stats.total}</div>
-            <div className="ads-stat__label">Ümumi</div>
+            <div className="ads-stat__label">Total</div>
           </div>
           <div className="ads-stat ads-stat--active">
             <div className="ads-stat__value">{stats.active}</div>
-            <div className="ads-stat__label">Aktiv</div>
+            <div className="ads-stat__label">Active</div>
           </div>
           <div className="ads-stat ads-stat--inactive">
             <div className="ads-stat__value">{stats.inactive}</div>
-            <div className="ads-stat__label">Deaktiv</div>
+            <div className="ads-stat__label">Inactive</div>
           </div>
         </div>
       </header>
 
-      <section className="ads-create" aria-label="Yeni reklam">
+      <section className="ads-create" aria-label="New ad">
         <div className="ads-create__field">
-          <label htmlFor="new-ad-link">Yönləndirmə linki</label>
+          <label htmlFor="new-ad-link">Destination URL</label>
           <div className="ads-create__input-wrap">
             <FiLink size={18} aria-hidden />
             <input
               id="new-ad-link"
               type="url"
-              placeholder="https://example.com/kampaniya"
+              placeholder="https://example.com/campaign"
               value={newAd.link}
               onChange={(e) => setNewAd({ ...newAd, link: e.target.value })}
               className="ads-create__input"
@@ -144,28 +143,28 @@ const AdsList = () => {
           disabled={loading}
         >
           <FiPlus size={18} />
-          Reklam əlavə et
+          Add ad
         </button>
       </section>
 
       {error && (
         <div className="ads-page__error" role="alert">
-          Xəta: {error}
+          Error: {error}
         </div>
       )}
 
       {loading && (
         <div className="ads-page__state">
           <div className="ads-page__spinner" />
-          <p>Reklamlar yüklənir...</p>
+          <p>Loading ads...</p>
         </div>
       )}
 
       {!loading && !error && list.length === 0 && (
         <div className="ads-page__state">
           <FiTarget size={40} strokeWidth={1.5} opacity={0.35} />
-          <h3>Hələ reklam yoxdur</h3>
-          <p>Yuxarıdakı formdan ilk kampaniyanı yaradın.</p>
+          <h3>No ads yet</h3>
+          <p>Create your first campaign using the form above.</p>
         </div>
       )}
 
@@ -185,7 +184,7 @@ const AdsList = () => {
                   <div className="ads-card__id">
                     ID <span>#{ad.id}</span>
                     {dirty && (
-                      <span className="ads-dirty-badge"> Dəyişiklik</span>
+                      <span className="ads-dirty-badge"> Unsaved</span>
                     )}
                   </div>
                   <select
@@ -194,10 +193,10 @@ const AdsList = () => {
                       handleEditField(ad.id, "isActive", Number(e.target.value))
                     }
                     className={`ads-status-select ${statusClass(isActive)}`}
-                    aria-label="Reklam statusu"
+                    aria-label="Ad status"
                   >
-                    <option value={1}>Aktiv</option>
-                    <option value={0}>Deaktiv</option>
+                    <option value={1}>Active</option>
+                    <option value={0}>Inactive</option>
                   </select>
                 </div>
 
@@ -211,20 +210,20 @@ const AdsList = () => {
                         className="ads-card__download"
                       >
                         <FiDownload size={14} />
-                        Endir
+                        Download
                       </button>
                     </>
                   ) : (
                     <div className="ads-card__media-empty">
                       <FiImage size={32} />
-                      <span>Şəkil təyin edilməyib</span>
+                      <span>No image set</span>
                     </div>
                   )}
                 </div>
 
                 <div className="ads-card__body">
                   <div className="ads-field">
-                    <label htmlFor={`link-${ad.id}`}>Keçid URL</label>
+                    <label htmlFor={`link-${ad.id}`}>Link URL</label>
                     <input
                       id={`link-${ad.id}`}
                       type="url"
@@ -242,7 +241,7 @@ const AdsList = () => {
                       className={`ads-file-label${files[ad.id] ? " has-file" : ""}`}
                     >
                       <FiUpload size={14} />
-                      {files[ad.id]?.name || "Şəkil seç"}
+                      {files[ad.id]?.name || "Choose image"}
                       <input
                         type="file"
                         accept="image/*"
@@ -276,7 +275,7 @@ const AdsList = () => {
                       disabled={!files[ad.id]}
                     >
                       <FiUpload size={14} />
-                      Yüklə
+                      Upload
                     </button>
                   </div>
                 </div>
@@ -289,19 +288,19 @@ const AdsList = () => {
                     disabled={!dirty}
                   >
                     <FiSave size={14} />
-                    Yadda saxla
+                    Save
                   </button>
                   <button
                     type="button"
                     onClick={() => {
-                      if (window.confirm("Bu reklamı silmək istəyirsiniz?")) {
+                      if (window.confirm("Delete this ad?")) {
                         dispatch(deleteAd(ad.id));
                       }
                     }}
                     className="ads-btn-icon ads-btn-icon--danger"
                   >
                     <FiTrash2 size={14} />
-                    Sil
+                    Delete
                   </button>
                 </div>
               </li>

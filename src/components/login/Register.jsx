@@ -35,11 +35,11 @@ const Register = () => {
     <div className="auth-page">
       <div className="auth-brand">
         <div className="auth-brand-inner">
-          <span className="auth-brand-badge">Yeni hesab</span>
-          <h1>Admin panelə qoşulun</h1>
+          <span className="auth-brand-badge">New account</span>
+          <h1>Join the admin panel</h1>
           <p>
-            Qeydiyyat məlumatları yalnız brauzerinizdə saxlanılır — statik
-            demo üçün idealdır.
+            Registration data is stored only in your browser — ideal for static
+            demo.
           </p>
         </div>
       </div>
@@ -47,17 +47,17 @@ const Register = () => {
       <div className="auth-panel">
         <div className="auth-card">
           <div className="auth-card-header">
-            <h2>Qeydiyyat</h2>
-            <p>Yeni admin hesabı yaradın</p>
+            <h2>Register</h2>
+            <p>Create a new admin account</p>
           </div>
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="auth-field">
-              <label htmlFor="name">Ad</label>
+              <label htmlFor="name">Name</label>
               <input
                 id="name"
                 type="text"
-                placeholder="Adınız"
+                placeholder="Your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -77,11 +77,11 @@ const Register = () => {
             </div>
 
             <div className="auth-field">
-              <label htmlFor="reg-password">Şifrə</label>
+              <label htmlFor="reg-password">Password</label>
               <input
                 id="reg-password"
                 type="password"
-                placeholder="Minimum 6 simvol"
+                placeholder="Minimum 6 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -97,11 +97,11 @@ const Register = () => {
               className={`auth-submit ${loading ? "loading" : ""}`}
               disabled={loading}
             >
-              {loading ? "Yaradılır..." : "Qeydiyyatdan keç"}
+              {loading ? "Creating..." : "Create account"}
             </button>
 
             <p className="auth-footer">
-              Artıq hesabınız var? <Link to="/login">Daxil ol</Link>
+              Already have an account? <Link to="/login">Sign in</Link>
             </p>
           </form>
         </div>

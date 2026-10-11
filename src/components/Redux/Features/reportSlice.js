@@ -13,7 +13,7 @@ export const answerReportTransaction = createAsyncThunk(
       return db.answerReport(reportTransactionId, message);
     } catch (err) {
       return rejectWithValue(
-        err.message || "Cavab göndərilərkən xəta baş verdi"
+        err.message || "Failed to send reply"
       );
     }
   }

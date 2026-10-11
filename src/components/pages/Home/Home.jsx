@@ -26,13 +26,13 @@ const Home = () => {
     if (!token) return;
     if (checkTokenExpiration()) {
       dispatch(clearExpiredToken());
-      alert("Sessiya müddəti bitdi. Yenidən daxil olun.");
+      alert("Session expired. Please sign in again.");
       window.location.href = "/login";
     }
   }, [dispatch, token]);
 
   const handleLogout = useCallback(() => {
-    if (window.confirm("Çıxış etmək istədiyinizə əminsiniz?")) {
+    if (window.confirm("Are you sure you want to sign out?")) {
       dispatch(logoutAdmin());
     }
   }, [dispatch]);
@@ -74,7 +74,7 @@ const Home = () => {
             type="button"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             className="toggle-button"
-            title={sidebarCollapsed ? "Genişləndir" : "Yığışdır"}
+            title={sidebarCollapsed ? "Expand" : "Collapse"}
             aria-label="Sidebar"
           >
             {sidebarCollapsed ? <FiChevronRight /> : <FiChevronLeft />}
@@ -108,7 +108,7 @@ const Home = () => {
             <span className="menu-icon">
               <FiLogOut />
             </span>
-            {!sidebarCollapsed && <span>Çıxış</span>}
+            {!sidebarCollapsed && <span>Sign out</span>}
           </button>
         </div>
       </aside>
@@ -120,7 +120,7 @@ const Home = () => {
               type="button"
               className="mobile-menu-btn"
               onClick={() => setMobileOpen(!mobileOpen)}
-              aria-label="Menyu"
+              aria-label="Menu"
             >
               <FiMenu size={20} />
             </button>
@@ -128,7 +128,7 @@ const Home = () => {
           </div>
           <div className="user-info">
             <span className="welcome-text">
-              Xoş gəlmisiniz, <strong>{user?.name || "Admin"}</strong>
+              Welcome, <strong>{user?.name || "Admin"}</strong>
             </span>
             <div className="user-avatar" title={user?.email}>
               {initials}
@@ -138,7 +138,7 @@ const Home = () => {
               onClick={handleLogout}
               className="header-logout-button"
             >
-              Çıxış
+              Sign out
             </button>
           </div>
         </header>

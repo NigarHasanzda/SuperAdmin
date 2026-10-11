@@ -19,9 +19,9 @@ const Login = () => {
 
   const getGreeting = () => {
     const hour = time.getHours();
-    if (hour >= 5 && hour < 12) return "Sabahınız xeyir";
-    if (hour >= 12 && hour < 18) return "Günortanız xeyir";
-    return "Axşamınız xeyir";
+    if (hour >= 5 && hour < 12) return "Good morning";
+    if (hour >= 12 && hour < 18) return "Good afternoon";
+    return "Good evening";
   };
 
   const handleSubmit = (e) => {
@@ -35,23 +35,22 @@ const Login = () => {
       <div className="auth-brand">
         <div className="auth-brand-inner">
           <span className="auth-brand-badge">SuperAdmin</span>
-          <h1>İdarəetmə paneliniz bir addım yaxın</h1>
+          <h1>Your admin panel is one step away</h1>
           <p>
-            Statik demo rejimində bütün modulları təhlükəsiz şəkildə
-            sınayın — API olmadan, sürətli və sadə.
+            Try every module in static demo mode — no API, fast and simple.
           </p>
           <div className="auth-features">
             <div className="auth-feature">
               <span className="auth-feature-dot" />
-              Dashboard və analitika
+              Dashboard & analytics
             </div>
             <div className="auth-feature">
               <span className="auth-feature-dot" />
-              İstifadəçi və biznes idarəetməsi
+              Users & business management
             </div>
             <div className="auth-feature">
               <span className="auth-feature-dot" />
-              Reklam, bildiriş və hesabatlar
+              Ads, notifications & reports
             </div>
           </div>
         </div>
@@ -64,7 +63,7 @@ const Login = () => {
             <p>
               {isAuthenticated
                 ? `${time.getHours().toString().padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}:${time.getSeconds().toString().padStart(2, "0")}`
-                : "Davam etmək üçün daxil olun"}
+                : "Sign in to continue"}
             </p>
           </div>
 
@@ -84,7 +83,7 @@ const Login = () => {
               </div>
 
               <div className="auth-field">
-                <label htmlFor="password">Şifrə</label>
+                <label htmlFor="password">Password</label>
                 <input
                   id="password"
                   type="password"
@@ -103,11 +102,11 @@ const Login = () => {
                 className={`auth-submit ${loading ? "loading" : ""}`}
                 disabled={loading}
               >
-                {loading ? "Giriş edilir..." : "Daxil ol"}
+                {loading ? "Signing in..." : "Sign in"}
               </button>
 
               <p className="auth-footer">
-                Hesabınız yoxdur? <Link to="/register">Qeydiyyat</Link>
+                Don&apos;t have an account? <Link to="/register">Register</Link>
               </p>
               <p className="auth-hint">Demo: admin@demo.com / admin123</p>
             </form>

@@ -56,7 +56,7 @@ const CategoryCard = ({
           <div className="cat-card__id">
             ID <span>#{category.id}</span>
           </div>
-          {isEditing && <span className="cat-card__badge">Redaktə</span>}
+          {isEditing && <span className="cat-card__badge">Edit</span>}
         </div>
 
         {isEditing ? (
@@ -67,7 +67,7 @@ const CategoryCard = ({
               onChange={(e) => setEditName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleUpdate()}
               className="cat-card__edit-input"
-              placeholder="Kateqoriya adı"
+              placeholder="Category name"
               autoFocus
             />
           </>
@@ -82,7 +82,7 @@ const CategoryCard = ({
 
         {showDefaultHint && (
           <p className="cat-card__default">
-            Bazada: <em>{category.name}</em> · Dil: {langLabel}
+            Base: <em>{category.name}</em> · Locale: {langLabel}
           </p>
         )}
       </div>
@@ -105,7 +105,7 @@ const CategoryCard = ({
               className="cat-btn cat-btn--ghost"
             >
               <FiX size={14} />
-              Ləğv
+              Cancel
             </button>
           </>
         ) : (
@@ -116,13 +116,13 @@ const CategoryCard = ({
               className="cat-btn cat-btn--ghost"
             >
               <FiEdit2 size={14} />
-              Redaktə
+              Edit
             </button>
             <button
               type="button"
               onClick={() => handleDelete(category.id, localizedName)}
               className="cat-btn cat-btn--danger"
-              aria-label="Sil"
+              aria-label="Delete"
             >
               <FiTrash2 size={14} />
             </button>
@@ -163,14 +163,14 @@ const Category = () => {
     LANG_OPTIONS.find((o) => o.value === lang)?.label ?? lang.toUpperCase();
 
   const handleAdd = async () => {
-    if (!newName.trim()) return toast.error("Kateqoriya adı boş ola bilməz!");
+    if (!newName.trim()) return toast.error("Category name cannot be empty!");
     try {
       await dispatch(addCategory({ name: newName })).unwrap();
-      toast.success(`"${newName}" əlavə edildi`);
+      toast.success(`"${newName}" added`);
       setNewName("");
       dispatch(fetchLocalizedCategories(lang));
     } catch (err) {
-      toast.error(`Xəta: ${err}`);
+      toast.error(`Error: ${err}`);
     }
   };
 
@@ -185,17 +185,17 @@ const Category = () => {
   };
 
   const handleUpdate = async () => {
-    if (!editName.trim()) return toast.error("Kateqoriya adı boş ola bilməz!");
+    if (!editName.trim()) return toast.error("Category name cannot be empty!");
     try {
       await dispatch(
         updateCategory({ id: editingId, name: editName, lang })
       ).unwrap();
-      toast.success("Yeniləndi");
+      toast.success("Updated");
       setEditingId(null);
       setEditName("");
       dispatch(fetchLocalizedCategories(lang));
     } catch (err) {
-      toast.error(`Xəta: ${err}`);
+      toast.error(`Error: ${err}`);
     }
   };
 
@@ -203,9 +203,9 @@ const Category = () => {
     if (!window.confirm(`"${name}" silinsin?`)) return;
     try {
       await dispatch(deleteCategory(id)).unwrap();
-      toast.success(`"${name}" silindi`);
+      toast.success(`"${name}" deleted`);
     } catch (err) {
-      toast.error(`Xəta: ${err}`);
+      toast.error(`Error: ${err}`);
     }
   };
 
@@ -225,20 +225,19 @@ const Category = () => {
 
       <header className="cat-page__header">
         <div>
-          <h2>Məhsul kateqoriyaları</h2>
+          <h2>Product categories</h2>
           <p>
-            Kateqoriya adlarını idarə edin, dillər arası lokalizasiyanı seçin və
-            kataloqu axtarışla süzün.
+            Manage category names, pick a locale, and filter the catalog.
           </p>
         </div>
         <div className="cat-page__stats">
           <div className="cat-stat">
             <div className="cat-stat__value">{list.length}</div>
-            <div className="cat-stat__label">Ümumi</div>
+            <div className="cat-stat__label">Total</div>
           </div>
           <div className="cat-stat">
             <div className="cat-stat__value">{filteredList.length}</div>
-            <div className="cat-stat__label">Göstərilən</div>
+            <div className="cat-stat__label">Showing</div>
           </div>
           <div className="cat-stat cat-stat--lang">
             <div className="cat-stat__value">{langLabel}</div>
@@ -253,10 +252,10 @@ const Category = () => {
             <FiSearch size={18} aria-hidden />
             <input
               type="search"
-              placeholder="Kateqoriya adı ilə axtar..."
+              placeholder="Search by category name..."
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
-              aria-label="Axtarış"
+              aria-label="Search"
             />
           </div>
           <div className="cat-lang" role="group" aria-label="Dil">
@@ -277,13 +276,13 @@ const Category = () => {
         <div className="cat-toolbar__row">
           <div className="cat-create">
             <div className="cat-create__field">
-              <label htmlFor="new-category">Yeni kateqoriya</label>
+              <label htmlFor="new-category">New category</label>
               <div className="cat-create__input-wrap">
                 <FiPlus size={18} aria-hidden />
                 <input
                   id="new-category"
                   type="text"
-                  placeholder="Məs: Yağlar və mayelər"
+                  placeholder="e.g. Oils & fluids"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAdd()}
@@ -298,7 +297,7 @@ const Category = () => {
               disabled={loading || !newName.trim()}
             >
               <FiPlus size={18} />
-              Əlavə et
+              Add
             </button>
           </div>
         </div>
@@ -306,25 +305,25 @@ const Category = () => {
 
       {error && (
         <div className="cat-page__error" role="alert">
-          Xəta: {error}
+          Error: {error}
         </div>
       )}
 
       {loading && (
         <div className="cat-page__state">
           <div className="cat-page__spinner" />
-          <p>Kateqoriyalar yüklənir...</p>
+          <p>Loading categories...</p>
         </div>
       )}
 
       {!loading && !error && filteredList.length === 0 && (
         <div className="cat-page__state">
           <FiLayers size={40} strokeWidth={1.5} opacity={0.35} />
-          <h3>Kateqoriya tapılmadı</h3>
+          <h3>No categories found</h3>
           <p>
             {searchName
-              ? "Axtarışı dəyişin və ya yeni kateqoriya əlavə edin."
-              : "Yuxarıdakı formdan ilk kateqoriyanı yaradın."}
+              ? "Change your search or add a category."
+              : "Create the first category using the form above."}
           </p>
         </div>
       )}

@@ -1,4 +1,4 @@
-const PLACEHOLDER_IMAGE = "https://placehold.co/400x200/png?text=Reklam";
+const PLACEHOLDER_IMAGE = "https://placehold.co/400x200/png?text=Ad";
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
@@ -16,7 +16,7 @@ const initial = {
     {
       id: 102,
       name: "Kamal",
-      surname: "Həsənov",
+      surname: "Hasanova",
       email: "kamal@example.com",
       phone: "+994551112233",
       birthday: "1990-07-22",
@@ -28,10 +28,10 @@ const initial = {
       id: 1,
       companyName: "Otogo Service MMC",
       shopName: "Otogo Service MMC",
-      tagline: "Avtomobil xidməti",
+      tagline: "Auto service",
       businessCode: "OTG-001",
       tin: "1234567890",
-      description: "Tam spektrli avtoservis.",
+      description: "Full-service auto repair shop.",
       status: "ACTIVE",
       tinStatus: "ACCEPTED",
       email: "info@otogo.az",
@@ -42,10 +42,10 @@ const initial = {
       id: 2,
       companyName: "Baku Auto Wash",
       shopName: "Baku Auto Wash",
-      tagline: "Premium yuma",
+      tagline: "Premium wash",
       businessCode: "BAW-002",
       tin: "9876543210",
-      description: "24/7 avto yuma xidməti.",
+      description: "24/7 car wash service.",
       status: "PENDING",
       tinStatus: "PENDING",
       email: "contact@bakuwash.az",
@@ -56,31 +56,31 @@ const initial = {
       id: 3,
       companyName: "Speed Tire",
       shopName: "Speed Tire",
-      tagline: "Təkər və balans",
+      tagline: "Tires & balancing",
       businessCode: "ST-003",
       tin: "5555555555",
-      description: "Təkər satışı və quraşdırma.",
+      description: "Tire sales and installation.",
       status: "INACTIVE",
       tinStatus: "REJECTED",
       email: "hello@speedtire.az",
       phone: "+994507778899",
-      blockReason: "Sənəd uyğunsuzluğu",
+      blockReason: "Document mismatch",
       branches: [],
     },
   ],
   roles: [
-    { id: 1, name: "ADMIN", description: "Tam idarəetmə" },
-    { id: 2, name: "MODERATOR", description: "Məzmun moderasiyası" },
+    { id: 1, name: "ADMIN", description: "Full access" },
+    { id: 2, name: "MODERATOR", description: "Content moderation" },
   ],
   categories: [
-    { id: 1, name: "Yağlar" },
-    { id: 2, name: "Təkərlər" },
-    { id: 3, name: "Aksesuarlar" },
+    { id: 1, name: "Oils" },
+    { id: 2, name: "Tires" },
+    { id: 3, name: "Accessories" },
   ],
   ads: [
     {
       id: 1,
-      link: "https://example.com/kampaniya",
+      link: "https://example.com/campaign",
       userId: 1,
       userName: "Admin",
       isActive: 1,
@@ -88,43 +88,63 @@ const initial = {
     },
   ],
   products: [
-    { id: 1, name: "Motor yağı 5W-30", price: 45, category: "Yağlar" },
-    { id: 2, name: "Yay təkəri 205/55 R16", price: 120, category: "Təkərlər" },
-    { id: 3, name: "Avtomobil süngəri", price: 8, category: "Aksesuarlar" },
+    { id: 1, name: "Engine oil 5W-30", price: 45, category: "Oils" },
+    { id: 2, name: "Summer tire 205/55 R16", price: 120, category: "Tires" },
+    { id: 3, name: "Car sponge", price: 8, category: "Accessories" },
   ],
   profiles: [
     {
       id: 1,
-      name: "Rəşad",
-      surname: "Məmmədov",
-      profession: "Mexanik",
-      city: "Bakı",
+      name: "Rashad",
+      surname: "Mammadov",
+      profession: "Mechanic",
+      city: "Baku",
       rating: 4.8,
     },
     {
       id: 2,
-      name: "Ləman",
+      name: "Laman",
       surname: "Quliyeva",
-      profession: "Deteyling",
-      city: "Gəncə",
+      profession: "Detailing",
+      city: "Ganja",
       rating: 4.6,
     },
   ],
   notifications: [
     {
       id: 1,
-      title: "Sistem yenilənməsi",
-      message: "Admin panel statik demo rejimindədir.",
+      title: "System update",
+      message: "Admin panel is running in static demo mode.",
       createdAt: new Date().toISOString(),
     },
   ],
   reports: [
     {
       id: 1,
-      reporterName: "User A",
-      subject: "Yanlış məhsul məlumatı",
-      status: "OPEN",
+      reportType: "fraud",
+      reportStatus: "pending",
+      reportCategoryId: 2,
+      fromUserId: 101,
+      subject: "Incorrect product information",
       createdAt: new Date(Date.now() - 86400000).toISOString(),
+    },
+    {
+      id: 2,
+      reportType: "spam",
+      reportStatus: "resolved",
+      reportCategoryId: 1,
+      fromUserId: 102,
+      subject: "Repeated promotional messages",
+      createdAt: new Date(Date.now() - 172800000).toISOString(),
+    },
+    {
+      id: 3,
+      reportType: "other",
+      reportStatus: "rejected",
+      reportCategoryId: 3,
+      fromUserId: 101,
+      subject: "Duplicate listing",
+      createdAt: new Date(Date.now() - 259200000).toISOString(),
     },
   ],
   logs: [
@@ -132,7 +152,7 @@ const initial = {
       id: 1,
       type: "user_registered",
       action: "create",
-      message: "Yeni istifadəçi qeydiyyatdan keçdi",
+      message: "New user registered",
       user: "nigar@example.com",
       createdAt: new Date().toISOString(),
     },
@@ -140,7 +160,7 @@ const initial = {
       id: 2,
       type: "report_action",
       action: "update",
-      message: "Hesabat cavablandırıldı",
+      message: "Report was answered",
       user: "admin@demo.com",
       createdAt: new Date(Date.now() - 3600000).toISOString(),
     },
@@ -184,7 +204,7 @@ export async function deleteUser(id) {
 export async function updateUser(id, userData) {
   await tick();
   const index = db.users.findIndex((u) => u.id === id);
-  if (index === -1) throw new Error("İstifadəçi tapılmadı");
+  if (index === -1) throw new Error("No users found");
   db.users[index] = { ...db.users[index], ...userData, id };
   return clone(db.users[index]);
 }
@@ -197,7 +217,7 @@ export async function getAllBusinesses() {
 export async function getBusinessById(id) {
   await tick();
   const business = db.businesses.find((b) => b.id === id);
-  if (!business) throw new Error("Biznes tapılmadı");
+  if (!business) throw new Error("Business not found");
   return clone(business);
 }
 
@@ -225,7 +245,7 @@ export async function searchBusinesses(companyName, approved) {
 export async function patchBusiness(id, patch) {
   await tick();
   const business = db.businesses.find((b) => b.id === id);
-  if (!business) throw new Error("Biznes tapılmadı");
+  if (!business) throw new Error("Business not found");
   Object.assign(business, patch);
   return clone(business);
 }
@@ -245,7 +265,7 @@ export async function addRole(roleData) {
 export async function updateRole(roleData) {
   await tick();
   const index = db.roles.findIndex((r) => r.id === roleData.id);
-  if (index === -1) throw new Error("Rol tapılmadı");
+  if (index === -1) throw new Error("Role not found");
   db.roles[index] = { ...db.roles[index], ...roleData };
   return clone(db.roles[index]);
 }
@@ -276,7 +296,7 @@ export async function addCategory(categoryData) {
 export async function updateCategory(categoryData) {
   await tick();
   const index = db.categories.findIndex((c) => c.id === categoryData.id);
-  if (index === -1) throw new Error("Kateqoriya tapılmadı");
+  if (index === -1) throw new Error("Category not found");
   db.categories[index] = { ...db.categories[index], ...categoryData };
   return clone(db.categories[index]);
 }
@@ -290,7 +310,7 @@ export async function deleteCategory(id) {
 export async function getCategoryById(id) {
   await tick();
   const category = db.categories.find((c) => c.id === id);
-  if (!category) throw new Error("Kateqoriya tapılmadı");
+  if (!category) throw new Error("Category not found");
   return clone(category);
 }
 
@@ -309,7 +329,7 @@ export async function addAd(adData) {
 export async function updateAd(id, updatedFields) {
   await tick();
   const index = db.ads.findIndex((a) => a.id === id);
-  if (index === -1) throw new Error("Reklam tapılmadı");
+  if (index === -1) throw new Error("Ad not found");
   db.ads[index] = { ...db.ads[index], ...updatedFields, id };
   return clone(db.ads[index]);
 }
@@ -323,7 +343,7 @@ export async function deleteAd(id) {
 export async function uploadAdImage(id, file) {
   await tick();
   const ad = db.ads.find((a) => a.id === id);
-  if (!ad) throw new Error("Reklam tapılmadı");
+  if (!ad) throw new Error("Ad not found");
   const objectUrl =
     file instanceof File || file instanceof Blob
       ? URL.createObjectURL(file)
@@ -345,7 +365,7 @@ export async function getProducts(page = 0) {
 export async function getProductById(id) {
   await tick();
   const product = db.products.find((p) => p.id === id);
-  if (!product) throw new Error("Məhsul tapılmadı");
+  if (!product) throw new Error("No products found");
   return clone(product);
 }
 
@@ -357,7 +377,7 @@ export async function getProfiles(page = 0) {
 export async function getProfileById(id) {
   await tick();
   const profile = db.profiles.find((p) => p.id === id);
-  if (!profile) throw new Error("Profil tapılmadı");
+  if (!profile) throw new Error("No profiles found");
   return clone(profile);
 }
 
@@ -392,10 +412,12 @@ export async function answerReport(reportTransactionId, message) {
   await tick();
   const report = db.reports.find((r) => r.id === reportTransactionId);
   if (report) {
-    report.status = "ANSWERED";
+    report.reportStatus = "resolved";
     report.adminMessage = message;
   }
-  return clone(report || { id: reportTransactionId, status: "ANSWERED" });
+  return clone(
+    report || { id: reportTransactionId, reportStatus: "resolved" }
+  );
 }
 
 export async function getLogs() {

@@ -14,13 +14,13 @@ const Pagination = ({ currentPage, lastPage, onPageChange }) => {
   }, [currentPage]);
 
   return (
-    <nav className="pagination-root" aria-label="Səhifələmə">
+    <nav className="pagination-root" aria-label="Pagination">
       <button
         type="button"
         onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
         className="page-btn"
-        aria-label="Əvvəlki səhifə"
+        aria-label="Previous page"
       >
         ‹
       </button>
@@ -45,7 +45,7 @@ const Pagination = ({ currentPage, lastPage, onPageChange }) => {
         }
         disabled={currentPage === totalPages}
         className="page-btn"
-        aria-label="Sonrakı səhifə"
+        aria-label="Next page"
       >
         ›
       </button>

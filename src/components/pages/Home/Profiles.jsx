@@ -69,7 +69,7 @@ const Profiles = () => {
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleDateString("az-AZ", {
+    return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -156,10 +156,10 @@ const Profiles = () => {
         </div>
         <div className="profile-status-badges">
           {profile.isActive && (
-            <div className="status-badge active">🟢 Aktiv</div>
+            <div className="status-badge active">🟢 Active</div>
           )}
           {profile.isVerified && (
-            <div className="status-badge verified">✅ Təsdiqli</div>
+            <div className="status-badge verified">✅ Verified</div>
           )}
         </div>
       </div>
@@ -180,13 +180,13 @@ const Profiles = () => {
         <div className="detail-item">
           <span className="detail-icon">📞</span>
           <span className="detail-text">
-            {profile.phone || "Telefon yoxdur"}
+            {profile.phone || "Phone yoxdur"}
           </span>
         </div>
         <div className="detail-item">
           <span className="detail-icon">📅</span>
           <span className="detail-text">
-            Qeydiyyat: {formatDate(profile.createdAt)}
+            Registered: {formatDate(profile.createdAt)}
           </span>
         </div>
       </div>
@@ -199,7 +199,7 @@ const Profiles = () => {
             handleProfileDetail(profile);
           }}
         >
-          👁️ Ətraflı Bax
+          👁️ View details
         </button>
       </div>
     </div>
@@ -258,7 +258,7 @@ const Profiles = () => {
       <div className="profiles-container">
         <div className="loading-state">
           <div className="loading-spinner"></div>
-          <p>Profil məlumatları yüklənir...</p>
+          <p>Loading profiles...</p>
         </div>
       </div>
     );
@@ -268,7 +268,7 @@ const Profiles = () => {
     return (
       <div className="profiles-container">
         <div className="error-state">
-          ⚠️ Xəta baş verdi:{" "}
+          ⚠️ Error:{" "}
           {typeof error === "string" ? error : JSON.stringify(error)}
         </div>
       </div>
@@ -285,7 +285,7 @@ const Profiles = () => {
             <span className="search-icon">🔍</span>
             <input
               type="text"
-              placeholder="Ad, soyad, istifadəçi adı və ya email ilə axtar..."
+              placeholder="Search by name, username, or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -305,7 +305,7 @@ const Profiles = () => {
               className="sort-select"
             >
               <option value="name">👤 Ad</option>
-              <option value="username">📝 İstifadəçi adı</option>
+              <option value="username">📝 Username</option>
               <option value="email">📧 Email</option>
               <option value="id">🆔 ID</option>
             </select>
@@ -339,19 +339,19 @@ const Profiles = () => {
           <div className="stats-section">
             <div className="stat-card">
               <div className="stat-number">{stats.total}</div>
-              <div className="stat-label">Ümumi</div>
+              <div className="stat-label">Total</div>
             </div>
             <div className="stat-card">
               <div className="stat-number">{stats.filtered}</div>
-              <div className="stat-label">Filtrlənmiş</div>
+              <div className="stat-label">Filtered</div>
             </div>
             <div className="stat-card">
               <div className="stat-number">{stats.active}</div>
-              <div className="stat-label">Aktiv</div>
+              <div className="stat-label">Active</div>
             </div>
             <div className="stat-card">
               <div className="stat-number">{stats.verified}</div>
-              <div className="stat-label">Təsdiqli</div>
+              <div className="stat-label">Verified</div>
             </div>
           </div>
         </div>
@@ -360,8 +360,7 @@ const Profiles = () => {
       {/* Search Info */}
       {searchTerm && (
         <div className="search-info">
-          🔍 "{searchTerm}" üçün {filteredAndSortedProfiles.length} nəticə
-          tapıldı
+          🔍 {filteredAndSortedProfiles.length} results for "{searchTerm}"
         </div>
       )}
 
@@ -369,8 +368,8 @@ const Profiles = () => {
       {filteredAndSortedProfiles.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">👤</div>
-          <h3>Profil tapılmadı</h3>
-          <p>Axtarış kriteriyalarınızı dəyişdirərək yenidən cəhd edin</p>
+          <h3>No profiles found</h3>
+          <p>Try adjusting your search filters</p>
         </div>
       ) : (
         <>
@@ -422,10 +421,10 @@ const Profiles = () => {
               </div>
               <div className="profile-badges-row">
                 {selectedProfile.isActive && (
-                  <div className="status-badge active">🟢 Aktiv</div>
+                  <div className="status-badge active">🟢 Active</div>
                 )}
                 {selectedProfile.verified && (
-                  <div className="status-badge verified">✅ Təsdiqli</div>
+                  <div className="status-badge verified">✅ Verified</div>
                 )}
                 <div className="profile-id-badge">
                   ID: #{selectedProfile.id}
@@ -458,9 +457,9 @@ const Profiles = () => {
                 </div>
               </div>
 
-              {/* Əsas məlumatlar */}
+              {/* Overviewlar */}
               <div className="profile-info-section">
-                <h3>📋 Əsas Məlumatlar</h3>
+                <h3>📋 Overview</h3>
                 <div className="info-grid">
                   <div className="info-item">
                     <strong>👤 Ad:</strong> {selectedProfile.name}
@@ -469,30 +468,30 @@ const Profiles = () => {
                     <strong>👤 Soyad:</strong> {selectedProfile.surname}
                   </div>
                   <div className="info-item">
-                    <strong>📝 İstifadəçi adı:</strong> @
+                    <strong>📝 Username:</strong> @
                     {selectedProfile.username}
                   </div>
                   <div className="info-item">
-                    <strong>📞 Telefon:</strong> {selectedProfile.phone}
+                    <strong>📞 Phone:</strong> {selectedProfile.phone}
                   </div>
                   <div className="info-item">
-                    <strong>📅 Yaradılma tarixi:</strong>{" "}
+                    <strong>📅 Created:</strong>{" "}
                     {formatDate(selectedProfile.createdAt)}
                   </div>
                   <div className="info-item">
-                    <strong>📅 Yenilənmə tarixi:</strong>{" "}
+                    <strong>📅 Updated:</strong>{" "}
                     {formatDate(selectedProfile.updatedAt)}
                   </div>
                   <div className="info-item">
-                    <strong>📍 Ünvan:</strong>{" "}
-                    {selectedProfile.address || "Məlumat yoxdur"}
+                    <strong>📍 Address:</strong>{" "}
+                    {selectedProfile.address || "Not available"}
                   </div>
                   <div className="info-item">
-                    <strong>🏷️ Başlıq:</strong>{" "}
-                    {selectedProfile.title || "Məlumat yoxdur"}
+                    <strong>🏷️ Title:</strong>{" "}
+                    {selectedProfile.title || "Not available"}
                   </div>
                   <div className="info-item">
-                    <strong>🧰 Təsvir:</strong>{" "}
+                    <strong>🧰 Description:</strong>{" "}
                     {selectedProfile.description || "Yoxdur"}
                   </div>
                 </div>
@@ -500,10 +499,10 @@ const Profiles = () => {
 
               {/* Əlavə məlumatlar */}
               <div className="additional-info-section">
-                <h3>🔧 Əlavə Məlumatlar</h3>
+                <h3>🔧 Additional info</h3>
                 <div className="info-grid">
                   <div className="info-item">
-                    <strong>🧭 Əlçatanlıq:</strong>{" "}
+                    <strong>🧭 Accessibility:</strong>{" "}
                     {selectedProfile.availabilityStatus}
                   </div>
                   <div className="info-item">
@@ -511,22 +510,22 @@ const Profiles = () => {
                     {selectedProfile.averageRating || "0"}
                   </div>
                   <div className="info-item">
-                    <strong>🏢 Filialdır:</strong>{" "}
-                    {selectedProfile.branch ? "Bəli" : "Xeyr"}
+                    <strong>🏢 Is branch:</strong>{" "}
+                    {selectedProfile.branch ? "Yes" : "No"}
                   </div>
                   <div className="info-item">
-                    <strong>👥 İstifadəçi tipi:</strong>{" "}
+                    <strong>👥 User tipi:</strong>{" "}
                     {selectedProfile.userType}
                   </div>
                   <div className="info-item">
                     <strong>📦 Say:</strong> {selectedProfile.count}
                   </div>
                   <div className="info-item">
-                    <strong>🚘 Sürücüsü var:</strong>{" "}
-                    {selectedProfile.hasDriver ? "Bəli" : "Xeyr"}
+                    <strong>🚘 Has driver:</strong>{" "}
+                    {selectedProfile.hasDriver ? "Yes" : "No"}
                   </div>
                   <div className="info-item">
-                    <strong>📏 Məsafə:</strong>{" "}
+                    <strong>📏 Distance:</strong>{" "}
                     {selectedProfile.distance || "Yoxdur"}
                   </div>
                   <div className="info-item">
@@ -541,14 +540,14 @@ const Profiles = () => {
               {/* İş günləri */}
               {selectedProfile.workTimes?.length > 0 && (
                 <div className="worktimes-section">
-                  <h3>🕒 İş Qrafiki</h3>
+                  <h3>🕒 Work schedule</h3>
                   <table className="worktimes-table">
                     <thead>
                       <tr>
-                        <th>Gün</th>
-                        <th>Açıqdır?</th>
-                        <th>Açılış</th>
-                        <th>Bağlanış</th>
+                        <th>Day</th>
+                        <th>Open?</th>
+                        <th>Opens</th>
+                        <th>Closes</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -568,7 +567,7 @@ const Profiles = () => {
               {/* Service Catalog Pages */}
               {selectedProfile.serviceCatalogPages?.length > 0 && (
                 <div className="service-catalog-section">
-                  <h3>📚 Professional Səhifələr</h3>
+                  <h3>📚 Professional pages</h3>
                   <div className="info-grid">
                     {selectedProfile.serviceCatalogPages.map((s) => (
                       <div key={s.id} className="info-item">

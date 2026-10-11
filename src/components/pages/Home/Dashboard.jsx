@@ -45,13 +45,13 @@ const Dashboard = () => {
   }, []);
 
   const formatTime = (date) =>
-    date.toLocaleTimeString("az-AZ", {
+    date.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
     });
   const formatDate = (date) =>
-    date.toLocaleDateString("az-AZ", {
+    date.toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -60,44 +60,44 @@ const Dashboard = () => {
 
   const getGreeting = () => {
     const hour = currentTime.getHours();
-    if (hour >= 5 && hour < 12) return "Sabahınız xeyir";
-    if (hour >= 12 && hour < 17) return "Günortanız xeyir";
-    if (hour >= 17 && hour < 22) return "Axşamınız xeyir";
-    return "Gecəniz xeyir";
+    if (hour >= 5 && hour < 12) return "Good morning";
+    if (hour >= 12 && hour < 17) return "Good afternoon";
+    if (hour >= 17 && hour < 22) return "Good evening";
+    return "Good night";
   };
 
   const metrics = [
     {
       id: "users",
-      label: "İstifadəçilər",
+      label: "Users",
       value: userNumber,
       color: "#6366f1",
       icon: "👥",
-      trend: "Aktiv",
+      trend: "Active",
     },
     {
       id: "businesses",
-      label: "Bizneslər",
+      label: "Businesses",
       value: businessLength,
       color: "#10b981",
       icon: "🏢",
-      trend: "Statik demo",
+      trend: "Static demo",
     },
     {
       id: "products",
-      label: "Məhsullar",
+      label: "Products",
       value: productLength,
       color: "#f59e0b",
       icon: "📦",
-      trend: "Kataloq",
+      trend: "Catalog",
     },
     {
       id: "ads",
-      label: "Reklamlar",
+      label: "Ads",
       value: allAdsLength,
       color: "#ef4444",
       icon: "📢",
-      trend: "Kampaniya",
+      trend: "Campaigns",
     },
   ];
 
@@ -112,7 +112,7 @@ const Dashboard = () => {
               {getGreeting()}, {user?.name || "Admin"}!
             </h1>
             <p className="hero-subtitle">
-              Bu günün statistikası və modullara sürətli keçid aşağıdadır.
+              Today&apos;s stats and quick links to modules are below.
             </p>
             <div className="user-details">
               <div className="user-detail-item">
@@ -153,7 +153,7 @@ const Dashboard = () => {
       </div>
 
       <div className="dashboard-quick">
-        <h3>Sürətli keçid</h3>
+        <h3>Quick links</h3>
         <div className="quick-links">
           {quickLinks.map((item) => (
             <button

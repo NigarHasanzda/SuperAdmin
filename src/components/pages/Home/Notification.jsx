@@ -40,9 +40,9 @@ export const Notification = () => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "Tarix məlum deyil";
+    if (!dateString) return "Unknown date";
     const date = new Date(dateString);
-    return date.toLocaleDateString("az-AZ", {
+    return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -85,7 +85,7 @@ export const Notification = () => {
   const handleSend = async (e) => {
     e.preventDefault();
     if (!title.trim() || !desc.trim()) {
-      return alert("Başlıq və açıqlama doldurulmalıdır!");
+      return alert("Title and description are required!");
     }
 
     try {
@@ -99,10 +99,10 @@ export const Notification = () => {
         setDesc("");
         setShowSendForm(false);
       } else {
-        alert("Bildiriş göndərilə bilmədi!");
+        alert("Could not send notification!");
       }
     } catch (err) {
-      alert("Xəta baş verdi: " + err.message);
+      alert("Error: " + err.message);
     }
   };
 
@@ -196,7 +196,7 @@ export const Notification = () => {
           </div>
         </div>
         <div className="notification-status">
-          <div className="status-badge active">📢 Göndərildi</div>
+          <div className="status-badge active">📢 Sent</div>
           <button
             className="status-badge active"
             style={{
@@ -204,12 +204,12 @@ export const Notification = () => {
             }}
             onClick={(e) => {
               e.stopPropagation(); // modal açılmasın
-              if (window.confirm("Bildirişi silmək istədiyinizə əminsiniz?")) {
+              if (window.confirm("Delete this notification?")) {
                 dispatch(deleteBroadcast(notification.id));
               }
             }}
           >
-            🗑️ Sil
+            🗑️ Delete
           </button>
         </div>
       </div>
@@ -218,7 +218,7 @@ export const Notification = () => {
         <p className="notification-description">
           {notification.description && notification.description.length > 100
             ? `${notification.description.substring(0, 100)}...`
-            : notification.description || "Açıqlama yoxdur"}
+            : notification.description || "No description"}
         </p>
       </div>
 
@@ -230,7 +230,7 @@ export const Notification = () => {
             handleNotificationDetail(notification);
           }}
         >
-          👁️ Ətraflı Bax
+          👁️ View details
         </button>
       </div>
     </div>
@@ -241,7 +241,7 @@ export const Notification = () => {
       <div className="notifications-container">
         <div className="loading-state">
           <div className="loading-spinner"></div>
-          <p>Bildirişlər yüklənir...</p>
+          <p>Loading notifications...</p>
         </div>
       </div>
     );
@@ -251,7 +251,7 @@ export const Notification = () => {
     return (
       <div className="notifications-container">
         <div className="error-state">
-          ⚠️ Xəta baş verdi:{" "}
+          ⚠️ Error:{" "}
           {typeof error === "string" ? error : JSON.stringify(error)}
         </div>
       </div>
@@ -262,16 +262,15 @@ export const Notification = () => {
     <div className="notifications-container">
       {/* Header */}
       <div className="notifications-header">
-        <h1 className="notifications-title">📢 Bildiriş İdarəetməsi</h1>
+        <h1 className="notifications-title">📢 Notification management</h1>
         <p className="notifications-subtitle">
-          Sistem bildirişlərini göndərin və bütün yayım bildirişlərini idarə
-          edin
+          Send system notifications and manage all broadcasts.
         </p>
         <button
           className="add-notification-btn"
           onClick={() => setShowSendForm(true)}
         >
-          ➕ Yeni Bildiriş Göndər
+          ➕ Send notification
         </button>
       </div>
 
@@ -283,7 +282,7 @@ export const Notification = () => {
             <span className="search-icon">🔍</span>
             <input
               type="text"
-              placeholder="Başlıq və ya açıqlama ilə axtar..."
+              placeholder="Search by title or description..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -302,8 +301,8 @@ export const Notification = () => {
               onChange={(e) => setSortBy(e.target.value)}
               className="sort-select"
             >
-              <option value="date">📅 Tarix</option>
-              <option value="title">📝 Başlıq</option>
+              <option value="date">📅 Date</option>
+              <option value="title">📝 Title</option>
               <option value="id">🆔 ID</option>
             </select>
             <button
@@ -319,19 +318,19 @@ export const Notification = () => {
         <div className="stats-section">
           <div className="stat-card">
             <div className="stat-number">{stats.total}</div>
-            <div className="stat-label">Ümumi</div>
+            <div className="stat-label">Total</div>
           </div>
           <div className="stat-card">
             <div className="stat-number">{stats.filtered}</div>
-            <div className="stat-label">Filtrlənmiş</div>
+            <div className="stat-label">Filtered</div>
           </div>
           <div className="stat-card">
             <div className="stat-number">{stats.today}</div>
-            <div className="stat-label">Bu gün</div>
+            <div className="stat-label">Today</div>
           </div>
           <div className="stat-card">
             <div className="stat-number">{stats.thisWeek}</div>
-            <div className="stat-label">Bu həftə</div>
+            <div className="stat-label">This week</div>
           </div>
         </div>
       </div>
@@ -339,8 +338,7 @@ export const Notification = () => {
       {/* Search Info */}
       {searchTerm && (
         <div className="search-info">
-          🔍 "{searchTerm}" üçün {filteredAndSortedNotifications.length} nəticə
-          tapıldı
+          🔍 {filteredAndSortedNotifications.length} results for "{searchTerm}"
         </div>
       )}
 
@@ -348,16 +346,16 @@ export const Notification = () => {
       {filteredAndSortedNotifications.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">📢</div>
-          <h3>Bildiriş tapılmadı</h3>
+          <h3>No notifications found</h3>
           <p>
-            Hələ heç bir bildiriş göndərilməyib və ya axtarış kriteriyalarınıza
-            uyğun nəticə yoxdur
+            No notifications sent yet, or none match your search
+            criteria
           </p>
           <button
             className="empty-action-btn"
             onClick={() => setShowSendForm(true)}
           >
-            ➕ İlk Bildirişinizi Göndərin
+            ➕ Send your first notification
           </button>
         </div>
       ) : (
@@ -372,7 +370,7 @@ export const Notification = () => {
           <div className="send-form-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-title">
-                <h2>📢 Yeni Bildiriş Göndər</h2>
+                <h2>📢 New notification</h2>
                 <button
                   className="close-btn"
                   onClick={() => setShowSendForm(false)}
@@ -385,12 +383,12 @@ export const Notification = () => {
             <form onSubmit={handleSend} className="send-form">
               <div className="form-group">
                 <label htmlFor="title" className="form-label">
-                  📝 Başlıq
+                  📝 Title
                 </label>
                 <input
                   id="title"
                   type="text"
-                  placeholder="Bildiriş başlığını daxil edin..."
+                  placeholder="Enter notification title..."
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="form-input"
@@ -400,11 +398,11 @@ export const Notification = () => {
 
               <div className="form-group">
                 <label htmlFor="description" className="form-label">
-                  📄 Açıqlama
+                  📄 Description
                 </label>
                 <textarea
                   id="description"
-                  placeholder="Bildiriş açıqlamasını daxil edin..."
+                  placeholder="Enter notification body..."
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
                   className="form-textarea"
@@ -419,14 +417,14 @@ export const Notification = () => {
                   onClick={() => setShowSendForm(false)}
                   className="btn btn-cancel"
                 >
-                  ❌ Ləğv Et
+                  ❌ Cancel Et
                 </button>
                 <button
                   type="submit"
                   className="btn btn-send"
                   disabled={!title.trim() || !desc.trim()}
                 >
-                  📤 Bildirişi Göndər
+                  📤 Send notification
                 </button>
               </div>
             </form>
@@ -455,7 +453,7 @@ export const Notification = () => {
                 </button>
               </div>
               <div className="notification-badges-row">
-                <div className="status-badge active">📢 Göndərildi</div>
+                <div className="status-badge active">📢 Sent</div>
                 <div className="notification-id-badge">
                   ID: #{selectedNotification.id || "N/A"}
                 </div>
@@ -465,17 +463,17 @@ export const Notification = () => {
             <div className="modal-content">
               {/* Notification Info */}
               <div className="notification-info-section">
-                <h3>📋 Bildiriş Məlumatları</h3>
+                <h3>📋 Notification details</h3>
                 <div className="info-grid">
                   <div className="info-item">
-                    <strong>📝 Başlıq:</strong> {selectedNotification.title}
+                    <strong>📝 Title:</strong> {selectedNotification.title}
                   </div>
                   <div className="info-item">
-                    <strong>📄 Açıqlama:</strong>{" "}
-                    {selectedNotification.description || "Açıqlama yoxdur"}
+                    <strong>📄 Description:</strong>{" "}
+                    {selectedNotification.description || "No description"}
                   </div>
                   <div className="info-item">
-                    <strong>📅 Göndərilmə tarixi:</strong>{" "}
+                    <strong>📅 Sent at:</strong>{" "}
                     {formatDate(
                       selectedNotification.createdAt ||
                         selectedNotification.date
@@ -486,7 +484,7 @@ export const Notification = () => {
                   </div>
                   {selectedNotification.type && (
                     <div className="info-item">
-                      <strong>🏷️ Növ:</strong> {selectedNotification.type}
+                      <strong>🏷️ Type:</strong> {selectedNotification.type}
                     </div>
                   )}
                 </div>
@@ -496,11 +494,11 @@ export const Notification = () => {
               {(selectedNotification.recipients ||
                 selectedNotification.channels) && (
                 <div className="additional-info-section">
-                  <h3>🎯 Göndərim Məlumatları</h3>
+                  <h3>🎯 Delivery info</h3>
                   <div className="info-grid">
                     {selectedNotification.recipients && (
                       <div className="info-item">
-                        <strong>👥 Alıcılar:</strong>{" "}
+                        <strong>👥 Recipients:</strong>{" "}
                         {selectedNotification.recipients}
                       </div>
                     )}
@@ -522,10 +520,10 @@ export const Notification = () => {
 
               {/* Full Description */}
               <div className="full-description-section">
-                <h3>📝 Tam Açıqlama</h3>
+                <h3>📝 Tam Description</h3>
                 <div className="description-content">
                   {selectedNotification.description ||
-                    "Açıqlama məlumatı mövcud deyil"}
+                    "No description available"}
                 </div>
               </div>
             </div>

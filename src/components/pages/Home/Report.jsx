@@ -30,7 +30,7 @@ const Report = () => {
 
   useEffect(() => {
     if (answerSuccess) {
-      toast.success("Cavab uğurla göndərildi ✅");
+      toast.success("Reply sent successfully");
       setSelectedId(null);
       setMessage("");
       dispatch(clearReportStatus());
@@ -55,16 +55,14 @@ const Report = () => {
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case "pending":
-      case "gözləmədə":
+      case "open":
         return "#f59e0b";
       case "resolved":
-      case "həll edilib":
+      case "answered":
         return "#10b981";
       case "rejected":
-      case "rədd edilib":
         return "#ef4444";
       case "in_progress":
-      case "davam edir":
         return "#3b82f6";
       default:
         return "#64748b";
@@ -74,16 +72,14 @@ const Report = () => {
   const getStatusIcon = (status) => {
     switch (status?.toLowerCase()) {
       case "pending":
-      case "gözləmədə":
+      case "open":
         return "⏳";
       case "resolved":
-      case "həll edilib":
+      case "answered":
         return "✅";
       case "rejected":
-      case "rədd edilib":
         return "❌";
       case "in_progress":
-      case "davam edir":
         return "🔄";
       default:
         return "❓";
@@ -95,19 +91,14 @@ const Report = () => {
       case "spam":
         return "🚫";
       case "fraud":
-      case "fırıldaq":
         return "⚠️";
       case "inappropriate":
-      case "uyğunsuz":
         return "🔞";
       case "harassment":
-      case "təcavüz":
         return "🚨";
       case "fake":
-      case "saxta":
         return "🎭";
       case "other":
-      case "digər":
         return "📝";
       default:
         return "📋";
@@ -121,11 +112,11 @@ const Report = () => {
     const diffTime = Math.abs(now - date);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 1) return "Bugün";
-    if (diffDays === 2) return "Dünən";
-    if (diffDays <= 7) return `${diffDays - 1} gün əvvəl`;
+    if (diffDays === 1) return "Today";
+    if (diffDays === 2) return "Yesterday";
+    if (diffDays <= 7) return `${diffDays - 1} days ago`;
 
-    return date.toLocaleString("az-AZ", {
+    return date.toLocaleString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -211,7 +202,7 @@ const Report = () => {
       <div className="reports-container">
         <div className="loading-state">
           <div className="loading-spinner"></div>
-          <p>Report məlumatları yüklənir...</p>
+          <p>Loading reports...</p>
         </div>
       </div>
     );
@@ -221,7 +212,7 @@ const Report = () => {
     return (
       <div className="reports-container">
         <div className="error-state">
-          ⚠️ Xəta baş verdi:{" "}
+          ⚠️ Error:{" "}
           {typeof error === "string" ? error : JSON.stringify(error)}
         </div>
       </div>
@@ -233,10 +224,10 @@ const Report = () => {
       {/* Header */}
       {/* <div className="reports-header">
         <h1 className="reports-title">
-          📋 Report İdarəetməsi
+          📋 Report management
         </h1>
         <p className="reports-subtitle">
-          İstifadəçi şikayətlərini izləyin, cavablandırın və həll edin
+          Track user complaints, reply, and resolve issues.
         </p>
       </div> */}
 
@@ -248,7 +239,7 @@ const Report = () => {
             <span className="search-icon">�</span>
             <input
               type="text"
-              placeholder="Report ID, növ, istifadəçi ID və ya kateqoriya ilə axtar..."
+              placeholder="Search by report ID, type, user ID, or category..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -267,10 +258,10 @@ const Report = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="filter-select"
             >
-              <option value="all">📊 Bütün Statuslar</option>
-              <option value="pending">⏳ Gözləmədə</option>
-              <option value="resolved">✅ Həll edilib</option>
-              <option value="rejected">❌ Rədd edilib</option>
+              <option value="all">📊 All statuses</option>
+              <option value="pending">⏳ Pending</option>
+              <option value="resolved">✅ Resolved</option>
+              <option value="rejected">❌ Rejected</option>
               <option value="in_progress">🔄 Davam edir</option>
             </select>
 
@@ -279,13 +270,13 @@ const Report = () => {
               onChange={(e) => setTypeFilter(e.target.value)}
               className="filter-select"
             >
-              <option value="all">📋 Bütün Növlər</option>
+              <option value="all">📋 All types</option>
               <option value="spam">🚫 Spam</option>
-              <option value="fraud">⚠️ Fırıldaq</option>
-              <option value="inappropriate">🔞 Uyğunsuz</option>
-              <option value="harassment">🚨 Təcavüz</option>
+              <option value="fraud">⚠️ Fraud</option>
+              <option value="inappropriate">🔞 Inappropriate</option>
+              <option value="harassment">🚨 Harassment</option>
               <option value="fake">🎭 Saxta</option>
-              <option value="other">📝 Digər</option>
+              <option value="other">📝 Other</option>
             </select>
 
             <select
@@ -295,9 +286,9 @@ const Report = () => {
             >
               <option value="id">🆔 ID</option>
               <option value="reportStatus">📊 Status</option>
-              <option value="reportType">📋 Növ</option>
-              <option value="fromUserId">👤 İstifadəçi</option>
-              <option value="createdAt">📅 Tarix</option>
+              <option value="reportType">📋 Type</option>
+              <option value="fromUserId">👤 User</option>
+              <option value="createdAt">📅 Date</option>
             </select>
 
             <button
@@ -313,23 +304,23 @@ const Report = () => {
         <div className="stats-section">
           <div className="stat-card">
             <div className="stat-number">{stats.total}</div>
-            <div className="stat-label">Ümumi</div>
+            <div className="stat-label">Total</div>
           </div>
           <div className="stat-card">
             <div className="stat-number">{stats.filtered}</div>
-            <div className="stat-label">Filtrlənmiş</div>
+            <div className="stat-label">Filtered</div>
           </div>
           <div className="stat-card">
             <div className="stat-number">{stats.pending}</div>
-            <div className="stat-label">Gözləmədə</div>
+            <div className="stat-label">Pending</div>
           </div>
           <div className="stat-card">
             <div className="stat-number">{stats.resolved}</div>
-            <div className="stat-label">Həll edilib</div>
+            <div className="stat-label">Resolved</div>
           </div>
           <div className="stat-card">
             <div className="stat-number">{stats.rejected}</div>
-            <div className="stat-label">Rədd edilib</div>
+            <div className="stat-label">Rejected</div>
           </div>
         </div>
       </div>
@@ -337,8 +328,7 @@ const Report = () => {
       {/* Search Info */}
       {searchTerm && (
         <div className="search-info">
-          🔍 "{searchTerm}" üçün {filteredAndSortedReports.length} nəticə
-          tapıldı
+          🔍 {filteredAndSortedReports.length} results for "{searchTerm}"
         </div>
       )}
 
@@ -346,8 +336,8 @@ const Report = () => {
       {filteredAndSortedReports.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">📋</div>
-          <h3>Report tapılmadı</h3>
-          <p>Axtarış kriteriyalarınızı dəyişdirərək yenidən cəhd edin</p>
+          <h3>No reports found</h3>
+          <p>Try adjusting your search filters</p>
         </div>
       ) : (
         <div className="reports-table-container">
@@ -355,12 +345,12 @@ const Report = () => {
             <thead>
               <tr>
                 <th className="th-id">🆔 ID</th>
-                <th className="th-category">📂 Kateqoriya</th>
+                <th className="th-category">📂 Category</th>
                 <th className="th-status">📊 Status</th>
-                <th className="th-type">📋 Report Növü</th>
-                <th className="th-user">👤 İstifadəçi</th>
-                <th className="th-date">📅 Tarix</th>
-                <th className="th-actions">🔧 Əməliyyatlar</th>
+                <th className="th-type">📋 Report type</th>
+                <th className="th-user">👤 User</th>
+                <th className="th-date">📅 Date</th>
+                <th className="th-actions">🔧 Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -412,7 +402,7 @@ const Report = () => {
                       <div className="date-exact">
                         {report.createdAt &&
                           new Date(report.createdAt).toLocaleTimeString(
-                            "az-AZ"
+                            "en-US"
                           )}
                       </div>
                     </div>
@@ -423,14 +413,14 @@ const Report = () => {
                         onClick={() => handleReportDetail(report)}
                         className="btn-detail"
                       >
-                        👁️ Bax
+                        👁️ View
                       </button>
                       {selectedId === report.id ? (
                         <div className="reply-form">
                           <textarea
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
-                            placeholder="Cavab mesajını daxil et..."
+                            placeholder="Enter your reply..."
                             className="reply-textarea"
                           />
                           <div className="reply-buttons">
@@ -446,7 +436,7 @@ const Report = () => {
                               disabled={answerLoading || !message.trim()}
                               className="btn-send"
                             >
-                              {answerLoading ? "📤 Göndərilir..." : "📤 Göndər"}
+                              {answerLoading ? "📤 Sending..." : "📤 Send"}
                             </button>
                             <button
                               onClick={() => {
@@ -455,7 +445,7 @@ const Report = () => {
                               }}
                               className="btn-cancel"
                             >
-                              ❌ Ləğv et
+                              ❌ Cancel et
                             </button>
                           </div>
                         </div>
@@ -489,7 +479,7 @@ const Report = () => {
             <div className="modal-header">
               <div className="modal-title">
                 <h2>
-                  {getTypeIcon(selectedReport.reportType)} Report Detayları
+                  {getTypeIcon(selectedReport.reportType)} Report details
                 </h2>
                 <button
                   className="close-btn"
@@ -517,10 +507,10 @@ const Report = () => {
             <div className="modal-content">
               {/* Report Info */}
               <div className="report-info-section">
-                <h3>📋 Əsas Məlumatlar</h3>
+                <h3>📋 Overview</h3>
                 <div className="info-grid">
                   <div className="info-item">
-                    <strong>📂 Kateqoriya ID:</strong>{" "}
+                    <strong>📂 Category ID:</strong>{" "}
                     {selectedReport.reportCategoryId || "—"}
                   </div>
                   <div className="info-item">
@@ -538,25 +528,25 @@ const Report = () => {
                     </span>
                   </div>
                   <div className="info-item">
-                    <strong>📋 Report Növü:</strong>
+                    <strong>📋 Report type:</strong>
                     <span className="type-tag">
                       {getTypeIcon(selectedReport.reportType)}{" "}
                       {selectedReport.reportType}
                     </span>
                   </div>
                   <div className="info-item">
-                    <strong>👤 İstifadəçi ID:</strong> #
+                    <strong>👤 User ID:</strong> #
                     {selectedReport.fromUserId}
                   </div>
                   <div className="info-item">
-                    <strong>📅 Yaradılma Tarixi:</strong>{" "}
+                    <strong>📅 Created:</strong>{" "}
                     {formatDate(selectedReport.createdAt)}
                   </div>
                   <div className="info-item">
-                    <strong>⏰ Dəqiq Vaxt:</strong>
+                    <strong>⏰ Exact time:</strong>
                     {selectedReport.createdAt
                       ? new Date(selectedReport.createdAt).toLocaleString(
-                          "az-AZ"
+                          "en-US"
                         )
                       : "N/A"}
                   </div>
@@ -566,7 +556,7 @@ const Report = () => {
               {/* Report Details */}
               {selectedReport.description && (
                 <div className="report-description-section">
-                  <h3>📝 Təsvir</h3>
+                  <h3>📝 Description</h3>
                   <div className="description-content">
                     {selectedReport.description}
                   </div>
@@ -575,7 +565,7 @@ const Report = () => {
 
               {/* Additional Info */}
               <div className="additional-info-section">
-                <h3>🔧 Əlavə Məlumatlar</h3>
+                <h3>🔧 Additional info</h3>
                 <div className="info-grid">
                   {selectedReport.priority && (
                     <div className="info-item">
@@ -584,13 +574,13 @@ const Report = () => {
                   )}
                   {selectedReport.assignedTo && (
                     <div className="info-item">
-                      <strong>👨‍💼 Təyin edilib:</strong>{" "}
+                      <strong>👨‍💼 Assigned to:</strong>{" "}
                       {selectedReport.assignedTo}
                     </div>
                   )}
                   {selectedReport.resolvedAt && (
                     <div className="info-item">
-                      <strong>✅ Həll edilmə tarixi:</strong>{" "}
+                      <strong>✅ Resolved at:</strong>{" "}
                       {formatDate(selectedReport.resolvedAt)}
                     </div>
                   )}

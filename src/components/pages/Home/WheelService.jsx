@@ -153,7 +153,7 @@
 //       {loading && (
 //         <div className="loading-container">
 //           <div className="loading-spinner"></div>
-//           <p className="loading-text">Yüklənir...</p>
+//           <p className="loading-text">Uploadnir...</p>
 //         </div>
 //       )}
 

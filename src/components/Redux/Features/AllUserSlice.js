@@ -15,7 +15,7 @@ export const updateUser = createAsyncThunk(
     try {
       const state = getState();
       const existingUser = state.users.list.find((u) => u.id === id);
-      if (!existingUser) throw new Error("İstifadəçi tapılmadı");
+      if (!existingUser) throw new Error("No users found");
 
       const body = {
         name: userData.name ?? existingUser.name,

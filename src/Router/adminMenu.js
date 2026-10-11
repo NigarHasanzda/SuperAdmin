@@ -11,19 +11,18 @@ import {
   FiFileText,
 } from "react-icons/fi";
 
-/** Sidebar + URL uyğunluğu — path boşdursa /admin (dashboard) */
 export const ADMIN_MENU = [
   { id: "dashboard", path: "", label: "Dashboard", Icon: FiLayout },
-  { id: "ads", path: "ads", label: "Reklamlar", Icon: FiBell },
-  { id: "category", path: "category", label: "Kateqoriyalar", Icon: FiGrid },
-  { id: "roles", path: "roles", label: "Rollar", Icon: FiUsers },
-  { id: "persons", path: "persons", label: "Şəxslər", Icon: FiUsers },
-  { id: "businesses", path: "businesses", label: "Bizneslər", Icon: FiBriefcase },
-  { id: "products", path: "products", label: "Məhsullar", Icon: FiPackage },
-  { id: "notification", path: "notifications", label: "Bildirişlər", Icon: FiMessageSquare },
-  { id: "profiles", path: "profiles", label: "Xidmət göstərənlər", Icon: FiTool },
-  { id: "report", path: "reports", label: "Hesabatlar", Icon: FiBarChart2 },
-  { id: "logs", path: "logs", label: "Loglar", Icon: FiFileText },
+  { id: "ads", path: "ads", label: "Ads", Icon: FiBell },
+  { id: "category", path: "category", label: "Categories", Icon: FiGrid },
+  { id: "roles", path: "roles", label: "Roles", Icon: FiUsers },
+  { id: "persons", path: "persons", label: "Persons", Icon: FiUsers },
+  { id: "businesses", path: "businesses", label: "Businesses", Icon: FiBriefcase },
+  { id: "products", path: "products", label: "Products", Icon: FiPackage },
+  { id: "notification", path: "notifications", label: "Notifications", Icon: FiMessageSquare },
+  { id: "profiles", path: "profiles", label: "Service providers", Icon: FiTool },
+  { id: "report", path: "reports", label: "Reports", Icon: FiBarChart2 },
+  { id: "logs", path: "logs", label: "Logs", Icon: FiFileText },
 ];
 
 export function adminPath(path) {
