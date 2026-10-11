@@ -6,28 +6,22 @@ import "./Login.css";
 
 const Login = () => {
   const dispatch = useDispatch();
-  const { loading, error, user, isAuthenticated } = useSelector(
-    (state) => state.auth
-  );
+  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [time, setTime] = useState(new Date());
 
-  // Saat və saniyə, dəqiqə real vaxt üçün
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(new Date());
-    }, 1000);
+    const interval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // Greeting funksiyası
   const getGreeting = () => {
     const hour = time.getHours();
-    if (hour >= 5 && hour < 12) return "Good Morning";
-    if (hour >= 12 && hour < 18) return "Good Afternoon";
-    return "Good Evening";
+    if (hour >= 5 && hour < 12) return "Sabahınız xeyir";
+    if (hour >= 12 && hour < 18) return "Günortanız xeyir";
+    return "Axşamınız xeyir";
   };
 
   const handleSubmit = (e) => {
@@ -37,87 +31,89 @@ const Login = () => {
   };
 
   return (
-    <div className="body">
-      <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <div className="neu-icon">
-            <div className="icon-inner">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
+    <div className="auth-page">
+      <div className="auth-brand">
+        <div className="auth-brand-inner">
+          <span className="auth-brand-badge">SuperAdmin</span>
+          <h1>İdarəetmə paneliniz bir addım yaxın</h1>
+          <p>
+            Statik demo rejimində bütün modulları təhlükəsiz şəkildə
+            sınayın — API olmadan, sürətli və sadə.
+          </p>
+          <div className="auth-features">
+            <div className="auth-feature">
+              <span className="auth-feature-dot" />
+              Dashboard və analitika
+            </div>
+            <div className="auth-feature">
+              <span className="auth-feature-dot" />
+              İstifadəçi və biznes idarəetməsi
+            </div>
+            <div className="auth-feature">
+              <span className="auth-feature-dot" />
+              Reklam, bildiriş və hesabatlar
             </div>
           </div>
-          <h2>
-         Welcome Admin
-          </h2>
-          <p>
-            {isAuthenticated 
-              ? `${getGreeting()} - ${time.getHours().toString().padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}:${time.getSeconds().toString().padStart(2, "0")}` 
-              : "Please sign in to continue"}
-          </p>
         </div>
+      </div>
 
-        {!isAuthenticated && (
-          <form className="login-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <div className="input-group neu-input">
+      <div className="auth-panel">
+        <div className="auth-card">
+          <div className="auth-card-header">
+            <h2>{getGreeting()}</h2>
+            <p>
+              {isAuthenticated
+                ? `${time.getHours().toString().padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}:${time.getSeconds().toString().padStart(2, "0")}`
+                : "Davam etmək üçün daxil olun"}
+            </p>
+          </div>
+
+          {!isAuthenticated && (
+            <form className="auth-form" onSubmit={handleSubmit}>
+              <div className="auth-field">
+                <label htmlFor="email">Email</label>
                 <input
+                  id="email"
                   type="email"
-                  placeholder=" Enter email address"
+                  placeholder="admin@demo.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  autoComplete="email"
                 />
-                
-                <div className="input-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                    <polyline points="22,6 12,13 2,6"/>
-                  </svg>
-                </div>
               </div>
-            </div>
 
-            <div className="form-group">
-              <div className="input-group neu-input password-group">
+              <div className="auth-field">
+                <label htmlFor="password">Şifrə</label>
                 <input
+                  id="password"
                   type="password"
-                  placeholder="Password "
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  autoComplete="current-password"
                 />
-                
-                <div className="input-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                    <path d="M7 11V7a5 5 0 0110 0v4"/>
-                  </svg>
-                </div>
               </div>
-            </div>
 
-            {error && <p className="error-message show">{error}</p>}
+              {error && <div className="auth-error">{error}</div>}
 
-            <button type="submit" className={`neu-button login-btn ${loading ? "loading" : ""}`}>
-              Sign In
-            </button>
+              <button
+                type="submit"
+                className={`auth-submit ${loading ? "loading" : ""}`}
+                disabled={loading}
+              >
+                {loading ? "Giriş edilir..." : "Daxil ol"}
+              </button>
 
-            <p style={{ textAlign: "center", marginTop: "1rem" }}>
-              Hesabınız yoxdur?{" "}
-              <Link to="/register" style={{ color: "#6366f1" }}>
-                Qeydiyyat
-              </Link>
-            </p>
-            <p style={{ textAlign: "center", fontSize: "0.85rem", opacity: 0.7 }}>
-              Demo: admin@demo.com / admin123
-            </p>
-          </form>
-        )}
+              <p className="auth-footer">
+                Hesabınız yoxdur? <Link to="/register">Qeydiyyat</Link>
+              </p>
+              <p className="auth-hint">Demo: admin@demo.com / admin123</p>
+            </form>
+          )}
+        </div>
       </div>
-    </div>
     </div>
   );
 };
