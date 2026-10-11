@@ -1,5 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import {
+  FiSearch,
+  FiPlus,
+  FiX,
+  FiShield,
+  FiUser,
+  FiBriefcase,
+  FiHome,
+  FiShoppingBag,
+  FiNavigation,
+  FiAward,
+  FiEdit2,
+  FiTrash2,
+  FiSave,
+} from "react-icons/fi";
 import {
   fetchRoles,
   addRole,
@@ -8,15 +23,118 @@ import {
 } from "../../Redux/Features/AllRole";
 import "./Role.css";
 
-const permissions = [
-  { key: "superAdmin", label: "Super Admin", icon: "👑" },
-  { key: "admin", label: "Admin", icon: "🛡️" },
-  { key: "person", label: "Person", icon: "👤" },
-  { key: "professional", label: "Professional", icon: "💼" },
-  { key: "business", label: "Business", icon: "🏢" },
-  { key: "businessAdmin", label: "Business Admin", icon: "🏪" },
-  { key: "driverAdmin", label: "Driver Admin", icon: "🚗" },
+const PERMISSIONS = [
+  { key: "superAdmin", label: "Super Admin", Icon: FiAward },
+  { key: "admin", label: "Admin", Icon: FiShield },
+  { key: "person", label: "Person", Icon: FiUser },
+  { key: "professional", label: "Professional", Icon: FiBriefcase },
+  { key: "business", label: "Business", Icon: FiHome },
+  { key: "businessAdmin", label: "Business Admin", Icon: FiShoppingBag },
+  { key: "driverAdmin", label: "Driver Admin", Icon: FiNavigation },
 ];
+
+const EMPTY_ROLE = {
+  name: "",
+  description: "",
+  superAdmin: 0,
+  admin: 0,
+  person: 0,
+  professional: 0,
+  business: 0,
+  businessAdmin: 0,
+  driverAdmin: 0,
+};
+
+function countGranted(role) {
+  return PERMISSIONS.filter((p) => Number(role[p.key]) === 1).length;
+}
+
+function PermissionsEditor({ value, onToggle }) {
+  return (
+    <>
+      <span className="roles-perms-label">İcazələr</span>
+      <div className="roles-perms-grid">
+        {PERMISSIONS.map((perm) => {
+          const on = Number(value[perm.key]) === 1;
+          return (
+            <button
+              key={perm.key}
+              type="button"
+              className={`roles-perm${on ? " is-on" : ""}`}
+              onClick={() => onToggle(perm.key)}
+            >
+              <span className="roles-perm__icon">
+                <perm.Icon size={18} />
+              </span>
+              <span className="roles-perm__name">{perm.label}</span>
+              <span className="roles-perm__dot" aria-hidden />
+            </button>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function RoleFormPanel({ title, data, setData, onSave, onCancel, saveLabel }) {
+  const toggle = (key) => {
+    setData({ ...data, [key]: data[key] ? 0 : 1 });
+  };
+
+  return (
+    <section className="roles-panel">
+      <div className="roles-panel__head">
+        <h3>{title}</h3>
+      </div>
+      <div className="roles-panel__body">
+        <div className="roles-form-row">
+          <div className="roles-field">
+            <label htmlFor={`role-name-${title}`}>Rol adı</label>
+            <input
+              id={`role-name-${title}`}
+              type="text"
+              placeholder="Məs: Moderator"
+              value={data.name}
+              onChange={(e) => setData({ ...data, name: e.target.value })}
+            />
+          </div>
+          <div className="roles-field">
+            <label htmlFor={`role-desc-${title}`}>Təsvir</label>
+            <input
+              id={`role-desc-${title}`}
+              type="text"
+              placeholder="Qısa təsvir"
+              value={data.description}
+              onChange={(e) =>
+                setData({ ...data, description: e.target.value })
+              }
+            />
+          </div>
+        </div>
+        <PermissionsEditor value={data} onToggle={toggle} />
+        <div className="roles-form-actions">
+          <button
+            type="button"
+            onClick={onSave}
+            className="roles-action-btn roles-action-btn--save"
+            disabled={!data.name.trim()}
+          >
+            <FiSave size={16} />
+            {saveLabel}
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="roles-action-btn roles-action-btn--ghost"
+          >
+            <FiX size={16} />
+            Ləğv et
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 const Role = () => {
   const dispatch = useDispatch();
@@ -24,22 +142,8 @@ const Role = () => {
 
   const [editRole, setEditRole] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newRole, setNewRole] = useState({
-    name: "",
-    description: "",
-    superAdmin: 0,
-    admin: 0,
-    person: 0,
-    professional: 0,
-    business: 0,
-    businessAdmin: 0,
-    driverAdmin: 0,
-  });
-
+  const [newRole, setNewRole] = useState({ ...EMPTY_ROLE });
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredRoles, setFilteredRoles] = useState([]);
-
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
 
@@ -47,62 +151,58 @@ const Role = () => {
     dispatch(fetchRoles());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredRoles(list);
-    } else {
-      const term = searchTerm.toLowerCase();
-      setFilteredRoles(
-        list.filter(
-          (r) =>
-            r.name.toLowerCase().includes(term) ||
-            r.description.toLowerCase().includes(term)
-        )
-      );
-    }
-  }, [searchTerm, list]);
+  const filteredRoles = useMemo(() => {
+    if (!searchTerm.trim()) return list;
+    const term = searchTerm.toLowerCase();
+    return list.filter(
+      (r) =>
+        r.name?.toLowerCase().includes(term) ||
+        r.description?.toLowerCase().includes(term)
+    );
+  }, [list, searchTerm]);
 
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredRoles.length / itemsPerPage);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredRoles.length / itemsPerPage));
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentRoles = filteredRoles.slice(startIndex, endIndex);
+  const currentRoles = filteredRoles.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   const getPageNumbers = () => {
     const pages = [];
     if (totalPages <= 5) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else if (currentPage <= 3) {
+      pages.push(1, 2, 3, 4, "...", totalPages);
+    } else if (currentPage >= totalPages - 2) {
+      pages.push(
+        1,
+        "...",
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages
+      );
     } else {
-      // Always show first and last
-      if (currentPage <= 3) {
-        pages.push(1, 2, 3, 4, "...", totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        pages.push(
-          1,
-          "...",
-          currentPage - 1,
-          currentPage,
-          currentPage + 1,
-          "...",
-          totalPages
-        );
-      }
+      pages.push(
+        1,
+        "...",
+        currentPage - 1,
+        currentPage,
+        currentPage + 1,
+        "...",
+        totalPages
+      );
     }
     return pages;
   };
 
-  const handleToggleEdit = (perm) => {
-    setEditRole({ ...editRole, [perm]: editRole[perm] ? 0 : 1 });
-  };
-
-  const handleToggleNew = (perm) => {
-    setNewRole({ ...newRole, [perm]: newRole[perm] ? 0 : 1 });
-  };
-
   const handleUpdate = () => {
-    if (!editRole.name.trim()) {
+    if (!editRole?.name?.trim()) {
       alert("Rol adı boş ola bilməz");
       return;
     }
@@ -115,341 +215,259 @@ const Role = () => {
       return;
     }
     dispatch(addRole(newRole)).then(() => {
-      setNewRole({
-        name: "",
-        description: "",
-        superAdmin: 0,
-        admin: 0,
-        person: 0,
-        professional: 0,
-        business: 0,
-        businessAdmin: 0,
-        driverAdmin: 0,
-      });
+      setNewRole({ ...EMPTY_ROLE });
       setShowAddForm(false);
     });
   };
 
   const handleDelete = (id, name) => {
-    if (window.confirm(`"${name}" rolunu silməkdə əminsiniz?`)) {
+    if (window.confirm(`"${name}" rolunu silmək istəyirsiniz?`)) {
       dispatch(deleteRole(id));
     }
   };
 
-  const resetNewRole = () => {
-    setNewRole({
-      name: "",
-      description: "",
-      superAdmin: 0,
-      admin: 0,
-      person: 0,
-      professional: 0,
-      business: 0,
-      businessAdmin: 0,
-      driverAdmin: 0,
-    });
-    setShowAddForm(false);
-  };
+  const avgPerms =
+    list.length > 0
+      ? Math.round(
+          list.reduce((s, r) => s + countGranted(r), 0) / list.length
+        )
+      : 0;
 
   return (
-    <div className="role-container">
-      {/* Controls */}
-      <div className="role-controls">
-        <div className="search-section">
-          <div className="search-input-container">
-            <span className="search-icon">🔍</span>
-            <input
-              type="text"
-              placeholder="Rol adı və ya təsvir üzrə axtar..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm("")}
-                className="clear-search-btn"
-              >
-                ❌
-              </button>
-            )}
+    <div className="roles-page">
+      <header className="roles-page__header">
+        <div>
+          <h2>Rol və icazələr</h2>
+          <p>
+            Sistem rollarını idarə edin, hər rol üçün granular icazələri
+            aktiv və ya passiv edin.
+          </p>
+        </div>
+        <div className="roles-page__stats">
+          <div className="roles-stat">
+            <div className="roles-stat__value">{list.length}</div>
+            <div className="roles-stat__label">Ümumi rol</div>
           </div>
+          <div className="roles-stat">
+            <div className="roles-stat__value">{filteredRoles.length}</div>
+            <div className="roles-stat__label">Göstərilən</div>
+          </div>
+          <div className="roles-stat">
+            <div className="roles-stat__value">{avgPerms}</div>
+            <div className="roles-stat__label">Ort. icazə</div>
+          </div>
+        </div>
+      </header>
+
+      <div className="roles-toolbar">
+        <div className="roles-search">
+          <FiSearch size={18} aria-hidden />
+          <input
+            type="search"
+            placeholder="Rol adı və ya təsvir..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            aria-label="Axtarış"
+          />
           {searchTerm && (
-            <div className="search-info">
-              🎯 {filteredRoles.length} nəticə tapıldı
-            </div>
+            <button
+              type="button"
+              className="roles-search__clear"
+              onClick={() => setSearchTerm("")}
+              aria-label="Təmizlə"
+            >
+              <FiX size={16} />
+            </button>
           )}
         </div>
-
         <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="btn btn-primary add-role-btn"
+          type="button"
+          onClick={() => {
+            setShowAddForm(!showAddForm);
+            setEditRole(null);
+          }}
+          className={`roles-btn-new ${
+            showAddForm ? "roles-btn-new--ghost" : "roles-btn-new--primary"
+          }`}
         >
-          {showAddForm ? "❌ Bağla" : "✨ Yeni Rol"}
+          {showAddForm ? (
+            <>
+              <FiX size={18} /> Bağla
+            </>
+          ) : (
+            <>
+              <FiPlus size={18} /> Yeni rol
+            </>
+          )}
         </button>
       </div>
 
-      {/* Add New Role Form */}
       {showAddForm && (
-        <div className="add-role-form">
-          <div className="form-header">
-            <h3>🆕 Yeni Rol Əlavə Et</h3>
-          </div>
-          <div className="form-content">
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label">📛 Rol Adı</label>
-                <input
-                  type="text"
-                  placeholder="Məsələn: Moderator, Manager..."
-                  value={newRole.name}
-                  onChange={(e) =>
-                    setNewRole({ ...newRole, name: e.target.value })
-                  }
-                  className="input-field"
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">📝 Təsvir</label>
-                <input
-                  type="text"
-                  placeholder="Bu rolun təsvirini yazın..."
-                  value={newRole.description}
-                  onChange={(e) =>
-                    setNewRole({ ...newRole, description: e.target.value })
-                  }
-                  className="input-field"
-                />
-              </div>
-            </div>
-
-            <div className="permissions-section">
-              <label className="form-label">🔐 İcazələr</label>
-              <div className="permissions-grid">
-                {permissions.map((perm) => (
-                  <div
-                    key={perm.key}
-                    className={`permission-card ${
-                      newRole[perm.key] ? "active" : ""
-                    }`}
-                    onClick={() => handleToggleNew(perm.key)}
-                  >
-                    <div className="permission-icon">{perm.icon}</div>
-                    <div className="permission-label">{perm.label}</div>
-                    <div className="permission-status">
-                      {newRole[perm.key] ? "✅" : "❌"}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="form-actions">
-              <button onClick={handleAdd} className="btn btn-success">
-                ✨ Rol Əlavə Et
-              </button>
-              <button onClick={resetNewRole} className="btn btn-secondary">
-                ❌ Ləğv Et
-              </button>
-            </div>
-          </div>
-        </div>
+        <RoleFormPanel
+          title="Yeni rol"
+          data={newRole}
+          setData={setNewRole}
+          onSave={handleAdd}
+          onCancel={() => {
+            setNewRole({ ...EMPTY_ROLE });
+            setShowAddForm(false);
+          }}
+          saveLabel="Rol yarat"
+        />
       )}
 
-      {/* Loading */}
+      {editRole && (
+        <RoleFormPanel
+          title={`Redaktə: ${editRole.name}`}
+          data={editRole}
+          setData={setEditRole}
+          onSave={handleUpdate}
+          onCancel={() => setEditRole(null)}
+          saveLabel="Yadda saxla"
+        />
+      )}
+
       {loading && (
-        <div className="loading-state">
-          <div className="loading-spinner"></div>
+        <div className="roles-page__state">
+          <div className="roles-page__spinner" />
           <p>Rollar yüklənir...</p>
         </div>
       )}
 
-      {/* Error */}
       {error && (
-        <div className="error-state">
-          ⚠️ Xəta: {typeof error === "string" ? error : JSON.stringify(error)}
+        <div className="roles-page__error" role="alert">
+          Xəta: {typeof error === "string" ? error : JSON.stringify(error)}
         </div>
       )}
 
-      {/* Roles List */}
-      {!loading && !error && (
+      {!loading && !error && filteredRoles.length === 0 && (
+        <div className="roles-page__state">
+          <FiShield size={40} strokeWidth={1.5} opacity={0.35} />
+          <h3>Rol tapılmadı</h3>
+          <p>
+            {searchTerm
+              ? "Axtarışı dəyişin və ya yeni rol əlavə edin."
+              : "Yuxarıdan ilk rolunuzu yaradın."}
+          </p>
+        </div>
+      )}
+
+      {!loading && !error && filteredRoles.length > 0 && (
         <>
-          {filteredRoles.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">🛡️</div>
-              <h3>Heç bir rol tapılmadı</h3>
-              <p>
-                {searchTerm
-                  ? `"${searchTerm}" axtarışına uyğun rol mövcud deyil`
-                  : "Hələ heç bir rol yoxdur. Yuxarıdakı formu istifadə edərək ilk rolunuzu əlavə edin"}
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="roles-grid">
-                {currentRoles.map((role) => (
-                  <div key={role.id} className="role-card">
-                    {editRole?.id === role.id ? (
-                      <div className="role-edit-form">
-                        {/* Rolların düzəliş hissəsi */}
-                        <div className="edit-header">
-                          <h3>✏️ Rol Düzəliş Et</h3>
-                        </div>
-                        <div className="form-row">
-                          <div className="form-group">
-                            <label className="form-label">📛 Rol Adı</label>
-                            <input
-                              type="text"
-                              value={editRole.name}
-                              onChange={(e) =>
-                                setEditRole({ ...editRole, name: e.target.value })
-                              }
-                              className="input-field"
-                            />
-                          </div>
-                          <div className="form-group">
-                            <label className="form-label">📝 Təsvir</label>
-                            <input
-                              type="text"
-                              value={editRole.description}
-                              onChange={(e) =>
-                                setEditRole({
-                                  ...editRole,
-                                  description: e.target.value,
-                                })
-                              }
-                              className="input-field"
-                            />
-                          </div>
-                        </div>
+          <div className="roles-grid">
+            {currentRoles.map((role) => {
+              const granted = countGranted(role);
+              const pct = Math.round((granted / PERMISSIONS.length) * 100);
 
-                        <div className="permissions-section">
-                          <label className="form-label">🔐 İcazələr</label>
-                          <div className="permissions-grid">
-                            {permissions.map((perm) => (
-                              <div
-                                key={perm.key}
-                                className={`permission-card ${
-                                  editRole[perm.key] ? "active" : ""
-                                }`}
-                                onClick={() => handleToggleEdit(perm.key)}
-                              >
-                                <div className="permission-icon">{perm.icon}</div>
-                                <div className="permission-label">
-                                  {perm.label}
-                                </div>
-                                <div className="permission-status">
-                                  {editRole[perm.key] ? "✅" : "❌"}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="edit-actions">
-                          <button
-                            onClick={handleUpdate}
-                            className="btn btn-success"
-                          >
-                            ✅ Yadda Saxla
-                          </button>
-                          <button
-                            onClick={() => setEditRole(null)}
-                            className="btn btn-secondary"
-                          >
-                            ❌ Ləğv Et
-                          </button>
-                        </div>
+              return (
+                <article key={role.id} className="roles-card">
+                  <div className="roles-card__top">
+                    <div className="roles-card__title-row">
+                      <h3 className="roles-card__title">
+                        <span className="roles-card__title-badge">
+                          <FiShield size={18} />
+                        </span>
+                        {role.name}
+                      </h3>
+                      <span className="roles-card__id">#{role.id}</span>
+                    </div>
+                    <p className="roles-card__desc">
+                      {role.description || "Təsvir əlavə edilməyib"}
+                    </p>
+                    <div className="roles-card__meter">
+                      <div className="roles-card__meter-label">
+                        <span>Aktiv icazələr</span>
+                        <span>
+                          {granted}/{PERMISSIONS.length}
+                        </span>
                       </div>
-                    ) : (
-                      <div className="role-view">
-                        <div className="role-info">
-                          <div className="role-main-info">
-                            <h3 className="role-name">🏷️ {role.name}</h3>
-                            <p className="role-description">
-                              {role.description || "Təsvir əlavə edilməyib"}
-                            </p>
-                            <div className="role-id">🆔 ID: {role.id}</div>
-                          </div>
-                        </div>
-
-                        <div className="role-permissions">
-                          <h4 className="permissions-title">🔐 İcazələr</h4>
-                          <div className="permissions-list">
-                            {permissions.map((perm) => (
-                              <div
-                                key={perm.key}
-                                className={`permission-item ${
-                                  role[perm.key] ? "granted" : "denied"
-                                }`}
-                              >
-                                <span className="permission-icon">{perm.icon}</span>
-                                <span className="permission-name">{perm.label}</span>
-                                <span className="permission-status">
-                                  {role[perm.key] ? "✅" : "❌"}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="role-actions">
-                          <button
-                            onClick={() => setEditRole(role)}
-                            className="btn btn-primary"
-                          >
-                            ✏️ Düzəliş Et
-                          </button>
-                          <button
-                            onClick={() => handleDelete(role.id, role.name)}
-                            className="btn btn-danger"
-                          >
-                            🗑️ Sil
-                          </button>
-                        </div>
+                      <div className="roles-card__meter-bar">
+                        <div
+                          className="roles-card__meter-fill"
+                          style={{ width: `${pct}%` }}
+                        />
                       </div>
-                    )}
+                    </div>
                   </div>
-                ))}
-              </div>
 
-              {/* Pagination */}
-              <div className="pagination">
-                <button
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                  className="page-btn"
-                  disabled={currentPage === 1}
-                >
-                  ◀
-                </button>
+                  <div className="roles-card__chips">
+                    {PERMISSIONS.map((perm) => {
+                      const on = Number(role[perm.key]) === 1;
+                      return (
+                        <span
+                          key={perm.key}
+                          className={`roles-chip${on ? " roles-chip--on" : " roles-chip--off"}`}
+                        >
+                          <perm.Icon size={12} />
+                          {perm.label}
+                        </span>
+                      );
+                    })}
+                  </div>
 
-                {getPageNumbers().map((p, idx) =>
-                  p === "..." ? (
-                    <span key={idx} className="page-ellipsis">
-                      ...
-                    </span>
-                  ) : (
+                  <div className="roles-card__footer">
                     <button
-                      key={idx}
-                      className={`page-btn ${currentPage === p ? "active" : ""}`}
-                      onClick={() => setCurrentPage(p)}
+                      type="button"
+                      onClick={() => {
+                        setEditRole({ ...role });
+                        setShowAddForm(false);
+                      }}
+                      className="roles-action-btn roles-action-btn--save"
                     >
-                      {p}
+                      <FiEdit2 size={14} />
+                      Redaktə
                     </button>
-                  )
-                )}
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(role.id, role.name)}
+                      className="roles-action-btn roles-action-btn--danger"
+                      aria-label="Sil"
+                    >
+                      <FiTrash2 size={14} />
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
 
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  className="page-btn"
-                  disabled={currentPage === totalPages}
-                >
-                  ▶
-                </button>
-              </div>
-            </>
+          {totalPages > 1 && (
+            <nav className="roles-pagination" aria-label="Səhifələmə">
+              <button
+                type="button"
+                className="roles-page-btn"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              >
+                ‹
+              </button>
+              {getPageNumbers().map((p, idx) =>
+                p === "..." ? (
+                  <span key={`e-${idx}`} className="roles-page-ellipsis">
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    type="button"
+                    className={`roles-page-btn${currentPage === p ? " is-active" : ""}`}
+                    onClick={() => setCurrentPage(p)}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+              <button
+                type="button"
+                className="roles-page-btn"
+                disabled={currentPage === totalPages}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(p + 1, totalPages))
+                }
+              >
+                ›
+              </button>
+            </nav>
           )}
         </>
       )}
