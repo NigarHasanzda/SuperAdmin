@@ -1,65 +1,22 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../../../api";
+import * as db from "../../../static/mockDb";
 
-// ============================
-// 🔹 Async Thunks
-// ============================
-
-// 🔹 Rolları gətir
-export const fetchRoles = createAsyncThunk(
-  "roles/fetchRoles",
-  async (_, { rejectWithValue }) => {
-    try {
-      const res = await api.get("/api/roles");
-      return res.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
+export const fetchRoles = createAsyncThunk("roles/fetchRoles", async () =>
+  db.getRoles()
 );
 
-// 🔹 Yeni rol əlavə et
-export const addRole = createAsyncThunk(
-  "roles/addRole",
-  async (roleData, { rejectWithValue }) => {
-    try {
-      const res = await api.post("/api/roles", roleData);
-      return res.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
+export const addRole = createAsyncThunk("roles/addRole", async (roleData) =>
+  db.addRole(roleData)
 );
 
-// 🔹 Rolu yenilə (PUT)
-export const updateRole = createAsyncThunk(
-  "roles/updateRole",
-  async (roleData, { rejectWithValue }) => {
-    try {
-      const res = await api.put("/api/roles", roleData);
-      return res.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
+export const updateRole = createAsyncThunk("roles/updateRole", async (roleData) =>
+  db.updateRole(roleData)
 );
 
-// 🔹 Rolu sil
-export const deleteRole = createAsyncThunk(
-  "roles/deleteRole",
-  async (id, { rejectWithValue }) => {
-    try {
-      await api.delete(`/api/roles/${id}`);
-      return id;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
+export const deleteRole = createAsyncThunk("roles/deleteRole", async (id) =>
+  db.deleteRole(id)
 );
 
-// ============================
-// 🔹 Slice
-// ============================
 const roleSlice = createSlice({
   name: "roles",
   initialState: {
@@ -70,7 +27,6 @@ const roleSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // fetchRoles
       .addCase(fetchRoles.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -83,8 +39,6 @@ const roleSlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error.message;
       })
-
-      // addRole
       .addCase(addRole.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -97,8 +51,6 @@ const roleSlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error.message;
       })
-
-      // updateRole
       .addCase(updateRole.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -112,8 +64,6 @@ const roleSlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error.message;
       })
-
-      // deleteRole
       .addCase(deleteRole.pending, (state) => {
         state.loading = true;
         state.error = null;

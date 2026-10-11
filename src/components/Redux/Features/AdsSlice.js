@@ -1,100 +1,33 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../../api";
+import * as db from "../../../static/mockDb";
 
-// ============================
-// 🔹 Async Thunks
-// ============================
-
-// 🔹 Reklamları gətir
-export const fetchAds = createAsyncThunk(
-  "ads/fetchAds",
-  async (_, { rejectWithValue }) => {
-    try {
-      const res = await api.get("/api/ads", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      return res.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
+export const fetchAds = createAsyncThunk("ads/fetchAds", async () =>
+  db.getAds()
 );
 
-// 🔹 Yeni reklam əlavə et (user məlumatı ilə)
 export const addAd = createAsyncThunk(
   "ads/addAd",
-  async (adData, { getState, rejectWithValue }) => {
-    try {
-      const state = getState();
-      const currentUser =
-        state.auth?.user || JSON.parse(localStorage.getItem("user")) || {};
-      const body = {
-        ...adData,
-        userId: currentUser.id,
-        userName: currentUser.name,
-      };
-
-      const res = await api.post("/api/ads", body, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      console.log("AddAd response:", res.data);
-      return res.data;
-    } catch (error) {
-      console.log("AddAd error:", error.response?.data || error.message);
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
+  async (adData, { getState }) => {
+    const state = getState();
+    const currentUser =
+      state.auth?.user || JSON.parse(localStorage.getItem("user")) || {};
+    return db.addAd({
+      ...adData,
+      userId: currentUser.id,
+      userName: currentUser.name,
+    });
   }
 );
 
-// 🔹 Reklama şəkil yüklə
 export const uploadAdImage = createAsyncThunk(
   "ads/uploadAdImage",
-  async ({ id, file, locale = "AZ" }, { rejectWithValue }) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await api.post(
-        `/api/ads/${id}/upload-image?locale=${locale}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      console.log("UploadAdImage response:", res.data);
-      return { id, uuidName: res.data.uuidName, locale };
-    } catch (error) {
-      console.log(
-        "UploadAdImage error:",
-        error.response?.data || error.message
-      );
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
+  async ({ id, file }) => db.uploadAdImage(id, file)
 );
 
-// 🔹 Reklamı sil
-export const deleteAd = createAsyncThunk(
-  "ads/deleteAd",
-  async (id, { rejectWithValue }) => {
-    try {
-      await api.delete(`/api/ads/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      console.log("DeleteAd success:", id);
-      return id;
-    } catch (error) {
-      console.log("DeleteAd error:", error.response?.data || error.message);
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
+export const deleteAd = createAsyncThunk("ads/deleteAd", async (id) =>
+  db.deleteAd(id)
 );
 
-// 🔹 Reklamı yenilə (PUT)
 export const updateAd = createAsyncThunk(
   "ads/updateAd",
   async ({ id, updatedFields }, { getState, rejectWithValue }) => {
@@ -102,44 +35,17 @@ export const updateAd = createAsyncThunk(
       const state = getState();
       const ad = state.ads.list.find((a) => a.id === id);
       if (!ad) throw new Error("Reklam tapılmadı");
-
-      const body = { ...ad, ...updatedFields };
-      console.log("UpdateAd body:", body);
-      console.log("UpdateAd headers token:", localStorage.getItem("token"));
-
-      const res = await api.put(`/api/ads/${id}`, body, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-
-      console.log("UpdateAd response:", res.data);
-      return res.data;
+      return db.updateAd(id, { ...ad, ...updatedFields });
     } catch (error) {
-      console.log("UpdateAd error:", error.response?.data || error.message);
-      return rejectWithValue(error.response?.data?.message || error.message);
+      return rejectWithValue(error.message);
     }
   }
 );
 
-// 🔹 Faylı endir
-export const downloadFile = createAsyncThunk(
-  "ads/downloadFile",
-  async (filename, { rejectWithValue }) => {
-    try {
-      const res = await api.get(`/api/files/download/${filename}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        responseType: "blob",
-      });
-      return res.data; // yalnız blob qaytarılır
-    } catch (error) {
-      console.log("DownloadFile error:", error.response?.data || error.message);
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
+export const downloadFile = createAsyncThunk("ads/downloadFile", async () =>
+  db.downloadFilePlaceholder()
 );
 
-// ============================
-// 🔹 Slice
-// ============================
 const adsSlice = createSlice({
   name: "ads",
   initialState: {
@@ -150,7 +56,6 @@ const adsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // fetchAds
       .addCase(fetchAds.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -163,8 +68,6 @@ const adsSlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error.message;
       })
-
-      // addAd
       .addCase(addAd.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -177,8 +80,6 @@ const adsSlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error.message;
       })
-
-      // uploadAdImage
       .addCase(uploadAdImage.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -195,16 +96,12 @@ const adsSlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error.message;
       })
-
-      // deleteAd
       .addCase(deleteAd.fulfilled, (state, action) => {
         state.list = state.list.filter((ad) => ad.id !== action.payload);
       })
       .addCase(deleteAd.rejected, (state, action) => {
         state.error = action.payload || action.error.message;
       })
-
-      // updateAd
       .addCase(updateAd.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -218,8 +115,6 @@ const adsSlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error.message;
       })
-
-      // downloadFile
       .addCase(downloadFile.pending, (state) => {
         state.loading = true;
         state.error = null;

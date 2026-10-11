@@ -1,20 +1,11 @@
-// Redux/Features/RefreshSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../../../api";
 
-// 🔹 refresh token istəyi göndər
 export const refreshToken = createAsyncThunk(
   "auth/refreshToken",
   async (_, { rejectWithValue }) => {
-    const refreshToken = localStorage.getItem("refreshToken");
-    if (!refreshToken) return rejectWithValue("No refresh token found");
-
-    try {
-      const res = await api.post("/api/auth/refresh", { refreshToken });
-      return res.data; // { token, refreshToken }
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
+    const token = localStorage.getItem("token");
+    if (!token) return rejectWithValue("No refresh token found");
+    return { token, refreshToken: localStorage.getItem("refreshToken") };
   }
 );
 

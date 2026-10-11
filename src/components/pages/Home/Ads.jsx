@@ -22,8 +22,6 @@ const AdsList = () => {
   const [locales, setLocales] = useState({});
   const [editedAds, setEditedAds] = useState({});
 
-  const BASE_URL = "http://194.163.173.179:3300";
-
   // Ads yüklə
   useEffect(() => {
     if (token) dispatch(fetchAds());
@@ -158,11 +156,7 @@ const AdsList = () => {
                       {ad.pictureUrl ? (
                         <>
                           <img
-                            src={
-                              ad.pictureUrl.startsWith("http")
-                                ? ad.pictureUrl
-                                : `${BASE_URL}/api/files/download/${ad.pictureUrl}`
-                            }
+                            src={ad.pictureUrl}
                             alt="Reklam şəkli"
                             className="ad-image"
                           />

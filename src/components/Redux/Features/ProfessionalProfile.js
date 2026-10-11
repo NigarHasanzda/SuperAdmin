@@ -1,20 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../../../api";
+import * as db from "../../../static/mockDb";
 
 export const fetchProfiles = createAsyncThunk(
   "profiles/fetchProfiles",
-  async (page = 0) => {
-    const res = await api.get(`/api/professional-profiles?page=${page}`);
-    return res.data;
-  }
+  async (page = 0) => db.getProfiles(page)
 );
 
 export const fetchProfileById = createAsyncThunk(
   "profiles/fetchProfileById",
-  async (id) => {
-    const res = await api.get(`/api/professional-profiles/${id}`);
-    return res.data;
-  }
+  async (id) => db.getProfileById(id)
 );
 
 const profilesSlice = createSlice({
@@ -35,7 +29,6 @@ const profilesSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-
       .addCase(fetchProfileById.fulfilled, (state, action) => {
         state.single = action.payload;
       });

@@ -1,10 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../../api";
+import * as db from "../../../static/mockDb";
 
-export const getAllLog = createAsyncThunk("get/log", async () => {
-  const data = await api.get("/api/logs");
-  return data.data;
-});
+export const getAllLog = createAsyncThunk("get/log", async () => db.getLogs());
+
 const initialState = {
   logs: [],
   loading: false,

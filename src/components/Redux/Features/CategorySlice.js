@@ -1,68 +1,41 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../../../api";
+import * as db from "../../../static/mockDb";
 
-// 🔹 Bütün kateqoriyaları gətir
 export const fetchCategories = createAsyncThunk(
   "categories/fetchCategories",
-  async () => {
-    const res = await api.get("/api/categories");
-    return res.data;
-  }
+  async () => db.getCategories()
 );
 
-// 🔹 Lokalizə olunmuş kateqoriyaları gətir
 export const fetchLocalizedCategories = createAsyncThunk(
   "categories/fetchLocalizedCategories",
-  async (language = "az") => {
-    const res = await api.get(`/api/categories/localized?language=${language}`);
-    return res.data.productCategoryResponses;
+  async () => {
+    const res = await db.getLocalizedCategories();
+    return res.productCategoryResponses;
   }
 );
 
-// 🔹 Yeni kateqoriya əlavə et
 export const addCategory = createAsyncThunk(
   "categories/addCategory",
-  async (categoryData) => {
-    const res = await api.post("/api/categories", categoryData);
-    return res.data;
-  }
+  async (categoryData) => db.addCategory(categoryData)
 );
 
-// 🔹 Kateqoriyanı yenilə
 export const updateCategory = createAsyncThunk(
   "categories/updateCategory",
-  async (categoryData) => {
-    const res = await api.put("/api/categories", categoryData);
-    return res.data;
-  }
+  async (categoryData) => db.updateCategory(categoryData)
 );
 
-// 🔹 Kateqoriyanı sil
 export const deleteCategory = createAsyncThunk(
   "categories/deleteCategory",
-  async (id) => {
-    await api.delete(`/api/categories/${id}`);
-    return id;
-  }
+  async (id) => db.deleteCategory(id)
 );
 
-// 🔹 ID-yə görə axtarış
 export const searchCategoryById = createAsyncThunk(
   "categories/searchCategoryById",
   async (id, { rejectWithValue }) => {
     try {
-      console.log("Searching category with ID:", id);
-      const res = await api.get(`/api/categories/${id}`);
-      console.log("Search API response:", res.data);
-      return res.data;
+      return db.getCategoryById(id);
     } catch (error) {
-      console.error(
-        "Search category error:",
-        error.response?.data || error.message
-      );
-      return rejectWithValue(
-        error.response?.data?.message || "Kateqoriya tapılmadı"
-      );
+      return rejectWithValue(error.message || "Kateqoriya tapılmadı");
     }
   }
 );
@@ -81,8 +54,6 @@ const categorySlice = createSlice({
       state.searchResult = null;
       state.error = null;
     },
-
-    // 🔹 Name ilə axtarış (local filter)
     searchCategoryByName: (state, action) => {
       const searchTerm = action.payload.toLowerCase();
       state.searchResult = state.list.filter((cat) =>
@@ -90,10 +61,8 @@ const categorySlice = createSlice({
       );
     },
   },
-
   extraReducers: (builder) => {
     builder
-      // 🔹 fetchCategories
       .addCase(fetchCategories.pending, (state) => {
         state.loading = true;
       })
@@ -105,8 +74,6 @@ const categorySlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-
-      // 🔹 fetchLocalizedCategories
       .addCase(fetchLocalizedCategories.pending, (state) => {
         state.loading = true;
       })
@@ -118,50 +85,38 @@ const categorySlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-
-
-
-      // 🔹 updateCategory
       .addCase(updateCategory.fulfilled, (state, action) => {
         const updatedCat = {
           id: action.payload.id,
-          name: action.payload.name || action.meta.arg.name, // fallback
+          name: action.payload.name || action.meta.arg.name,
         };
-
         const index = state.list.findIndex((cat) => cat.id === updatedCat.id);
         if (index >= 0) state.list[index] = updatedCat;
-
         const locIndex = state.localized.findIndex(
           (cat) => cat.id === updatedCat.id
         );
         if (locIndex >= 0) state.localized[locIndex] = updatedCat;
       })
-
-      // 🔹 deleteCategory
-.addCase(addCategory.fulfilled, (state, action) => {
-  const newCat = {
-    id: action.payload?.id,
-    name: action.payload?.name || action.meta.arg.name,
-  };
-
-  if (!state.list) state.list = [];
-  if (!state.localized) state.localized = [];
-
-  if (newCat.id) {
-    state.list.push(newCat);
-    state.localized.push(newCat);
-  }
-})
-
-.addCase(deleteCategory.fulfilled, (state, action) => {
-  if (!state.list) state.list = [];
-  if (!state.localized) state.localized = [];
-
-  state.list = state.list.filter((cat) => cat.id !== action.payload);
-  state.localized = state.localized.filter((cat) => cat.id !== action.payload);
-})
-
-      // 🔹 searchCategoryById
+      .addCase(addCategory.fulfilled, (state, action) => {
+        const newCat = {
+          id: action.payload?.id,
+          name: action.payload?.name || action.meta.arg.name,
+        };
+        if (!state.list) state.list = [];
+        if (!state.localized) state.localized = [];
+        if (newCat.id) {
+          state.list.push(newCat);
+          state.localized.push(newCat);
+        }
+      })
+      .addCase(deleteCategory.fulfilled, (state, action) => {
+        if (!state.list) state.list = [];
+        if (!state.localized) state.localized = [];
+        state.list = state.list.filter((cat) => cat.id !== action.payload);
+        state.localized = state.localized.filter(
+          (cat) => cat.id !== action.payload
+        );
+      })
       .addCase(searchCategoryById.pending, (state) => {
         state.loading = true;
         state.error = null;

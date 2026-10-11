@@ -1,28 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../../../api";
+import * as db from "../../../static/mockDb";
 
-// 🔹 Bütün reportları gətir
 export const fetchReportTransactions = createAsyncThunk(
   "reports/fetchReportTransactions",
-  async () => {
-    const res = await api.get("/api/report-transactions");
-    return res.data;
-  }
+  async () => db.getReports()
 );
 
-// 🔹 Admin report-a cavab verir
 export const answerReportTransaction = createAsyncThunk(
   "reports/answerReportTransaction",
   async ({ reportTransactionId, message }, { rejectWithValue }) => {
     try {
-      const res = await api.post("/api/report-transactions/answer", {
-        reportTransactionId,
-        message,
-      });
-      return res.data;
+      return db.answerReport(reportTransactionId, message);
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || "Cavab göndərilərkən xəta baş verdi"
+        err.message || "Cavab göndərilərkən xəta baş verdi"
       );
     }
   }
@@ -46,7 +37,6 @@ const reportTransactionsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // 🔸 FETCH REPORTS
       .addCase(fetchReportTransactions.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -59,8 +49,6 @@ const reportTransactionsSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-
-      // 🔸 ANSWER REPORT
       .addCase(answerReportTransaction.pending, (state) => {
         state.answerLoading = true;
         state.answerSuccess = false;

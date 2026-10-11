@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginAdmin } from "../Redux/Features/Login";
 import "./Login.css";
@@ -103,6 +104,16 @@ const Login = () => {
             <button type="submit" className={`neu-button login-btn ${loading ? "loading" : ""}`}>
               Sign In
             </button>
+
+            <p style={{ textAlign: "center", marginTop: "1rem" }}>
+              Hesabınız yoxdur?{" "}
+              <Link to="/register" style={{ color: "#6366f1" }}>
+                Qeydiyyat
+              </Link>
+            </p>
+            <p style={{ textAlign: "center", fontSize: "0.85rem", opacity: 0.7 }}>
+              Demo: admin@demo.com / admin123
+            </p>
           </form>
         )}
       </div>
